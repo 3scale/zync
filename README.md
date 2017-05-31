@@ -12,7 +12,7 @@ Before describing the design it is important to define the terms.
 * **3scale** - 3scale API Manager (system).
 * **Tenant** - mapping of Provider id registered in 3scale API Manager to domain and access token.
 * **Model** - relevant object in **3scale** like Application, Limit, Metric, Service.
-* **Notification** - Message sent to **Zync** descibing the **model** that changed and having all required properties to fetch it from the API later.
+* **Notification** - Message sent to **Zync** describing the **model** that changed and having all required properties to fetch it from the API later.
   * Example: Application 3456, tenant_id: 26
   * Example: Limit 4566, metric_id: 36, application_id: 46, tenant_id: 16
 * **Update** - **Zync** fetches updated **Model** from the **Notifier** via the API using the information provided by the **Notification**.

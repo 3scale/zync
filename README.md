@@ -21,14 +21,16 @@ Before describing the design it is important to define the terms.
   * Example: **Model** **Lock** - only one per uniquely identified **Model**.
 * **Entry** - The information from the API provided by the **Update**.
 * **Log** - ordered list of **Entries** as they were received.
-* **Integration** - code that pushes **Log** **entries** one-by-one for the same **Model** to some external service.
+* **Push** - a call from **Zyng** to external service updating **model** data
+* **Integration** - code that **pushes** **Log** **entries** one-by-one for the same **Model** to some external service.
   * Integration can access the **entries** **log** to fetch more data and for example handle **model** dependencies by accessing all dependent **models** and delete them before deleting the parent.
+  * Integration keeps **Status** of each **model** synchronization state. If a **push** fails **status** should be updated to reflect that.
 
 ## Design
 
 **Zync** is meant to synchronize data from **3scale** to external systems (like IDPs). Some people use Web-hooks  for this but without further logic they can be unreliable and arrive out of order. This tool is meant to synchronize the final state to a different systems.
 
-The flow is defined as **3scale** -> **Zync** ( <- **3scale**) -> **Integration**. So **3scale** notifies **Zync** there was a change to a **model** but does not say more than primary key and information required to fetch it from the **3scale** API.
+The flow is defined as **3scale** -> **Zync** ( <- **3scale**) -> **Integration**. So **3scale** notifies **Zync** there was a change to a **model** but does not say more than primary key and information required to fetch it from the **3scale** API. In some cases **model** needs just its primary key (**id**) and in some it needs other metadata (usually primary keys of its parents) to compose the API call (service_id, metric_id, …).
 
 **Zync** upon receiving the notification will acquire an **update model lock** and try to perform an **update**. Any information received this way is added as an **entry** to the **log** and the **model lock** is released. That **entry** can be either new data or information that the record is no longer there (404 from the API). If new **notification** came when the **model lock** was acquired, it is going to be processed after the lock is released.
 

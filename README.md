@@ -1,0 +1,41 @@
+# Zync - the sync tool
+
+Zync is going to take your 3scale data and push it somewhere else, reliably. Offers only one directional sync (from 3scale to other systems).
+
+## Terminology
+
+Before describing the design it is important to define the terms.
+
+* **Zync** - deployment of this project, Web API.
+
+
+* **3scale** - 3scale API Manager (system).
+* **Tenant** - mapping of Provider id registered in 3scale API Manager to domain and access token.
+* **Model** - relevant object in **3scale** like Application, Limit, Metric, Service.
+* **Notification** - Message sent to **Zync** descibing the **model** that changed and having all required properties to fetch it from the API later.
+  * Example: Application 3456, tenant_id: 26
+  * Example: Limit 4566, metric_id: 36, application_id: 46, tenant_id: 16
+* **Update** - **Zync** fetches updated **Model** from the **Notifier** via the API using the information provided by the **Notification**.
+* **Lock** - mechanism that preventing concurrent data access to the same scope.
+  * Example: **Tenant Lock** would mean only one can be running for one **Tenant**.
+  * Example: **Model** **Lock** - only one per uniquely identified **Model**.
+* **Entry** - The information from the API provided by the **Update**.
+* **Log** - ordered list of **Entries** as they were received.
+* **Integration** - code that pushes **Log** **entries** one-by-one for the same **Model** to some external service.
+  * Integration can access the **entries** **log** to fetch more data and for example handle **model** dependencies by accessing all dependent **models** and delete them before deleting the parent.
+
+## Design
+
+**Zync** is meant to synchronize data from **3scale** to external systems (like IDPs). Some people use Web-hooks  for this but without further logic they can be unreliable and arrive out of order. This tool is meant to synchronize the final state to a different systems.
+
+The flow is defined as **3scale** -> **Zync** ( <- **3scale**) -> **Integration**. So **3scale** notifies **Zync** there was a change to a **model** but does not say more than primary key and information required to fetch it from the **3scale** API.
+
+**Zync** upon receiving the notification will acquire an **update model lock** and try to perform an **update**. Any information received this way is added as an **entry** to the **log** and the **model lock** is released. That **entry** can be either new data or information that the record is no longer there (404 from the API). If new **notification** came when the **model lock** was acquired, it is going to be processed after the lock is released.
+
+After adding **entry** to the **log** an **integration** is triggered and acquires an **integration model lock** so it will process only one (latest) **entry** for a **model** at a time. After the **integration** finishes (with both failure or success) it will release the lock and trigger another run if failed.
+
+## Properties
+
+Given the locking on the **model** there will be some parallelisation, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing new one. 
+
+Because **Zync** will keep a **log** of **events** it will be able to replay changes and recover last state just taking last revisions of each **model** and even remove the ones that have been created before but have been deleted.

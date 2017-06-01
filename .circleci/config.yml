@@ -1,0 +1,37 @@
+version: 2
+jobs:
+
+  build:
+    working_directory: /home/circleci/zync
+    docker:
+      - image: circleci/ruby:2.4.1
+      - image: circleci/postgres:9.4.12-alpine
+    environment:
+        DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
+    steps:
+      - checkout
+
+      # Restore bundle cache
+      - type: cache-restore
+        key: zync-{{ checksum "Gemfile.lock" }}
+
+      # Bundle install dependencies
+      - run: bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+
+      # Store bundle cache
+      - type: cache-save
+        key: zync-{{ checksum "Gemfile.lock" }}
+        paths:
+          - vendor/bundle
+
+      # Database setup
+      - run: bundle exec bin/rake db:setup
+
+      # Run rspec in parallel
+      - type: shell
+        command: |
+          bundle exec bin/rails test $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)
+
+      # Save artifacts
+      - type: store_test_results
+        path: test/reports

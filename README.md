@@ -21,10 +21,10 @@ Before describing the design it is important to define the terms.
   * Example: **Model** **Lock** - only one per uniquely identified **Model**.
 * **Entry** - The information from the API provided by the **Update**.
 * **Log** - ordered list of **Entries** as they were received.
-* **Push** - a call from **Zyng** to external service updating **model** data
+* **Push** - a call from **Zync** to external service updating **model** data
 * **Integration** - code that **pushes** **Log** **entries** one-by-one for the same **Model** to some external service.
   * Integration can access the **entries** **log** to fetch more data and for example handle **model** dependencies by accessing all dependent **models** and delete them before deleting the parent.
-  * Integration keeps **Status** of each **model** synchronization state. If a **push** fails **status** should be updated to reflect that.
+  * Integration keeps **Status** of each **model** synchronization state. If a **push** fails **status** should be updated to reflect that and keep trying.
 
 ## Design
 

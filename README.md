@@ -25,6 +25,7 @@ Before describing the design it is important to define the terms.
 * **Integration** - code that **pushes** **Log** **entries** one-by-one for the same **Model** to some external service.
   * Integration can access the **entries** **log** to fetch more data and for example handle **model** dependencies by accessing all dependent **models** and delete them before deleting the parent.
   * Integration keeps **Status** of each **model** synchronization state. If a **push** fails **status** should be updated to reflect that and keep trying.
+* **Integration Configuration** - configuration for each instance of **Integration** for each **Tenant**. It is populated the same way as **Model** - by **Notification** and **Fetch**.
 
 ## Design
 

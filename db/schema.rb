@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170602142516) do
+ActiveRecord::Schema.define(version: 20170602162517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -21,6 +21,16 @@ ActiveRecord::Schema.define(version: 20170602142516) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["tenant_id"], name: "index_applications_on_tenant_id"
+  end
+
+  create_table "entries", force: :cascade do |t|
+    t.json "data"
+    t.bigint "tenant_id"
+    t.bigint "model_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["model_id"], name: "index_entries_on_model_id"
+    t.index ["tenant_id"], name: "index_entries_on_tenant_id"
   end
 
   create_table "metrics", force: :cascade do |t|
@@ -88,6 +98,8 @@ ActiveRecord::Schema.define(version: 20170602142516) do
   end
 
   add_foreign_key "applications", "tenants"
+  add_foreign_key "entries", "models"
+  add_foreign_key "entries", "tenants"
   add_foreign_key "metrics", "services"
   add_foreign_key "metrics", "tenants"
   add_foreign_key "models", "tenants"

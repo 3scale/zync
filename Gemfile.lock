@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    3scale-api (0.1.4)
     actioncable (5.1.1)
       actionpack (= 5.1.1)
       nio4r (~> 2.0)
@@ -116,6 +117,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  3scale-api (~> 0.1.4)
   byebug
   minitest-reporters
   pg (>= 0.20)

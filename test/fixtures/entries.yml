@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-application:
+one:
+  data: 
   tenant: one
-  record: one (Application)
+  model: one
 
-service:
+two:
+  data: 
   tenant: two
-  record: two (Service)
+  model: two

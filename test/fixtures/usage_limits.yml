@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  metric: one
+  plan_id: 1
+  tenant: one
+
+two:
+  metric: two
+  plan_id: 1
+  tenant: two

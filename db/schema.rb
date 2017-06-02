@@ -10,6 +10,91 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 0) do
+ActiveRecord::Schema.define(version: 20170602142516) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "applications", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_applications_on_tenant_id"
+  end
+
+  create_table "metrics", force: :cascade do |t|
+    t.bigint "service_id", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["service_id"], name: "index_metrics_on_service_id"
+    t.index ["tenant_id"], name: "index_metrics_on_tenant_id"
+  end
+
+  create_table "models", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.string "record_type"
+    t.bigint "record_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["record_type", "record_id"], name: "index_models_on_record_type_and_record_id", unique: true
+    t.index ["tenant_id"], name: "index_models_on_tenant_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "model_id", null: false
+    t.json "data", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["model_id"], name: "index_notifications_on_model_id"
+    t.index ["tenant_id"], name: "index_notifications_on_tenant_id"
+  end
+
+  create_table "services", force: :cascade do |t|
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id"], name: "index_services_on_tenant_id"
+  end
+
+  create_table "tenants", force: :cascade do |t|
+    t.string "domain", null: false
+    t.string "access_token", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["domain"], name: "index_tenants_on_domain", unique: true
+  end
+
+  create_table "update_states", force: :cascade do |t|
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.boolean "success", default: false, null: false
+    t.bigint "model_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["model_id"], name: "index_update_states_on_model_id", unique: true
+  end
+
+  create_table "usage_limits", force: :cascade do |t|
+    t.bigint "metric_id", null: false
+    t.integer "plan_id", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["metric_id"], name: "index_usage_limits_on_metric_id"
+    t.index ["tenant_id"], name: "index_usage_limits_on_tenant_id"
+  end
+
+  add_foreign_key "applications", "tenants"
+  add_foreign_key "metrics", "services"
+  add_foreign_key "metrics", "tenants"
+  add_foreign_key "models", "tenants"
+  add_foreign_key "notifications", "models"
+  add_foreign_key "notifications", "tenants"
+  add_foreign_key "services", "tenants"
+  add_foreign_key "update_states", "models"
+  add_foreign_key "usage_limits", "metrics"
+  add_foreign_key "usage_limits", "tenants"
 end

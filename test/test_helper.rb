@@ -4,7 +4,7 @@ require 'rails/test_help'
 if ENV.key?('CI')
   Minitest.extensions << 'ci'
   Minitest.class_eval do
-    def self.plugin_ci_init(options)
+    def self.plugin_ci_init(_)
       require 'minitest/reporters/junit_reporter'
       reporter << Minitest::Reporters::JUnitReporter.new
     end

@@ -18,7 +18,7 @@ class IncomingNotificationService
     end
 
     def to_hash
-      @data.except(:type)
+      @data.except(:type, :tenant_id)
     end
   end
   private_constant :NotificationData
@@ -28,9 +28,7 @@ class IncomingNotificationService
 
     tenant = notification.tenant
 
-    type = data.type.new(data.to_hash)
-    type.tenant = tenant
-    type.save!
+    type = data.type.find_or_create_by!(data.to_hash.merge(tenant: tenant))
 
     Model.find_or_create_by!(record: type, tenant: tenant)
   end

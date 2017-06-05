@@ -7,4 +7,8 @@ class Entry < ApplicationRecord
   def process_entry
     ProcessEntryJob.perform_later(self)
   end
+
+  def self.for_model(model)
+    new(model: model, tenant: model.try!(:tenant))
+  end
 end

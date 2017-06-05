@@ -2,7 +2,7 @@ require 'test_helper'
 
 class DataModelTest < ActionDispatch::IntegrationTest
   test 'incoming notification creates service and model' do
-    data = { tenant_id: 16, type: 'Service', id: 26 }
+    data = { type: 'Service', id: 26 }
     notification = Notification.new(data: data, tenant: tenants(:one))
 
     incoming = IncomingNotificationService.new

@@ -22,4 +22,12 @@ class IncomingNotificationServiceTest < ActiveSupport::TestCase
       assert @service.call(notification)
     end
   end
+
+  test 'call twice with the same model' do
+    n1 = Notification.new(data: { id: 1, type: 'Application' }, tenant: tenants(:one))
+    n2 = n1.dup
+
+    assert @service.call(n1)
+    assert @service.call(n2)
+  end
 end

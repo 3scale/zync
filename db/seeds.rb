@@ -5,3 +5,6 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+
+Tenant.find_or_create_by!(endpoint: 'http://provider-admin.3scale.net.dev:3000', access_token: 'some-access-token')

@@ -4,9 +4,9 @@
 class UpdateJob < ApplicationJob
   queue_as :default
 
-  def initialize(_)
+  def initialize(*)
     super
-    @fetch = FetchService.new
+    @fetch = FetchService
   end
 
   attr_reader :fetch
@@ -21,7 +21,7 @@ class UpdateJob < ApplicationJob
       # what matters is that it could be rolled back
       state.update_attributes(started_at: zone.now)
 
-      entry = @fetch.call(model)
+      entry = fetch.call(model)
 
       state.update_attributes(success: entry.save, finished_at: zone.now)
     end

@@ -5,10 +5,10 @@ class ServiceGenerator < Rails::Generators::NamedBase
   check_class_collision suffix: 'Service'
 
   def copy_service_file
-    template 'service.rb.erb', "app/services/#{file_name}_service.rb"
+    template 'service.rb.erb', File.join('app/services', class_path, "#{file_name}_service.rb")
   end
 
   def copy_service_test_file
-    template 'service_test.rb.erb', "test/services/#{file_name}_service_test.rb"
+    template 'service_test.rb.erb', File.join('test/services', class_path, "#{file_name}_service_test.rb")
   end
 end

@@ -16,7 +16,6 @@ ActiveRecord::Schema.define(version: 20170605112058) do
   enable_extension "plpgsql"
 
   create_table "applications", force: :cascade do |t|
-    t.integer "account_id", null: false
     t.bigint "tenant_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -95,11 +94,10 @@ ActiveRecord::Schema.define(version: 20170605112058) do
   end
 
   create_table "tenants", force: :cascade do |t|
-    t.string "domain", null: false
+    t.string "endpoint", null: false
     t.string "access_token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["domain"], name: "index_tenants_on_domain", unique: true
   end
 
   create_table "update_states", force: :cascade do |t|

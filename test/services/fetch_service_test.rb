@@ -10,6 +10,9 @@ class FetchServiceTest < ActiveSupport::TestCase
   end
 
   test 'call with Application' do
+    stub_request(:get, "#{tenants(:one).endpoint}/admin/api/applications/find.json?application_id=980190962").
+      to_return(status: 200, body: '{}', headers: {})
+
     assert_kind_of Entry, @service.call(models(:application))
   end
 

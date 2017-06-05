@@ -1,5 +1,7 @@
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'minitest/mock'
+require 'webmock/minitest'
 
 if ENV.key?('CI')
   Minitest.extensions << 'ci'

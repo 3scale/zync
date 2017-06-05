@@ -4,6 +4,13 @@
 class UpdateJob < ApplicationJob
   queue_as :default
 
+  def initialize(_)
+    super
+    @fetch = FetchService.new
+  end
+
+  attr_reader :fetch
+
   def perform(model)
     zone = Time.zone
 
@@ -14,9 +21,9 @@ class UpdateJob < ApplicationJob
       # what matters is that it could be rolled back
       state.update_attributes(started_at: zone.now)
 
-      # TODO: fetch data from the API
+      entry = @fetch.call(model)
 
-      state.update_attributes(success: true, finished_at: zone.now)
+      state.update_attributes(success: entry.save, finished_at: zone.now)
     end
   end
 end

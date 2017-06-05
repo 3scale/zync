@@ -9,4 +9,13 @@ class UpdateJobTest < ActiveJob::TestCase
       UpdateJob.perform_now(model)
     end
   end
+
+  test 'creates entry' do
+    model = Model.create!(tenant: tenants(:two), record: applications(:two))
+
+    assert_difference Entry.method(:count), +2 do
+      UpdateJob.perform_now(model)
+      UpdateJob.perform_now(model)
+    end
+  end
 end

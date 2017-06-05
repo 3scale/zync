@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  data: 
+  configuration: 
   tenant: one
-  model: application
+  type: Integration
 
 two:
-  data: 
+  configuration: 
   tenant: two
-  model: service
+  type: Integration

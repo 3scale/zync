@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  started_at: 2017-06-05 13:20:58
+  finished_at: 2017-06-05 13:20:58
+  success: false
+  model: one
+  entry: one
+  integration: one
+
+two:
+  started_at: 2017-06-05 13:20:58
+  finished_at: 2017-06-05 13:20:58
+  success: false
+  model: two
+  entry: two
+  integration: two

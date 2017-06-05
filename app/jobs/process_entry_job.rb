@@ -3,8 +3,10 @@ class ProcessEntryJob < ApplicationJob
 
   def perform(entry)
     integrations = entry.tenant.integrations
+    model = entry.model
 
-
-    # Do something later
+    integrations.each do |integration|
+      ProcessIntegrationEntryJob.perform_later(integration, model)
+    end
   end
 end

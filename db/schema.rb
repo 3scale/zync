@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170602162517) do
+ActiveRecord::Schema.define(version: 20170605112058) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,12 +25,37 @@ ActiveRecord::Schema.define(version: 20170602162517) do
 
   create_table "entries", force: :cascade do |t|
     t.json "data"
-    t.bigint "tenant_id"
-    t.bigint "model_id"
+    t.bigint "tenant_id", null: false
+    t.bigint "model_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["model_id"], name: "index_entries_on_model_id"
     t.index ["tenant_id"], name: "index_entries_on_tenant_id"
+  end
+
+  create_table "integration_states", force: :cascade do |t|
+    t.datetime "started_at"
+    t.datetime "finished_at"
+    t.boolean "success"
+    t.bigint "model_id", null: false
+    t.bigint "entry_id"
+    t.bigint "integration_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entry_id"], name: "index_integration_states_on_entry_id"
+    t.index ["integration_id"], name: "index_integration_states_on_integration_id"
+    t.index ["model_id", "integration_id"], name: "index_integration_states_on_model_id_and_integration_id", unique: true
+    t.index ["model_id"], name: "index_integration_states_on_model_id"
+  end
+
+  create_table "integrations", force: :cascade do |t|
+    t.json "configuration"
+    t.string "type", null: false
+    t.bigint "tenant_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tenant_id", "type"], name: "index_integrations_on_tenant_id_and_type", unique: true
+    t.index ["tenant_id"], name: "index_integrations_on_tenant_id"
   end
 
   create_table "metrics", force: :cascade do |t|
@@ -100,6 +125,10 @@ ActiveRecord::Schema.define(version: 20170602162517) do
   add_foreign_key "applications", "tenants"
   add_foreign_key "entries", "models"
   add_foreign_key "entries", "tenants"
+  add_foreign_key "integration_states", "entries"
+  add_foreign_key "integration_states", "integrations"
+  add_foreign_key "integration_states", "models"
+  add_foreign_key "integrations", "tenants"
   add_foreign_key "metrics", "services"
   add_foreign_key "metrics", "tenants"
   add_foreign_key "models", "tenants"

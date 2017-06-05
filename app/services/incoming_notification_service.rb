@@ -1,8 +1,12 @@
+# This is action that is performed on incoming notificaiton.
+# Its purpose is to wrap the persistence and triggering update logic.
+
 class IncomingNotificationService
   def initialize
     freeze
   end
 
+  # Wrapper extracting information from incoming notification.
   class NotificationData
     def initialize(data)
       @data = ActiveSupport::HashWithIndifferentAccess.new(data)
@@ -17,6 +21,7 @@ class IncomingNotificationService
       @data.except(:type)
     end
   end
+  private_constant :NotificationData
 
   def extract_model(notification)
     data = NotificationData.new(notification.try(:data))

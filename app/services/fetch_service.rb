@@ -1,3 +1,5 @@
+# Fetches Model information from upstream and returns the Entity.
+
 class FetchService
   delegate :config, to: :class
 
@@ -10,6 +12,7 @@ class FetchService
     Zync::Application.config.x.threescale_client.reverse_merge(endpoint: 'http://localhost:3000', provider_key: nil)
   end
 
+  # Returned when unknown model is passed in.
   class UnsupportedModel < StandardError; end
 
   def call(model)

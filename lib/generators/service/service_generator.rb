@@ -1,3 +1,5 @@
+# Rails Generator to generate Service objects
+
 class ServiceGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('../templates', __FILE__)
   check_class_collision suffix: 'Service'

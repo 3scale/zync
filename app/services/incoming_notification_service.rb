@@ -34,9 +34,10 @@ class IncomingNotificationService
   end
 
   def call(notification)
-    notification.class.transaction do
+    notification.transaction do
       model = notification.model ||= extract_model(notification)
-      raise ActiveRecord::Rollback unless notification.save!
+
+      notification.save!
 
       UpdateJob.perform_later(model)
 

@@ -20,7 +20,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
       state = IntegrationState.lock
                 .find_or_create_by!(model: model, integration: integration)
 
-      entry = Entry.last!
+      entry = Entry.last! # FIXME: this is broken and should find the latest for the model
       state.update_attributes(started_at: zone.now, entry: entry)
 
       # TODO: call the integration

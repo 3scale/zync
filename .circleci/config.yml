@@ -27,7 +27,7 @@ jobs:
           paths:
             - vendor/bundle
 
-      - run: bundle exec bin/rake db:setup
+      - run: bundle exec bin/rake db:wait db:setup
 
       - run: |
           bundle exec bin/rails test:db $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)

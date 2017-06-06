@@ -1,3 +1,6 @@
+# Update Integration with latest changes to the model.
+# Load latest Entry and push it through the Integration.
+
 class ProcessIntegrationEntryJob < ApplicationJob
   queue_as :default
 

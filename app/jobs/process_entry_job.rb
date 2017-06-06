@@ -1,3 +1,6 @@
+# Process each Entry after it is created.
+# So schedule Integration jobs to perform the integration work.
+
 class ProcessEntryJob < ApplicationJob
   queue_as :default
 

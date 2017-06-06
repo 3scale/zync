@@ -1,3 +1,5 @@
+# Keeps history of Model Updates.
+
 class Entry < ApplicationRecord
   belongs_to :tenant
   belongs_to :model

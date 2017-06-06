@@ -1,3 +1,5 @@
+# Example Integration that just prints what it is doing the log.
+
 class Integration::EchoService
   def initialize
     freeze

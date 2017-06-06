@@ -1,3 +1,5 @@
+# Incoming notification from 3scale. Has data about what model was modified.
+
 class Notification < ApplicationRecord
   belongs_to :model
   belongs_to :tenant

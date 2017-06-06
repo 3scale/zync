@@ -2,6 +2,7 @@
 # Load latest Entry and push it through the Integration.
 
 class ProcessIntegrationEntryJob < ApplicationJob
+  include JobWithTimestamp
   queue_as :default
 
   def initialize(integration, model, service: nil)
@@ -12,18 +13,14 @@ class ProcessIntegrationEntryJob < ApplicationJob
   attr_reader :service
 
   def perform(integration, model)
-    zone = Time.zone
+    IntegrationState.acquire_lock(model, integration) do |state|
+      entry = Entry.last_for_model!(model)
 
-    IntegrationState.transaction do
-      state = IntegrationState.lock
-                .find_or_create_by!(model: model, integration: integration)
+      state.update_attributes(started_at: timestamp, entry: entry)
 
-      entry = Entry.last_for_model!(model) # FIXME: this is broken and should find the latest for the model
-      state.update_attributes(started_at: zone.now, entry: entry)
+      success = service.call(integration, entry)
 
-      service.call(integration, entry)
-
-      state.update_attributes(success: true, finished_at: true)
+      state.update_attributes(success: success, finished_at: timestamp)
     end
   end
 end

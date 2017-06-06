@@ -4,26 +4,22 @@
 class ProcessIntegrationEntryJob < ApplicationJob
   queue_as :default
 
-  def initialize(*)
-    super
-    @discover = DiscoverIntegrationService.new
+  def initialize(integration, model, service: nil)
+    super(integration, model)
+    @service = service || DiscoverIntegrationService.call(integration)
   end
 
-  attr_reader :discover
+  attr_reader :service
 
   def perform(integration, model)
     zone = Time.zone
-
-    service = discover.call(integration)
 
     IntegrationState.transaction do
       state = IntegrationState.lock
                 .find_or_create_by!(model: model, integration: integration)
 
-      entry = Entry.last! # FIXME: this is broken and should find the latest for the model
+      entry = Entry.last_for_model!(model) # FIXME: this is broken and should find the latest for the model
       state.update_attributes(started_at: zone.now, entry: entry)
-
-      # TODO: call the integration
 
       service.call(integration, entry)
 

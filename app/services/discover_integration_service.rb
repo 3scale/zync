@@ -7,6 +7,10 @@ class DiscoverIntegrationService
     freeze
   end
 
+  class << self
+    delegate :call, to: :new
+  end
+
   def call(integration)
     case integration
     when integration

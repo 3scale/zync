@@ -6,6 +6,6 @@ class Integration::EchoServiceTest < ActiveSupport::TestCase
   end
 
   def test_call
-    assert @service.call(integrations(:one), entries(:one))
+    assert @service.call(integrations(:one), entries(:application))
   end
 end

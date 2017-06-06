@@ -1,0 +1,16 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  model: service
+  data:
+    type: Service
+    id: 16
+  tenant: one
+
+two:
+  model: application
+  data:
+    type: Application
+    id: 26
+    service_id: 16
+  tenant: two

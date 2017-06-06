@@ -25,6 +25,7 @@ Before describing the design it is important to define the terms.
 * **Integration** - code that **pushes** **Log** **entries** one-by-one for the same **Model** to some external service.
   * Integration can access the **entries** **log** to fetch more data and for example handle **model** dependencies by accessing all dependent **models** and delete them before deleting the parent.
   * Integration keeps **Status** of each **model** synchronization state. If a **push** fails **status** should be updated to reflect that and keep trying.
+* **Integration Configuration** - configuration for each instance of **Integration** for each **Tenant**. It is populated the same way as **Model** - by **Notification** and **Fetch**.
 
 ## Design
 
@@ -41,3 +42,68 @@ After adding **entry** to the **log** an **integration** is triggered and acquir
 Given the locking on the **model** there will be some parallelisation, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing new one. 
 
 Because **Zync** will keep a **log** of **events** it will be able to replay changes and recover last state just taking last revisions of each **model** and even remove the ones that have been created before but have been deleted.
+
+## Data Model
+
+**Record** types are for enforcing correctness of data on the database level and referential integrity. There is one relationship (Model -> Record) that can't have foreign constraint but can be recreated from other data.
+
+### Tenant
+
+| id (pk) | domain | access_token |
+| ------- | ------ | ------------ |
+| bigint  | string | string       |
+
+### Notification
+
+| id (pk) | model_class | model_id (fk) | data | tenant_id (fk) |
+| ------- | ----------- | ------------- | ---- | -------------- |
+| uuid    | string      | bigint        | json | bigint         |
+
+### Application (Record)
+
+| id (pk) | account_id | tenant_id (fk) |
+| ------- | ---------- | -------------- |
+| string  | bigint     | bigint         |
+
+### Service (Record)
+
+| id (pk) | tenant_id (fk) |
+| ------- | -------------- |
+| string  | bigint         |
+
+### Metric (Record)
+
+| id (pk) | service_id (fk) | tenant_id (fk) |
+| ------- | --------------- | -------------- |
+| string  | bigint          | bigint         |
+
+### UsageLimit (Record)
+
+| id (pk) | metric_id (fk) | plan_id | tenant_id (fk) |
+| ------- | -------------- | ------- | -------------- |
+| string  | bigint         | bigint  | bigint         |
+
+### Model
+
+| id (pk) | record_id (fk) | tenant_id (fk) |
+| ------- | -------------- | -------------- |
+| uuid    | bigint         | bigint         |
+
+### Update 
+
+| id (pk) | model_id (fk) | tenant_id (fk) |
+| ------- | ------------- | -------------- |
+| uuid    | uuid          | bigint         |
+
+### Entry
+
+| id (pk) | update_id (fk) | data | tenant_id (fk) |
+| ------- | -------------- | ---- | -------------- |
+| uuid    | uuid           | json | bigint         |
+
+### Status
+
+| id (pk) | integration_id (fk) | model_id (fk) | tenant_id (fk) |
+| ------- | ------------------- | ------------- | -------------- |
+| uuid    | uuid                | uuid          | bigint         |
+

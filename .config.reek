@@ -12,8 +12,18 @@
     enabled: false
   UtilityFunction:
     enabled: false
+"app/jobs":
+  UtilityFunction:
+    enabled: false
+"app/services":
+  UtilityFunction:
+    enabled: false
 "app/mailers":
   InstanceVariableAssumption:
     enabled: false
+"test":
+  IrresponsibleModule:
+    enabled: false
 exclude_paths:
   - vendor/bundle
+  - db/migrate

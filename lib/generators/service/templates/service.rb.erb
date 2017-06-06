@@ -1,0 +1,12 @@
+class <%= class_name %>Service
+  def initialize
+    freeze
+  end
+
+  class << self
+    delegate :call, to: :new
+  end
+
+  def call
+  end
+end

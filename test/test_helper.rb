@@ -1,9 +1,16 @@
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
+require 'minitest/mock'
+require 'webmock/minitest'
 
 if ENV.key?('CI')
-  require 'minitest/reporters/junit_reporter'
-  Minitest.reporter << Minitest::Reporters::JUnitReporter.new
+  Minitest.extensions << 'ci'
+  Minitest.class_eval do
+    def self.plugin_ci_init(_)
+      require 'minitest/reporters/junit_reporter'
+      reporter << Minitest::Reporters::JUnitReporter.new
+    end
+  end
 end
 
 class ActiveSupport::TestCase

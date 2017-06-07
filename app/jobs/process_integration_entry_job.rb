@@ -6,14 +6,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
   include JobWithTimestamp
   queue_as :default
 
-  def initialize(integration, model, service: nil)
-    super(integration, model)
-    @service = service || DiscoverIntegrationService.call(integration)
-  end
-
-  attr_reader :service
-
-  def perform(integration, model)
+  def perform(integration, model, service: DiscoverIntegrationService.call(integration))
     IntegrationState.acquire_lock(model, integration) do |state|
       entry = Entry.last_for_model!(model)
 

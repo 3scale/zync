@@ -1,4 +1,7 @@
 # frozen_string_literal: true
 Rails.application.routes.draw do
-  resource :notification, only: %i[update]
+  defaults format: :json do
+    resource :notification, only: %i[update]
+    resource :tenant, only: %i[update]
+  end
 end

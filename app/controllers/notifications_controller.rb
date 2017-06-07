@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class NotificationsController < ApplicationController
   wrap_parameters Notification, include: Notification.attribute_names + %i(type)
 

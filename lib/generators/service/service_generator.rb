@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Rails Generator to generate Service objects
 
 class ServiceGenerator < Rails::Generators::NamedBase

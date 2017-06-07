@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Update Integration with latest changes to the model.
 # Load latest Entry and push it through the Integration.
 

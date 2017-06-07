@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 namespace :db do
   task wait: %i(environment) do
     timeout = (ActiveRecord::Base.connection_pool.checkout_timeout || 5).seconds

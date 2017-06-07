@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Provides #timestamp method for jobs that need to get timestamp
 
 module JobWithTimestamp

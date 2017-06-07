@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Main Responder used by the ApplicationController
 # It is used to handle the #respond_with responses
 

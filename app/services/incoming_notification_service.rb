@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # This is action that is performed on incoming notificaiton.
 # Its purpose is to wrap the persistence and triggering update logic.
 

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Process each Entry after it is created.
 # So schedule Integration jobs to perform the integration work.
 

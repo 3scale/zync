@@ -5,6 +5,8 @@ class UpdateJob < ApplicationJob
   include JobWithTimestamp
   queue_as :default
 
+  retry_on Errno::ECONNREFUSED, wait: :exponentially_longer, attempts: 10
+
   def initialize(*)
     super
     @fetch = FetchService

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Incoming notification from 3scale. Has data about what model was modified.
 
 class Notification < ApplicationRecord

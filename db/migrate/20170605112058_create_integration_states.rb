@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateIntegrationStates < ActiveRecord::Migration[5.1]
   def change
     create_table :integration_states do |t|

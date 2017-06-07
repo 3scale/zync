@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Uses FetchService to get Entity and persist it in database.
 # Maintains UpdateState and can be only one running at a time by using a lock on model.
 

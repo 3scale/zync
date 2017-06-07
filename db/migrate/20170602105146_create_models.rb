@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class CreateModels < ActiveRecord::Migration[5.1]
   def change
     create_table :models do |t|

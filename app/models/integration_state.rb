@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Keeps state of each Integration for each Model
 # Also is used as a Lock.
 

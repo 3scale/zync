@@ -43,16 +43,21 @@ GEM
       public_suffix (~> 2.0, >= 2.0.2)
     ansi (1.5.0)
     arel (8.0.0)
+    binding_of_caller (0.7.2)
+      debug_inspector (>= 0.0.1)
     builder (3.2.3)
     byebug (9.0.6)
+    coderay (1.1.1)
     concurrent-ruby (1.0.5)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
+    debug_inspector (0.0.3)
     erubi (1.6.0)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     hashdiff (0.3.2)
     i18n (0.8.4)
+    interception (0.5)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
@@ -72,6 +77,21 @@ GEM
     nokogiri (1.7.2)
       mini_portile2 (~> 2.1.0)
     pg (0.20.0)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    pry-byebug (3.4.2)
+      byebug (~> 9.0)
+      pry (~> 0.10)
+    pry-rails (0.3.6)
+      pry (>= 0.10.4)
+    pry-rescue (1.4.5)
+      interception (>= 0.5)
+      pry
+    pry-stack_explorer (0.4.9.2)
+      binding_of_caller (>= 0.7)
+      pry (>= 0.9.11)
     public_suffix (2.0.5)
     puma (3.8.2)
     rack (2.0.3)
@@ -106,6 +126,7 @@ GEM
       railties (>= 4.2.0, < 5.3)
     ruby-progressbar (1.8.1)
     safe_yaml (1.0.4)
+    slop (3.6.0)
     spring (2.0.2)
       activesupport (>= 4.2)
     sprockets (3.7.1)
@@ -132,9 +153,12 @@ PLATFORMS
 
 DEPENDENCIES
   3scale-api (~> 0.1.4)
-  byebug
   minitest-reporters
   pg (>= 0.20)
+  pry-byebug
+  pry-rails
+  pry-rescue
+  pry-stack_explorer
   puma (~> 3.7)
   rails (~> 5.1.1)
   responders (~> 2.4.0)
@@ -143,4 +167,4 @@ DEPENDENCIES
   webmock (~> 3.0)
 
 BUNDLED WITH
-   1.15.0
+   1.15.1

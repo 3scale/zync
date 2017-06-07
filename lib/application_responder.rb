@@ -6,7 +6,7 @@
 class ApplicationResponder < ActionController::Responder
 
   def api_behavior
-    if put?
+    if put? && resource.created_at == resource.updated_at
       display resource, status: :created
     else
       super

@@ -48,6 +48,7 @@ class FetchService
   def build_entry(model, **attributes)
     Entry.for_model(model).tap do |entry|
       entry.assign_attributes attributes
+      Rails.logger.info "[FetchService] got Entry: #{entry.attributes.compact}"
     end
   end
 end

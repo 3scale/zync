@@ -7,7 +7,7 @@ class UpdateState < ApplicationRecord
 
   def self.acquire_lock(model)
     transaction do
-      state = lock.find_or_create_by!(model: model)
+      state = lock.find_or_create_by!(model: model.lock!)
 
       yield state
     end

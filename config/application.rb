@@ -19,6 +19,19 @@ Bundler.require(*Rails.groups)
 
 module Zync
   class Application < Rails::Application
+    # Que needs :sql because of advanced PostgreSQL features
+    config.active_record.schema_format = :sql
+
+    config.active_job.queue_adapter = :que
+
+    config.middleware.insert_before Rack::Sendfile,
+                                    ActionDispatch::DebugLocks
+
+    config.que = ActiveSupport::InheritableOptions.new(config.que)
+
+    config.que.worker_count = 1
+    config.que.mode = :async
+
     # Use the responders controller from the responders gem
     config.app_generators.scaffold_controller :responders_controller
 

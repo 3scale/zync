@@ -3,4 +3,6 @@
 
 require_relative 'config/environment'
 
+Que.start!
+
 run Rails.application

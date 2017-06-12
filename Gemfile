@@ -26,6 +26,8 @@ gem 'puma', '~> 3.7'
 gem 'responders', '~> 2.4.0'
 gem '3scale-api', '~> 0.1.4'
 
+gem 'que'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug', platforms: [:mri, :mingw, :x64_mingw]

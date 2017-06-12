@@ -94,6 +94,7 @@ GEM
       pry (>= 0.9.11)
     public_suffix (2.0.5)
     puma (3.9.1)
+    que (0.13.0)
     rack (2.0.3)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -160,6 +161,7 @@ DEPENDENCIES
   pry-rescue
   pry-stack_explorer
   puma (~> 3.7)
+  que
   rails (~> 5.1.1)
   responders (~> 2.4.0)
   spring

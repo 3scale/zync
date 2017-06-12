@@ -18,6 +18,8 @@ if ENV.key?('PRY_RESCUE')
   require 'pry-rescue/minitest'
 end
 
+Que.start!
+
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all

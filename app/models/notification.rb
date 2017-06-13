@@ -25,9 +25,11 @@ class Notification < ApplicationRecord
   def create_model
     data = NotificationData.new(self.data)
 
-    type = data.type.find_or_create_by!(data.to_hash.merge(tenant: tenant))
+    type = data.type.lock.find_or_create_by!(data.to_hash.merge(tenant: tenant))
 
-    Model.find_or_create_by!(record: type, tenant: tenant)
+    Model.lock.find_or_create_by!(record: type, tenant: tenant)
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
 end

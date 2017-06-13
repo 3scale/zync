@@ -5,7 +5,7 @@ class Tenant < ApplicationRecord
   has_many :integrations, inverse_of: :tenant
 
   def self.upsert(params)
-    Tenant.transaction(requires_new: true) do
+    retry_record_not_unique do
       tenant = lock.find_or_create_by(id: params.require(:id))
       tenant.update_attributes(params)
       tenant

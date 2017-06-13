@@ -23,15 +23,12 @@ class Notification < ApplicationRecord
   private_constant :NotificationData
 
   def create_model
-    transaction(requires_new: true) do
+    retry_record_not_unique do
       data = NotificationData.new(self.data)
 
       type = data.type.lock.find_or_create_by!(data.to_hash.merge(tenant: tenant))
 
       Model.lock.find_or_create_by!(record: type, tenant: tenant)
     end
-  rescue ActiveRecord::RecordNotUnique
-    retry
   end
-
 end

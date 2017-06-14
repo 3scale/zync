@@ -1,5 +1,7 @@
 ---
 engines:
+  shellcheck:
+    enabled: true
   brakeman:
     enabled: true
   bundler-audit:

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+set -euo pipefail
+
+# For incremental building
+if [ "$(ls /tmp/artifacts/ 2>/dev/null)" ]; then
+  echo "---> Restoring build artifacts"
+  mv /tmp/artifacts/* "$HOME/."
+else echo "---> Skipping restoring build artifacts. None found"
+fi
+
+s2i_scripts_path=${STI_SCRIPTS_PATH:-/usr/libexec/s2i}
+
+exec "${s2i_scripts_path}/assemble" "$@"

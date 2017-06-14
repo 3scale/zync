@@ -3,6 +3,10 @@ Rails.application.routes.draw do
   defaults format: :json do
     resource :notification, only: %i[update]
     resource :tenant, only: %i[update]
-    resource :status, only: %i[show]
+
+    namespace :status do
+      resource :live, only: %i[show]
+      resource :ready, only: %i[show]
+    end
   end
 end

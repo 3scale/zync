@@ -22,6 +22,8 @@ class StatusService
   end
 
   def call
+    ActiveRecord::Migration.check_pending!
+
     Status.new(database: ActiveRecord::Base.connected?)
   end
 end

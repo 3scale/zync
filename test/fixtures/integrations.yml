@@ -8,4 +8,4 @@ one:
 two:
   configuration: 
   tenant: two
-  type: Integration
+  type: Integration::Keycloak

@@ -8,7 +8,7 @@ class StatusService
   end
 
   class << self
-    delegate :call, to: :new
+    delegate :ready, :live, to: :new
   end
 
   # Status object that handles serialization and acts as an Entity object.
@@ -21,7 +21,11 @@ class StatusService
     delegate :as_json, to: :@status
   end
 
-  def call
+  def ready
+    Status.new(database: ActiveRecord::Base.connected?)
+  end
+
+  def live
     ActiveRecord::Migration.check_pending!
 
     Status.new(database: ActiveRecord::Base.connected?)

@@ -7,6 +7,12 @@ class Entry < ApplicationRecord
 
   after_create_commit :process_entry
 
+  scope :with_data, -> { where.not(data: nil) }
+
+  def previous_data
+    model.entries.with_data.last!.data
+  end
+
   def process_entry
     ProcessEntryJob.perform_later(self)
   end

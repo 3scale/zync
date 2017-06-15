@@ -52,9 +52,11 @@ class Keycloak
     attr_accessor :id, :secret, :redirect_url
 
     alias_attribute :clientId, :id
+    alias_attribute :client_id, :id
+    alias_attribute :client_secret, :secret
 
     def read
-      { id: id, clientId: id, secret: secret, redirectUris: [ redirect_url ].compact, attributes: { '3scale' => true } }.to_json
+      { clientId: id, secret: client_secret, redirectUris: [ redirect_url ].compact, attributes: { '3scale' => true } }.to_json
     end
 
     # noinspection RubyInstanceMethodNamingConvention

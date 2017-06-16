@@ -13,10 +13,7 @@ class Keycloak
 
   def initialize(endpoint)
     @endpoint, client_id, client_secret = parse_endpoint(endpoint)
-    @oauth2 = OAuth2::Client.new(client_id, client_secret,
-                                   site: @endpoint.normalize,
-                                   token_url: 'protocol/openid-connect/token')
-    @access_token = Concurrent::IVar.new
+    @access_token = AccessToken.new(client_id, client_secret, @endpoint.normalize, http_client)
   end
 
   def create_client(client)
@@ -116,8 +113,53 @@ class Keycloak
 
   NULL_TOKEN = Struct.new(:token)
 
+  class AccessToken
+    def initialize(client_id, client_secret, site, http_client)
+      @oauth2 = OAuth2::Client.new(client_id, client_secret,
+                                   site: site,
+                                   token_url: 'protocol/openid-connect/token') do |builder|
+        builder.adapter :httpclient do |client|
+          client.debug_dev = http_client.debug_dev
+        end
+      end
+      @value = Concurrent::IVar.new
+    end
+
+    def value
+      ref = reference
+      ref.try_update(&method(:fresh_token))
+
+      ref.value
+    end
+
+    protected
+
+    def reference
+      @value.try_set { Concurrent::AtomicReference.new(get_token) }
+      @value.value
+    end
+
+    def get_token
+      oauth2.client_credentials.get_token.freeze
+    end
+
+    def fresh_token(access_token)
+      return get_token unless access_token
+      access_token.expired? ? refresh_token(access_token) : access_token
+    end
+
+    def refresh_token(access_token)
+      access_token.refresh_token ? access_token.refresh! : get_token
+    end
+
+    attr_reader :oauth2
+  end
+
+  def get_token
+    oauth2.client_credentials.get_token.freeze
+  end
+
   def access_token
-    @access_token.try_set { oauth2.client_credentials.get_token.freeze }
-    @access_token.value || NULL_TOKEN.new
+    @access_token.value
   end
 end

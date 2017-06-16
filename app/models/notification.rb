@@ -26,9 +26,9 @@ class Notification < ApplicationRecord
     retry_record_not_unique do
       data = NotificationData.new(self.data)
 
-      type = data.type.lock.find_or_create_by!(data.to_hash.merge(tenant: tenant))
+      type = data.type.find_or_create_by!(data.to_hash.merge(tenant: tenant))
 
-      Model.lock.find_or_create_by!(record: type, tenant: tenant)
+      Model.find_or_create_by!(record: type, tenant: tenant)
     end
   end
 end

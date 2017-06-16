@@ -1,3 +1,3 @@
 class Integration::Keycloak < Integration
-  store :configuration, accessors: %i[ endpoint ]
+  store_accessor :configuration, %i[ endpoint ]
 end

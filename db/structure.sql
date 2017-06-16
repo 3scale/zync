@@ -76,7 +76,7 @@ CREATE TABLE ar_internal_metadata (
 
 CREATE TABLE entries (
     id bigint NOT NULL,
-    data json,
+    data jsonb,
     tenant_id bigint NOT NULL,
     model_id bigint NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -145,7 +145,7 @@ ALTER SEQUENCE integration_states_id_seq OWNED BY integration_states.id;
 
 CREATE TABLE integrations (
     id bigint NOT NULL,
-    configuration json,
+    configuration jsonb,
     type character varying NOT NULL,
     tenant_id bigint,
     created_at timestamp without time zone NOT NULL,
@@ -244,7 +244,7 @@ ALTER SEQUENCE models_id_seq OWNED BY models.id;
 CREATE TABLE notifications (
     id bigint NOT NULL,
     model_id bigint NOT NULL,
-    data json NOT NULL,
+    data jsonb NOT NULL,
     tenant_id bigint NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL

@@ -29,7 +29,7 @@ module Zync
 
     config.que = ActiveSupport::InheritableOptions.new(config.que)
 
-    config.que.worker_count = 1
+    config.que.worker_count = ENV.fetch('RAILS_MAX_THREADS'){ 5 }.to_i
     config.que.mode = :async
 
     # Use the responders controller from the responders gem

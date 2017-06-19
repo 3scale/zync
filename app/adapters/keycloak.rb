@@ -3,6 +3,7 @@
 require 'uri'
 require 'httpclient/include_client'
 
+# Keycloak adapter to create/update/delete Clients on using the Keycloak Client Registration API.
 class Keycloak
   extend ::HTTPClient::IncludeClient
   include_http_client do |http|
@@ -12,8 +13,10 @@ class Keycloak
   attr_reader :endpoint
 
   def initialize(endpoint)
-    @endpoint, client_id, client_secret = parse_endpoint(endpoint)
-    @access_token = AccessToken.new(client_id, client_secret, @endpoint.normalize, http_client)
+    endpoint = EndpointConfiguration.new(endpoint)
+    @endpoint = endpoint.uri
+    @access_token = AccessToken.new(endpoint.client_id, endpoint.client_secret,
+                                    @endpoint.normalize, http_client)
   end
 
   def create_client(client)
@@ -42,10 +45,13 @@ class Keycloak
     (@endpoint + "clients-registrations/default/#{id}").freeze
   end
 
+  # The Client entity. Mapping the Keycloak Client Representation.
   class Client
     include ActiveModel::Model
     include ActiveModel::Conversion
 
+    # noinspection RubyResolve
+    # ActiveModel::AttributeAssignment needs public accessors breaking :reek:Attribute
     attr_accessor :id, :secret, :redirect_url
 
     alias_attribute :clientId, :id
@@ -56,9 +62,9 @@ class Keycloak
       { clientId: id, secret: client_secret, redirectUris: [ redirect_url ].compact, attributes: { '3scale' => true } }.to_json
     end
 
-    # noinspection RubyInstanceMethodNamingConvention
+    # This method smells of :reek:UncommunicativeMethodName but it comes from Keycloak
     def redirectUris=(uris)
-      self.redirect_url = uris&.first
+      self.redirect_url = uris.first
     end
 
     def persisted?
@@ -66,7 +72,10 @@ class Keycloak
     end
   end
 
+  # Raised when unexpected response is returned by the Keycloak API.
   class InvalidResponseError < StandardError; end
+  # Raised when there is no Access Token to authenticate with.
+  class AuthenticationError < StandardError; end
 
   protected
 
@@ -88,10 +97,13 @@ class Keycloak
     Client.new(attributes)
   end
 
+  # TODO: Extract this into Response object to fix :reek:FeatureEnvy
   def parse_response(response)
+    body = response.body
+
     case mime = Mime::Type.lookup(response.content_type)
-    when JSON_TYPE then JSON.parse(response.body)
-    when NULL_TYPE then return response.body
+    when JSON_TYPE then JSON.parse(body)
+    when NULL_TYPE then return body
     else raise "Unknown Content-Type #{mime.inspect}"
     end
   end
@@ -100,33 +112,40 @@ class Keycloak
     { 'Authorization' => "Bearer #{access_token.token}", 'Content-Type' => 'application/json' }
   end
 
-  def parse_endpoint(endpoint)
-    uri = URI(endpoint)
-    client_id = uri.user
-    client_secret = uri.password
+  # Extracts credentials from the endpoint URL.
+  class EndpointConfiguration
+    attr_reader :uri, :client_id, :client_secret
 
-    uri.userinfo = ''
-    [ uri.freeze, client_id, client_secret ]
+    def initialize(endpoint)
+      uri = URI(endpoint)
+      client_id = uri.user
+      client_secret = uri.password
+
+      uri.userinfo = ''
+
+      @uri = uri.freeze
+      @client_id = client_id.freeze
+      @client_secret = client_secret.freeze
+    end
   end
 
-  attr_reader :oauth2
-
-  NULL_TOKEN = Struct.new(:token)
-
+  # Handles getting and refreshing Access Token for the API access.
   class AccessToken
+    # Breaking :reek:NestedIterators because that is how Faraday expects it.
     def initialize(client_id, client_secret, site, http_client)
-      @oauth2 = OAuth2::Client.new(client_id, client_secret,
+      @oauth_client = OAuth2::Client.new(client_id, client_secret,
                                    site: site,
-                                   token_url: 'protocol/openid-connect/token') do |builder|
+                                         token_url: 'protocol/openid-connect/token') do |builder|
         builder.adapter :httpclient do |client|
           client.debug_dev = http_client.debug_dev
         end
       end
       @value = Concurrent::IVar.new
+      freeze
     end
 
     def value
-      ref = reference
+      ref = reference or return
       ref.try_update(&method(:fresh_token))
 
       ref.value
@@ -140,26 +159,18 @@ class Keycloak
     end
 
     def get_token
-      oauth2.client_credentials.get_token.freeze
+      oauth_client.client_credentials.get_token.freeze
     end
 
     def fresh_token(access_token)
-      return get_token unless access_token
-      access_token.expired? ? refresh_token(access_token) : access_token
+      access_token && !access_token.expired? ? access_token : get_token
     end
 
-    def refresh_token(access_token)
-      access_token.refresh_token ? access_token.refresh! : get_token
-    end
-
-    attr_reader :oauth2
+    attr_reader :oauth_client
   end
-
-  def get_token
-    oauth2.client_credentials.get_token.freeze
-  end
+  private_constant :AccessToken
 
   def access_token
-    @access_token.value
+    @access_token.value or raise AuthenticationError
   end
 end

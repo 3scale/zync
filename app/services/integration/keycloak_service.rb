@@ -12,7 +12,7 @@ class Integration::KeycloakService
   def call(entry)
     client = build_client(entry)
 
-    unless client
+    unless client.id
        # Not OAuth
       return
     end
@@ -27,22 +27,25 @@ class Integration::KeycloakService
   EMPTY_DATA = {}.with_indifferent_access.freeze
   private_constant :EMPTY_DATA
 
+  def client_id(entry)
+    return unless entry.model.record_type == 'Application'
+    (entry.data || entry.previous_data).fetch('client_id') { return }
+  end
+
   def build_client(entry)
-    model = entry.model
     data = entry.data
 
-    return unless model.record_type == 'Application'
-    client_id = (data || entry.previous_data).fetch('client_id') { return }
+    client = Keycloak::Client.new(id: client_id(entry))
 
-    client = Keycloak::Client.new(id: client_id)
-
-    return client unless data
-    return unless data.key?('client_id') # not OAuth integration
-
-    params = ActionController::Parameters.new(data)
-    client.assign_attributes(params.permit(:client_id, :client_secret, :redirect_url))
+    params = client_params(data || {})
+    client.assign_attributes(params)
 
     client
+  end
+
+  def client_params(data)
+    params = ActionController::Parameters.new(data)
+    params.permit(:client_id, :client_secret, :redirect_url)
   end
 
   def remove(client)

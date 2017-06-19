@@ -45,6 +45,7 @@ GEM
     arel (8.0.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
+    bugsnag (5.3.3)
     builder (3.2.3)
     byebug (9.0.6)
     coderay (1.1.1)
@@ -154,6 +155,7 @@ PLATFORMS
 
 DEPENDENCIES
   3scale-api (~> 0.1.4)
+  bugsnag
   minitest-reporters
   pg (>= 0.20)
   pry-byebug

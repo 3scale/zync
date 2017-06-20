@@ -11,13 +11,16 @@ class Notification < ApplicationRecord
       @data = ActiveSupport::HashWithIndifferentAccess.new(data)
     end
 
+    ALLOWED_MODELS = Set.new(%w(Application Proxy Service)).freeze
+
     def type
-      # FIXME: do this safely
-      @data.fetch(:type).constantize
+      type = @data.fetch(:type)
+
+      type.constantize if ALLOWED_MODELS.include?(type)
     end
 
     def to_hash
-      @data.except(:type, :tenant_id)
+      @data.slice(*type&.attribute_names)
     end
   end
   private_constant :NotificationData

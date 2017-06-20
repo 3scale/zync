@@ -271,6 +271,38 @@ ALTER SEQUENCE notifications_id_seq OWNED BY notifications.id;
 
 
 --
+-- Name: proxies; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE proxies (
+    id bigint NOT NULL,
+    tenant_id bigint NOT NULL,
+    service_id bigint NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: proxies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE proxies_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: proxies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE proxies_id_seq OWNED BY proxies.id;
+
+
+--
 -- Name: que_jobs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -501,6 +533,13 @@ ALTER TABLE ONLY notifications ALTER COLUMN id SET DEFAULT nextval('notification
 
 
 --
+-- Name: proxies id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY proxies ALTER COLUMN id SET DEFAULT nextval('proxies_id_seq'::regclass);
+
+
+--
 -- Name: que_jobs job_id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -597,6 +636,14 @@ ALTER TABLE ONLY models
 
 ALTER TABLE ONLY notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proxies proxies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY proxies
+    ADD CONSTRAINT proxies_pkey PRIMARY KEY (id);
 
 
 --
@@ -753,6 +800,20 @@ CREATE INDEX index_notifications_on_tenant_id ON notifications USING btree (tena
 
 
 --
+-- Name: index_proxies_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proxies_on_service_id ON proxies USING btree (service_id);
+
+
+--
+-- Name: index_proxies_on_tenant_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proxies_on_tenant_id ON proxies USING btree (tenant_id);
+
+
+--
 -- Name: index_services_on_tenant_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -789,6 +850,14 @@ ALTER TABLE ONLY integration_states
 
 
 --
+-- Name: proxies fk_rails_1b8514170a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY proxies
+    ADD CONSTRAINT fk_rails_1b8514170a FOREIGN KEY (service_id) REFERENCES services(id);
+
+
+--
 -- Name: usage_limits fk_rails_29f5c8eedd; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -818,6 +887,14 @@ ALTER TABLE ONLY entries
 
 ALTER TABLE ONLY models
     ADD CONSTRAINT fk_rails_47bc1b5b2f FOREIGN KEY (tenant_id) REFERENCES tenants(id);
+
+
+--
+-- Name: proxies fk_rails_574a99191a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY proxies
+    ADD CONSTRAINT fk_rails_574a99191a FOREIGN KEY (tenant_id) REFERENCES tenants(id);
 
 
 --
@@ -926,6 +1003,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170602162517'),
 ('20170605112051'),
 ('20170605112058'),
-('20170612073714');
+('20170612073714'),
+('20170620114832');
 
 

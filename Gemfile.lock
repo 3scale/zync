@@ -48,17 +48,23 @@ GEM
     bugsnag (5.3.3)
     builder (3.2.3)
     byebug (9.0.6)
+    codecov (0.1.10)
+      json
+      simplecov
+      url
     coderay (1.1.1)
     concurrent-ruby (1.0.5)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     debug_inspector (0.0.3)
+    docile (1.1.5)
     erubi (1.6.0)
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     hashdiff (0.3.4)
     i18n (0.8.4)
     interception (0.5)
+    json (2.1.0)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
@@ -128,6 +134,11 @@ GEM
       railties (>= 4.2.0, < 5.3)
     ruby-progressbar (1.8.1)
     safe_yaml (1.0.4)
+    simplecov (0.14.1)
+      docile (~> 1.1.0)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.1)
     slop (3.6.0)
     spring (2.0.2)
       activesupport (>= 4.2)
@@ -142,6 +153,7 @@ GEM
     thread_safe (0.3.6)
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
+    url (0.3.2)
     webmock (3.0.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -156,6 +168,7 @@ PLATFORMS
 DEPENDENCIES
   3scale-api (~> 0.1.4)
   bugsnag
+  codecov
   minitest-reporters
   pg (>= 0.20)
   pry-byebug

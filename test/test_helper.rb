@@ -4,6 +4,9 @@ require 'rails/test_help'
 require 'minitest/mock'
 require 'webmock/minitest'
 
+require 'simplecov'
+require 'codecov'
+
 if ENV.key?('CI')
   Minitest.extensions << 'ci'
   Minitest.class_eval do
@@ -12,6 +15,9 @@ if ENV.key?('CI')
       reporter << Minitest::Reporters::JUnitReporter.new
     end
   end
+
+  SimpleCov.formatter = SimpleCov::Formatter::Codecov
+  SimpleCov.start
 end
 
 if ENV.key?('PRY_RESCUE')

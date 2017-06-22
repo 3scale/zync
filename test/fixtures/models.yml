@@ -7,3 +7,7 @@ application:
 service:
   tenant: two
   record: two (Service)
+
+proxy:
+  tenant: two
+  record: two (Proxy)

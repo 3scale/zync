@@ -6,8 +6,8 @@ one:
   type: Integration
 
 keycloak:
-  configuration: 
   tenant: two
+  model: service
   type: Integration::Keycloak
   configuration:
     endpoint: 'http://example.com'

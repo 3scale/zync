@@ -13,6 +13,10 @@ class Entry < ApplicationRecord
     model.entries.with_data.last!.data
   end
 
+  def data
+    super&.with_indifferent_access
+  end
+
   def process_entry
     ProcessEntryJob.perform_later(self)
   end

@@ -34,6 +34,7 @@ SET default_with_oids = false;
 CREATE TABLE applications (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
+    service_id bigint NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -148,6 +149,7 @@ CREATE TABLE integrations (
     configuration jsonb,
     type character varying NOT NULL,
     tenant_id bigint,
+    model_id bigint,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -695,6 +697,13 @@ ALTER TABLE ONLY usage_limits
 
 
 --
+-- Name: index_applications_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_applications_on_service_id ON applications USING btree (service_id);
+
+
+--
 -- Name: index_applications_on_tenant_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -744,6 +753,13 @@ CREATE UNIQUE INDEX index_integration_states_on_model_id_and_integration_id ON i
 
 
 --
+-- Name: index_integrations_on_model_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_integrations_on_model_id ON integrations USING btree (model_id);
+
+
+--
 -- Name: index_integrations_on_tenant_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -754,7 +770,14 @@ CREATE INDEX index_integrations_on_tenant_id ON integrations USING btree (tenant
 -- Name: index_integrations_on_tenant_id_and_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_integrations_on_tenant_id_and_type ON integrations USING btree (tenant_id, type);
+CREATE UNIQUE INDEX index_integrations_on_tenant_id_and_type ON integrations USING btree (tenant_id, type) WHERE (model_id IS NULL);
+
+
+--
+-- Name: index_integrations_on_tenant_id_and_type_and_model_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_integrations_on_tenant_id_and_type_and_model_id ON integrations USING btree (tenant_id, type, model_id) WHERE (model_id IS NOT NULL);
 
 
 --
@@ -946,6 +969,14 @@ ALTER TABLE ONLY entries
 
 
 --
+-- Name: applications fk_rails_c363b8b058; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY applications
+    ADD CONSTRAINT fk_rails_c363b8b058 FOREIGN KEY (service_id) REFERENCES services(id);
+
+
+--
 -- Name: metrics fk_rails_c50b7368c1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -975,6 +1006,14 @@ ALTER TABLE ONLY services
 
 ALTER TABLE ONLY applications
     ADD CONSTRAINT fk_rails_cbcddd5826 FOREIGN KEY (tenant_id) REFERENCES tenants(id);
+
+
+--
+-- Name: integrations fk_rails_cd54ced205; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY integrations
+    ADD CONSTRAINT fk_rails_cd54ced205 FOREIGN KEY (model_id) REFERENCES models(id);
 
 
 --

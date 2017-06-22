@@ -12,15 +12,16 @@ class Notification < ApplicationRecord
     end
 
     ALLOWED_MODELS = Set.new(%w(Application Proxy Service)).freeze
+    NULL_TYPE = OpenStruct.new(attribute_names: [].freeze).freeze
 
     def type
       type = @data.fetch(:type)
 
-      type.constantize if ALLOWED_MODELS.include?(type)
+      ALLOWED_MODELS.include?(type) ? type.constantize : NULL_TYPE
     end
 
     def to_hash
-      @data.slice(*type&.attribute_names)
+      @data.slice(*type.attribute_names)
     end
   end
   private_constant :NotificationData

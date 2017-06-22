@@ -10,7 +10,7 @@ class ApplicationRecord < ActiveRecord::Base
         yield
       end
     rescue ActiveRecord::RecordNotUnique => error
-      logger.warn(error) { "[#{self}][#{error.class}] Retrying after #{error}" }
+      logger.warn(error) { "[#{self}][#``{error.class}] Retrying after #{error}" }
 
       unless retried
         retried = true

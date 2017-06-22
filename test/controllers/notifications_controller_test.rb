@@ -5,7 +5,7 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
   test 'update' do
-    stub_request(:get, "#{tenants(:one).endpoint}/admin/api/applications/find.json?application_id=980190963").
+    stub_request(:get, "#{tenants(:one).endpoint}/admin/api/applications/find.json?application_id=980190962").
       to_return(status: 200, body: '{}', headers: {})
 
     perform_enqueued_jobs do

@@ -41,3 +41,10 @@
     :why: 
     :versions: []
     :when: 2017-06-23 06:16:00.472944000 Z
+- - :license
+  - bundler
+  - MIT
+  - :who: 
+    :why: Bundler is distributed under MIT license https://github.com/bundler/bundler/blob/1102ec1a06d5971fc3c870b1ed50de8f826c36e4/bundler.gemspec\#L10
+    :versions: []
+    :when: 2017-06-23 06:34:01.682953000 Z

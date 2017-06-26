@@ -36,6 +36,8 @@ group :development, :test do
   gem 'pry-rails'
   gem 'pry-rescue'
   gem 'pry-stack_explorer'
+
+  gem 'license_finder', '~> 3.0'
 end
 
 group :development do

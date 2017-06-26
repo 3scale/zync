@@ -32,11 +32,9 @@ jobs:
       - run: bundle exec bin/rake db:wait db:setup
 
       - run: |
-          set +e
           bundle exec bin/rails test $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)
-          test_exit_code=$?
-          bash <(curl -s https://codecov.io/bash)
-          exit $test_exit_code
+      - run: |
+          bundle exec license_finder
 
       - store_test_results:
           path: test/reports

@@ -1,0 +1,50 @@
+---
+- - :whitelist
+  - MIT
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:12:33.037106000 Z
+- - :whitelist
+  - Apache 2.0
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:12:54.025599000 Z
+- - :whitelist
+  - Simplified BSD
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:12:59.933965000 Z
+- - :whitelist
+  - New BSD
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:13:02.855385000 Z
+- - :whitelist
+  - ruby
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:13:06.311014000 Z
+- - :ignore_group
+  - development
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:15:58.484416000 Z
+- - :ignore_group
+  - test
+  - :who: 
+    :why: 
+    :versions: []
+    :when: 2017-06-23 06:16:00.472944000 Z
+- - :license
+  - bundler
+  - MIT
+  - :who: 
+    :why: Bundler is distributed under MIT license https://github.com/bundler/bundler/blob/1102ec1a06d5971fc3c870b1ed50de8f826c36e4/bundler.gemspec\#L10
+    :versions: []
+    :when: 2017-06-23 06:34:01.682953000 Z

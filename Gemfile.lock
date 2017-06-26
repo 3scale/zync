@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    3scale-api (0.1.4)
+    3scale-api (0.1.5)
     actioncable (5.1.1)
       actionpack (= 5.1.1)
       nio4r (~> 2.0)
@@ -62,9 +62,18 @@ GEM
     globalid (0.4.0)
       activesupport (>= 4.2.0)
     hashdiff (0.3.4)
+    httparty (0.15.5)
+      multi_xml (>= 0.5.2)
     i18n (0.8.4)
     interception (0.5)
     json (2.1.0)
+    license_finder (3.0.0)
+      bundler
+      httparty
+      rubyzip
+      thor
+      with_env (> 1.0)
+      xml-simple
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
@@ -80,6 +89,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
+    multi_xml (0.6.0)
     nio4r (2.1.0)
     nokogiri (1.8.0)
       mini_portile2 (~> 2.2.0)
@@ -133,6 +143,7 @@ GEM
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
     ruby-progressbar (1.8.1)
+    rubyzip (1.2.1)
     safe_yaml (1.0.4)
     simplecov (0.14.1)
       docile (~> 1.1.0)
@@ -161,6 +172,8 @@ GEM
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
+    with_env (1.1.0)
+    xml-simple (1.1.5)
 
 PLATFORMS
   ruby
@@ -169,6 +182,7 @@ DEPENDENCIES
   3scale-api (~> 0.1.4)
   bugsnag
   codecov
+  license_finder (~> 3.0)
   minitest-reporters
   pg (>= 0.20)
   pry-byebug

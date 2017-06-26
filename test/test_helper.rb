@@ -16,8 +16,9 @@ if ENV.key?('CI')
     end
   end
 
-  SimpleCov.formatter = SimpleCov::Formatter::Codecov
-  SimpleCov.start
+  SimpleCov.start('rails') do
+    formatter SimpleCov::Formatter::Codecov
+  end
 end
 
 if ENV.key?('PRY_RESCUE')

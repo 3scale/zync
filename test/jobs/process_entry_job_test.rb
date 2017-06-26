@@ -10,4 +10,13 @@ class ProcessEntryJobTest < ActiveJob::TestCase
       ProcessEntryJob.perform_now(entry)
     end
   end
+
+  test 'model integrations for' do
+    job = ProcessEntryJob.new
+    proxy = entries(:proxy)
+
+    integrations = job.model_integrations_for(proxy)
+
+    assert_equal 0, integrations.size
+  end
 end

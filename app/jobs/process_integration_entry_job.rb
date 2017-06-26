@@ -12,7 +12,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
 
       state.update_attributes(started_at: timestamp, entry: entry)
 
-      success = service.call(integration, entry)
+      success = service.call(entry)
 
       state.update_attributes(success: success, finished_at: timestamp)
     end

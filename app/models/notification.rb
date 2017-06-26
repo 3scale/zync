@@ -11,13 +11,17 @@ class Notification < ApplicationRecord
       @data = ActiveSupport::HashWithIndifferentAccess.new(data)
     end
 
+    ALLOWED_MODELS = Set.new(%w(Application Proxy Service)).freeze
+    NULL_TYPE = OpenStruct.new(attribute_names: [].freeze).freeze
+
     def type
-      # FIXME: do this safely
-      @data.fetch(:type).constantize
+      type = @data.fetch(:type)
+
+      ALLOWED_MODELS.include?(type) ? type.constantize : NULL_TYPE
     end
 
     def to_hash
-      @data.except(:type, :tenant_id)
+      @data.slice(*type.attribute_names)
     end
   end
   private_constant :NotificationData
@@ -26,9 +30,9 @@ class Notification < ApplicationRecord
     retry_record_not_unique do
       data = NotificationData.new(self.data)
 
-      type = data.type.lock.find_or_create_by!(data.to_hash.merge(tenant: tenant))
+      type = data.type.find_or_create_by!(data.to_hash.merge(tenant: tenant))
 
-      Model.lock.find_or_create_by!(record: type, tenant: tenant)
+      Model.find_or_create_by!(record: type, tenant: tenant)
     end
   end
 end

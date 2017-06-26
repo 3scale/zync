@@ -10,3 +10,9 @@ service:
   data: 
   tenant: two
   model: service
+
+proxy:
+  data:
+    oidc_issuer_endpoint: http://example.com/auth/realm/master
+  tenant: two
+  model: proxy

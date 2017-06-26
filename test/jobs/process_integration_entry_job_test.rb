@@ -14,11 +14,10 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
 
   test 'uses correct entry' do
     service = Minitest::Mock.new
-    integration = integrations(:two)
+    integration = integrations(:keycloak)
     job = ProcessIntegrationEntryJob.new(integration, models(:service), service: service)
 
-    service.expect(:call, true) do |int, entry|
-      assert_equal integration, int
+    service.expect(:call, true) do |entry|
       assert_equal entries(:service), entry
     end
 

@@ -24,6 +24,8 @@ class FetchService
       fetch_service(model)
     when Application
       fetch_application(model)
+    when Proxy
+      fetch_proxy(model)
     else
       raise UnsupportedModel, "unsupported model #{record.class}"
     end
@@ -31,6 +33,19 @@ class FetchService
 
   def fetch_service(model)
     build_entry(model)
+  end
+
+  def fetch_proxy(model)
+    client = build_client(model.tenant)
+
+    begin
+      proxy = client.show_proxy(model.record.service_id)
+      # right now the client raises runtime error, but rather should return a result
+    rescue RuntimeError
+      proxy = nil # 404'd
+    end
+
+    build_entry(model, data: proxy)
   end
 
   def fetch_application(model)

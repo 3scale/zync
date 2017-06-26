@@ -1,13 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-application:
+one:
   tenant: one
-  record: one (Application)
+  service: one
 
-service:
+two:
   tenant: two
-  record: two (Service)
-
-proxy:
-  tenant: two
-  record: two (Proxy)
+  service: two

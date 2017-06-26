@@ -5,7 +5,9 @@ one:
   tenant: one
   type: Integration
 
-two:
-  configuration: 
+keycloak:
   tenant: two
-  type: Integration
+  model: service
+  type: Integration::Keycloak
+  configuration:
+    endpoint: 'http://example.com'

@@ -2,11 +2,14 @@
 # Example Integration that just prints what it is doing the log.
 
 class Integration::EchoService
-  def initialize
+  attr_reader :integration
+
+  def initialize(integration)
+    @integration = integration
     freeze
   end
 
-  def call(integration, entry)
+  def call(entry)
     logger.debug "Integrating #{entry} to #{integration}"
   end
 

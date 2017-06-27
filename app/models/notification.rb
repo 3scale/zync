@@ -27,12 +27,14 @@ class Notification < ApplicationRecord
   private_constant :NotificationData
 
   def create_model
+    data = NotificationData.new(self.data)
+    type = data.type
+    attributes = data.to_hash.merge(tenant: tenant)
+
     retry_record_not_unique do
-      data = NotificationData.new(self.data)
+      record = type.find_or_create_by!(attributes)
 
-      type = data.type.find_or_create_by!(data.to_hash.merge(tenant: tenant))
-
-      Model.find_or_create_by!(record: type, tenant: tenant)
+      Model.find_or_create_by!(record: record, tenant: tenant)
     end
   end
 end

@@ -162,6 +162,8 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.1)
+    skylight (1.2.2)
+      activesupport (>= 3.0.0)
     slop (3.6.0)
     spring (2.0.2)
       activesupport (>= 4.2)
@@ -207,6 +209,7 @@ DEPENDENCIES
   que
   rails (~> 5.1.1)
   responders (~> 2.4.0)
+  skylight
   spring
   tzinfo-data
   webmock (~> 3.0)

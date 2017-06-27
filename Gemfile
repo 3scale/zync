@@ -29,6 +29,7 @@ gem '3scale-api', '~> 0.1.4'
 gem 'que'
 
 gem 'bugsnag'
+gem 'skylight'
 
 gem 'httpclient'
 gem 'oauth2'

@@ -1,0 +1,5 @@
+---
+
+ignored_endpoints:
+ - Status::LiveController#show
+ - Status::ReadyController#show

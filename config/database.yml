@@ -6,7 +6,7 @@
 #
 default: &default
   adapter: postgresql
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS"){ 5 }.to_i * 2 %>
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS"){ 5 }.to_i * 4 %>
   timeout: 5000
   variables:
     statement_timeout: 5000

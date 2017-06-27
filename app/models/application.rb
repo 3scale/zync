@@ -4,6 +4,6 @@ class Application < ApplicationRecord
   belongs_to :service
 
   def integration_model
-    Model.find_by!(record: service)
+    Model.find_by(record: service)
   end
 end

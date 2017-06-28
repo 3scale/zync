@@ -1,8 +1,18 @@
-ActiveSupport::Reloader.before_class_unload do
-  ::Que.worker_count = 0 # Disable all workers before reloading code.
+worker_count = nil
+
+reloader = ActiveSupport::Reloader
+que = ::Que
+
+reloader.before_class_unload do
+  worker_count = ::Que.worker_count
+  que.worker_count = 0 # Disable all workers before reloading code.
 end
 
-def Que.start!
+reloader.to_complete do
+  que.worker_count = worker_count
+end
+
+def que.start!
   require 'que/adapters/active_record'
   require 'que/worker'
   require 'que/job'

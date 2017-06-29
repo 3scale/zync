@@ -17,7 +17,7 @@ class Integration::KeycloakService
       return
     end
 
-    if client.secret
+    if persist?(client)
       persist(client)
     else
       remove(client)
@@ -30,6 +30,10 @@ class Integration::KeycloakService
   def client_id(entry)
     return unless entry.model.record_type == 'Application'
     (entry.data || entry.previous_data).fetch('client_id') { return }
+  end
+
+  def persist?(client)
+    client.secret
   end
 
   def build_client(entry)
@@ -45,7 +49,7 @@ class Integration::KeycloakService
 
   def client_params(data)
     params = ActionController::Parameters.new(data)
-    params.permit(:client_id, :client_secret, :redirect_url)
+    params.permit(:client_id, :client_secret, :redirect_url, :state, :name, :description)
   end
 
   def remove(client)

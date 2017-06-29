@@ -52,14 +52,22 @@ class Keycloak
 
     # noinspection RubyResolve
     # ActiveModel::AttributeAssignment needs public accessors breaking :reek:Attribute
-    attr_accessor :id, :secret, :redirect_url
+    attr_accessor :id, :secret, :redirect_url, :state, :enabled, :name, :description
 
     alias_attribute :clientId, :id
     alias_attribute :client_id, :id
     alias_attribute :client_secret, :secret
 
     def read
-      { clientId: id, secret: client_secret, redirectUris: [ redirect_url ].compact, attributes: { '3scale' => true } }.to_json
+      {
+        name: name,
+        description: description,
+        clientId: id,
+        secret: client_secret,
+        redirectUris: [ redirect_url ].compact,
+        attributes: { '3scale' => true },
+        enabled: enabled?,
+      }.to_json
     end
 
     # This method smells of :reek:UncommunicativeMethodName but it comes from Keycloak
@@ -69,6 +77,10 @@ class Keycloak
 
     def persisted?
       id.present?
+    end
+
+    def enabled?
+      state ? state == 'live' : enabled
     end
   end
 

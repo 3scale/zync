@@ -43,6 +43,9 @@ Rails.application.configure do
   # Prepend all log lines with the following tags.
   config.log_tags = [ :request_id ]
 
+  config.lograge.enabled = true
+  config.lograge.ignore_actions = %w[Status/LiveController#show Status/ReadyController#show]
+
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 

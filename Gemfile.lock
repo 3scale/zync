@@ -78,6 +78,10 @@ GEM
       thor
       with_env (> 1.0)
       xml-simple
+    lograge (0.5.1)
+      actionpack (>= 4, < 5.2)
+      activesupport (>= 4, < 5.2)
+      railties (>= 4, < 5.2)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.5)
@@ -198,6 +202,7 @@ DEPENDENCIES
   codecov
   httpclient
   license_finder (~> 3.0)
+  lograge
   minitest-reporters
   oauth2
   pg (>= 0.20)

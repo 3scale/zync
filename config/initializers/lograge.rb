@@ -13,4 +13,7 @@ if Rails.application.config.lograge.enabled
     # do not try to tag log entries
     ActiveJob::Base.prepend(Lograge::JobLogSubscriber::Logging)
   end
+
+  require 'lograge/oidc_subscriber'
+  Lograge::OIDCSubscriber.attach_to :oidc
 end

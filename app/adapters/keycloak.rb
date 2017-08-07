@@ -45,6 +45,14 @@ class Keycloak
     (@endpoint + "clients-registrations/default/#{id}").freeze
   end
 
+  def well_known_url
+    URI.join(@endpoint, '.well-known/openid-configuration')
+  end
+
+  def test
+    parse http_client.get(well_known_url, header: headers)
+  end
+
   # The Client entity. Mapping the Keycloak Client Representation.
   class Client
     include ActiveModel::Model

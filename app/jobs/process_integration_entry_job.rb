@@ -7,14 +7,26 @@ class ProcessIntegrationEntryJob < ApplicationJob
   queue_as :default
 
   def perform(integration, model, service: DiscoverIntegrationService.call(integration))
+    failure = nil
+    success = nil
+
     IntegrationState.acquire_lock(model, integration) do |state|
       entry = Entry.last_for_model!(model)
 
       state.update_attributes(started_at: timestamp, entry: entry)
 
-      success = service.call(entry)
-
-      state.update_attributes(success: success, finished_at: timestamp)
+      begin
+        success = service.call(entry)
+      rescue => error
+        success = false
+        failure = error
+      ensure
+        state.update_attributes(success: success, finished_at: timestamp)
+      end
     end
+
+    raise failure if failure
+
+    success
   end
 end

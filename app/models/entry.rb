@@ -5,6 +5,8 @@ class Entry < ApplicationRecord
   belongs_to :tenant
   belongs_to :model
 
+  delegate :record, to: :model
+
   after_create_commit :process_entry
 
   scope :with_data, -> { where.not(data: nil) }

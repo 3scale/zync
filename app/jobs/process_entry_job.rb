@@ -23,16 +23,22 @@ class ProcessEntryJob < ApplicationJob
       Integration.for_model(model)
     end
 
+
     integrations.each.with_object(model)
   end
 
   def create_keycloak_integration(entry)
-    service = Model.find_by!(record: entry.model.record.service)
+    proxy = entry.model
+    service = Model.find_by!(record: proxy.record.service)
     endpoint = entry.data.fetch(:oidc_issuer_endpoint)
     keycloak = Integration::Keycloak
                  .create_with(endpoint: endpoint)
                  .find_or_create_by!(tenant: entry.tenant, model: service)
-
     keycloak.update(endpoint: endpoint)
+
+    ProcessIntegrationEntryJob.perform_later(keycloak, proxy)
+
+
+    ProcessIntegrationEntryJob.perform_later(keycloak, service)
   end
 end

@@ -163,7 +163,17 @@ class Keycloak
       ref.value
     end
 
+    def value!
+      value or error
+    end
+
+    def error
+      raise reason
+    end
+
     protected
+
+    delegate :reason, to: :@value
 
     def reference
       @value.try_set { Concurrent::AtomicReference.new(get_token) }
@@ -183,6 +193,8 @@ class Keycloak
   private_constant :AccessToken
 
   def access_token
-    @access_token.value or raise AuthenticationError
+    @access_token.value!
+  rescue => error
+    raise AuthenticationError, error
   end
 end

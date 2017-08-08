@@ -59,7 +59,7 @@ GEM
     debug_inspector (0.0.3)
     docile (1.1.5)
     erubi (1.6.1)
-    faraday (0.12.1)
+    faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
     globalid (0.4.0)
       activesupport (>= 4.2.0)

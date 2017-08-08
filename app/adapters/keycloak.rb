@@ -93,7 +93,15 @@ class Keycloak
   end
 
   # Raised when unexpected response is returned by the Keycloak API.
-  class InvalidResponseError < StandardError; end
+  class InvalidResponseError < StandardError
+    attr_reader :response
+
+    def initialize(response: , message: )
+      @response = response
+      super(message.presence || '%s %s' % [response.status, response.reason ])
+    end
+  end
+
   # Raised when there is no Access Token to authenticate with.
   class AuthenticationError < StandardError; end
 
@@ -107,7 +115,7 @@ class Keycloak
   def parse(response)
     body = parse_response(response)
 
-    raise InvalidResponseError, ( body || response).inspect unless response.ok?
+    raise InvalidResponseError, { response: response, message: body } unless response.ok?
 
     params = body.try(:to_h) or return # no need to create client if there are no attributes
 
@@ -121,10 +129,10 @@ class Keycloak
   def parse_response(response)
     body = response.body
 
-    case mime = Mime::Type.lookup(response.content_type)
+    case Mime::Type.lookup(response.content_type)
     when JSON_TYPE then JSON.parse(body)
     when NULL_TYPE then return body
-    else raise "Unknown Content-Type #{mime.inspect}"
+    else raise InvalidResponseError, { response: response, message: 'Unknown Content-Type' }
     end
   end
 

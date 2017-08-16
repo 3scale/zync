@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/3scale/license_finder_xml_reporter.git
+  revision: ab8072d11344b5e6d05565ccc84cb4745d01e6f8
+  tag: 1.0.0
+  specs:
+    license_finder_xml_reporter (0.1.0)
+      license_finder
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -202,6 +210,7 @@ DEPENDENCIES
   codecov
   httpclient
   license_finder (~> 3.0)
+  license_finder_xml_reporter!
   lograge
   minitest-reporters
   oauth2

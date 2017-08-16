@@ -108,11 +108,18 @@ class ProcessIntegrationEntryJob < ApplicationJob
       payload = event.payload
       tenant, options = extract_tenant(payload)
       message_bus = build_message_bus(tenant)
+      channel = channel_for(payload)
 
-      message_bus.publish '/integration', transform_payload(payload), options
+      message_bus.publish channel, transform_payload(payload), options
     end
 
     protected
+
+    def channel_for(payload)
+      record = payload.fetch(:record)
+
+      "/integration/#{record.to_gid_param}"
+    end
 
     def transform_payload(payload)
       message_payload = payload.transform_values { |object| object.try(:to_gid) || object }

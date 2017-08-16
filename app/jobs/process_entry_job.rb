@@ -16,8 +16,8 @@ class ProcessEntryJob < ApplicationJob
 
     integrations = Integration.retry_record_not_unique do
       case model.record
-      when Proxy
-        create_keycloak_integration(entry)
+        when Proxy
+          CreateKeycloakIntegration.new(entry).call
       end
 
       Integration.for_model(model)
@@ -27,18 +27,43 @@ class ProcessEntryJob < ApplicationJob
     integrations.each.with_object(model)
   end
 
-  def create_keycloak_integration(entry)
-    proxy = entry.model
-    service = Model.find_by!(record: proxy.record.service)
-    endpoint = entry.data.fetch(:oidc_issuer_endpoint)
-    keycloak = Integration::Keycloak
-                 .create_with(endpoint: endpoint)
-                 .find_or_create_by!(tenant: entry.tenant, model: service)
-    keycloak.update(endpoint: endpoint)
+  # Wrapper for creating Keycloak when Proxy is created
+  CreateKeycloakIntegration = Struct.new(:entry) do
+    attr_reader :service
 
-    ProcessIntegrationEntryJob.perform_later(keycloak, proxy)
+    def initialize(*)
+      super
+      @service = Model.find_by!(record: proxy.record.service)
+    end
 
+    def endpoint
+      entry.data.fetch(:oidc_issuer_endpoint)
+    end
 
-    ProcessIntegrationEntryJob.perform_later(keycloak, service)
+    def call
+      transaction do
+        integration.update(endpoint: endpoint)
+
+        ProcessIntegrationEntryJob.perform_later(integration, proxy)
+        ProcessIntegrationEntryJob.perform_later(integration, service)
+      end
+    end
+
+    delegate :transaction, to: :model
+    delegate :tenant, to: :entry
+
+    def model
+      ::Integration::Keycloak
+    end
+
+    def integration
+      model
+          .create_with(endpoint: endpoint)
+          .find_or_create_by!(tenant: tenant, model: service)
+    end
+
+    def proxy
+      entry.model
+    end
   end
 end

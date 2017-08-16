@@ -3,43 +3,91 @@
 # Load latest Entry and push it through the Integration.
 
 class ProcessIntegrationEntryJob < ApplicationJob
-  include JobWithTimestamp
   queue_as :default
 
   delegate :instrument, to: 'ActiveSupport::Notifications'
 
   def perform(integration, model, service: DiscoverIntegrationService.call(integration))
-    failure = nil
-    success = nil
+    result = nil
 
+    invoke(model, integration, service) do |invocation|
+      payload = build_payload(model, integration, invocation)
 
-    IntegrationState.acquire_lock(model, integration) do |state|
-      entry = Entry.last_for_model!(model)
-
-      payload = {
-        entry_data: entry.data, integration: integration, model: model,
-        service: service.class.name, record: model.record
-      }
-
-      state.update_attributes(started_at: timestamp, entry: entry)
-
-      begin
-        success = instrument('perform.process_integration_entry', payload) do
-          service.call(entry) || true
-        end
-      rescue => error
-        success = false
-        failure = error
-      ensure
-        state.update_attributes(success: success, finished_at: timestamp)
-      end
+      result = call(payload, &invocation)
     end
 
-    raise failure if failure
-
-    success
+    result.value!
   end
 
+  # Wrapper for what is going to be invoked.
+  Invocation = Struct.new(:service, :entry, :state) do
+    include JobWithTimestamp
+
+    def call(_payload)
+      start
+
+      service.call(entry)
+
+      finish(success: true)
+    rescue
+      finish(success: false)
+      raise
+    end
+
+    def finish(success: )
+      state.update_attributes(success: success, finished_at: timestamp)
+    end
+
+    def start
+      state.update_attributes(started_at: timestamp, entry: entry, success: nil)
+    end
+
+    def to_proc
+      method(:call).to_proc
+    end
+
+    def service_name
+      service.class.name
+    end
+
+    # @!method entry_data
+    delegate :data, to: :entry, prefix: true
+  end
+
+  # Result type of the invocation used to unwrap the error that might have occurred.
+  Result = Struct.new(:success, :value, :reason) do
+    def value!
+      value
+    ensure
+      raise reason unless success
+    end
+  end
+
+  def invoke(model, integration, service)
+    IntegrationState.acquire_lock(model, integration) do |state|
+      entry = Entry.last_for_model!(model)
+      invocation = Invocation.new(service, entry, state)
+
+      yield invocation, state
+    end
+  end
+
+  def call(payload, &block)
+    value = instrument('perform.process_integration_entry', payload, &block)
+
+    Result.new(true, value)
+  rescue => exception
+    Result.new(false, value, exception)
+  end
+
+  def build_payload(model, integration, invocation)
+    {
+        entry_data: invocation.entry_data, integration: integration, model: model,
+        service: invocation.service_name, record: model.record
+    }
+  end
+
+  # Instrumentation of processing the integration entry to publish MessageBus events.
   class LogSubscriber < ActiveSupport::LogSubscriber
     def start(name, id, payload)
       super
@@ -48,26 +96,36 @@ class ProcessIntegrationEntryJob < ApplicationJob
       method = name.split('.').first
 
       try("start_#{method}", event)
+
+      event
     end
 
-    def start_perform(event)
+    def start_perform(_event)
       # TODO: deliver message that event started processing
     end
 
     def perform(event)
       payload = event.payload
-      tenant = payload.fetch(:model).tenant
+      tenant, options = extract_tenant(payload)
       message_bus = build_message_bus(tenant)
 
-      message_payload = payload.transform_values { |object| object.try(:to_gid) || object }
-      message_options = { user_ids: [ tenant.to_gid_param ] }
-
-      message_payload.merge!(success: !payload.key?(:exception))
-
-      message_bus.publish '/integration', message_payload, message_options
+      message_bus.publish '/integration', transform_payload(payload), options
     end
 
     protected
+
+    def transform_payload(payload)
+      message_payload = payload.transform_values { |object| object.try(:to_gid) || object }
+      message_payload[:success] = !payload.key?(:exception)
+      message_payload
+    end
+
+    def extract_tenant(payload)
+      tenant = payload.fetch(:model).tenant
+
+      [ tenant, { user_ids: [ tenant.to_gid_param ] } ]
+    end
+
 
     def build_message_bus(tenant)
       MessageBus::Instance.new.tap do |message_bus|

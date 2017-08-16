@@ -12,6 +12,8 @@ class DiscoverIntegrationService
     delegate :call, to: :new
   end
 
+  DISABLED = ->(_) { }
+
   def call(integration)
     klass = case integration
             when Integration::Keycloak
@@ -21,6 +23,8 @@ class DiscoverIntegrationService
             else # the only one for now
               raise NotImplementedError
             end
+
+    return DISABLED unless integration.try(:enabled?)
 
     klass.new(integration)
   end

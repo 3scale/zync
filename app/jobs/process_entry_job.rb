@@ -37,11 +37,12 @@ class ProcessEntryJob < ApplicationJob
     end
 
     def endpoint
-      entry.data.fetch(:oidc_issuer_endpoint)
+      entry.data[:oidc_issuer_endpoint]
     end
 
     def call
       transaction do
+        integration = find_integration
         integration.update(endpoint: endpoint)
 
         ProcessIntegrationEntryJob.perform_later(integration, proxy)
@@ -56,7 +57,7 @@ class ProcessEntryJob < ApplicationJob
       ::Integration::Keycloak
     end
 
-    def integration
+    def find_integration
       model
           .create_with(endpoint: endpoint)
           .find_or_create_by!(tenant: tenant, model: service)

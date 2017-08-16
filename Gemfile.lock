@@ -193,6 +193,9 @@ GEM
     tzinfo (1.2.3)
       thread_safe (~> 0.1)
     url (0.3.2)
+    validate_url (1.0.2)
+      activemodel (>= 3.0.0)
+      addressable
     webmock (3.0.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -228,6 +231,7 @@ DEPENDENCIES
   responders (~> 2.4.0)
   spring
   tzinfo-data
+  validate_url
   webmock (~> 3.0)
 
 BUNDLED WITH

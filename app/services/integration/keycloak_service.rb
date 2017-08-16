@@ -11,7 +11,7 @@ class Integration::KeycloakService
 
   def call(entry)
     case entry.record
-    when Service, Proxy then handle_test
+    when Proxy then handle_test
     when Application then handle_application(entry)
     else handle_rest(entry)
     end

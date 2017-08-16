@@ -51,4 +51,16 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
 
     assert subscriber.perform(event)
   end
+
+  test 'skips disabled integration' do
+    integration = integrations(:keycloak)
+    model = models(:service)
+
+    service = Minitest::Mock.new
+    service.expect(:call, true, [Entry])
+
+    ProcessIntegrationEntryJob.perform_now(integration, model, service: service)
+
+    assert_mock service
+  end
 end

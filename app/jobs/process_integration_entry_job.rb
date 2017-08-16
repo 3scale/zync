@@ -8,12 +8,12 @@ class ProcessIntegrationEntryJob < ApplicationJob
   delegate :instrument, to: 'ActiveSupport::Notifications'
 
   def perform(integration, model, service: DiscoverIntegrationService.call(integration))
-    result = nil
+    return unless service
 
-    invoke(model, integration, service) do |invocation|
+    result = invoke(model, integration, service) do |invocation|
       payload = build_payload(model, integration, invocation)
 
-      result = call(payload, &invocation)
+      call(payload, &invocation)
     end
 
     result.value!
@@ -68,7 +68,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
       entry = Entry.last_for_model!(model)
       invocation = Invocation.new(service, entry, state)
 
-      yield invocation, state
+      return yield invocation, state
     end
   end
 
@@ -116,7 +116,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
     protected
 
     def channel_for(payload)
-      record = payload.fetch(:record)
+      record = payload.fetch(:record) { payload.fetch(:model).record }
 
       "/integration/#{record.to_gid_param}"
     end

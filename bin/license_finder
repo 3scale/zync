@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'license_finder_xml_reporter/cli/main'
+
+LicenseFinder::CLI::Main.start

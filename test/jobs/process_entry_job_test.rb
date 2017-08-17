@@ -19,4 +19,15 @@ class ProcessEntryJobTest < ActiveJob::TestCase
 
     assert_equal 0, integrations.size
   end
+
+  test 'creates keycloak integration for Proxy' do
+    proxy = entries(:proxy)
+
+    integration = Integration::Keycloak.where(tenant: proxy.tenant, model: models(:service))
+    integration.delete_all
+
+    assert_difference integration.method(:count) do
+      assert ProcessEntryJob.perform_now(proxy)
+    end
+  end
 end

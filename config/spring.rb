@@ -12,8 +12,14 @@ module QueWorkers
   def disconnect_database
     ::Que.worker_count = 0
     ::Que.mode = :off
+    ::MessageBus.off
     super
   end
 end
 
 Spring::Application.prepend(QueWorkers)
+
+Spring.after_fork do
+  ::MessageBus.on
+  ::MessageBus.after_fork
+end

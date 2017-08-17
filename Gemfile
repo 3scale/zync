@@ -35,6 +35,10 @@ gem 'oauth2'
 
 gem 'lograge'
 
+gem 'message_bus' # for publishing notifications about integration status
+
+gem 'validate_url'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug', platforms: [:mri, :mingw, :x64_mingw]

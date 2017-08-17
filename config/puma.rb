@@ -53,5 +53,13 @@ environment ENV.fetch("RAILS_ENV") { "development" }
 # end
 #
 
+before_fork do
+  MessageBus.destroy
+end
+
+on_worker_boot do
+  MessageBus.after_fork
+end
+
 # Allow puma to be restarted by `rails restart` command.
 plugin :tmp_restart

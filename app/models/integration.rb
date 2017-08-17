@@ -12,4 +12,8 @@ class Integration < ApplicationRecord
   def self.for_model(model)
     tenant_or_model(model.tenant, model)
   end
+
+  def enabled?
+    true
+  end
 end

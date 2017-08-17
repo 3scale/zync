@@ -10,10 +10,18 @@ class Integration::KeycloakService
   end
 
   def call(entry)
+    case entry.record
+    when Proxy then handle_test
+    when Application then handle_application(entry)
+    else handle_rest(entry)
+    end
+  end
+
+  def handle_application(entry)
     client = build_client(entry)
 
     unless client.id
-       # Not OAuth
+      # Not OAuth
       return
     end
 
@@ -22,6 +30,14 @@ class Integration::KeycloakService
     else
       remove(client)
     end
+  end
+
+  def handle_test
+    @adapter.test
+  end
+
+  def handle_rest(entry)
+    Rails.logger.debug { "[#{self.class.name}] skipping #{entry.to_gid} of record #{entry.record.to_gid}" }
   end
 
   EMPTY_DATA = {}.with_indifferent_access.freeze

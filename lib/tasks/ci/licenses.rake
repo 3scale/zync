@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :ci do
   namespace :license_finder do
     desc 'Run compliance task and generates the license report if complies'

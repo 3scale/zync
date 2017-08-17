@@ -1158,4 +1158,4 @@ Style/WordArray:
   Enabled: false
 
 Style/FrozenStringLiteralComment:
-  Enabled: true
+  Enabled: false

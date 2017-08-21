@@ -145,15 +145,27 @@ class Keycloak
     attr_reader :uri, :client_id, :client_secret
 
     def initialize(endpoint)
+      uri, client_id, client_secret = split_uri(endpoint)
+
+      @uri = normalize_uri(uri).freeze
+      @client_id = client_id.freeze
+      @client_secret = client_secret.freeze
+    end
+
+    delegate :normalize_uri, :split_uri, to: :class
+
+    def self.normalize_uri(uri)
+      uri.normalize.merge("#{uri.path}/".tr_s('/', '/'))
+    end
+
+    def self.split_uri(endpoint)
       uri = URI(endpoint)
       client_id = uri.user
       client_secret = uri.password
 
       uri.userinfo = ''
 
-      @uri = uri.freeze
-      @client_id = client_id.freeze
-      @client_secret = client_secret.freeze
+      [ uri, client_id, client_secret ]
     end
   end
 

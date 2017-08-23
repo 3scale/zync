@@ -41,10 +41,11 @@ Rails.application.configure do
   config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'debug').to_sym
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [ :request_id ]
+  config.log_tags = [ ]
 
   config.lograge.enabled = true
   config.lograge.ignore_actions = %w[Status/LiveController#show Status/ReadyController#show]
+  config.lograge.formatter = Lograge::Formatters::Json.new
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -59,9 +60,6 @@ Rails.application.configure do
 
   # Send deprecation notices to registered listeners.
   config.active_support.deprecation = :notify
-
-  # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
 
   # Use a different logger for distributed setups.
   # require 'syslog/logger'

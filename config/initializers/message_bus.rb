@@ -5,7 +5,14 @@ connection_info[:user] = connection_info.delete(:username)
 connection_info[:dbname] = connection_info.delete(:database)
 connection_info.slice!(*PG::Connection.conndefaults_hash.keys)
 
+MessageBus.off if defined?(Rake)
 MessageBus.configure(backend: :postgres, backend_options: connection_info)
+
+MessageBus::Rack::Middleware.prepend(Module.new do
+  def start_listener
+    super unless MessageBus.instance_variable_get(:@off)
+  end
+end)
 
 tenant_lookup = lambda do |env = {}|
   Rails.application.reloader.wrap do

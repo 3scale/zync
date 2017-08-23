@@ -58,6 +58,7 @@ before_fork do
 end
 
 on_worker_boot do
+  MessageBus.on
   MessageBus.after_fork
 end
 

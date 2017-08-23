@@ -8,6 +8,17 @@ connection_info.slice!(*PG::Connection.conndefaults_hash.keys)
 MessageBus.off if defined?(Rake)
 MessageBus.configure(backend: :postgres, backend_options: connection_info)
 
+MessageBus.extend(Module.new do
+  def on
+    @destroyed = false
+    super
+  end
+
+  def destroy
+    super unless @destroyed
+  end
+end)
+
 MessageBus::Rack::Middleware.prepend(Module.new do
   def start_listener
     super unless MessageBus.instance_variable_get(:@off)

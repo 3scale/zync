@@ -7,6 +7,10 @@ class IncomingNotificationService
     freeze
   end
 
+  class << self
+    delegate :call, to: :new
+  end
+
   def call(notification)
     notification.transaction do
       model = notification.model ||= notification.create_model

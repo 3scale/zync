@@ -8,4 +8,8 @@ class Model < ApplicationRecord
   def for_integration
     record.try(:integration_model) || self
   end
+
+  def weak_lock
+    lock!('FOR NO KEY UPDATE')
+  end
 end

@@ -175,6 +175,38 @@ ALTER SEQUENCE integrations_id_seq OWNED BY integrations.id;
 
 
 --
+-- Name: message_bus; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE message_bus (
+    id bigint NOT NULL,
+    channel text NOT NULL,
+    value text NOT NULL,
+    added_at timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT message_bus_value_check CHECK ((octet_length(value) >= 2))
+);
+
+
+--
+-- Name: message_bus_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE message_bus_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: message_bus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE message_bus_id_seq OWNED BY message_bus.id;
+
+
+--
 -- Name: metrics; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -514,6 +546,13 @@ ALTER TABLE ONLY integrations ALTER COLUMN id SET DEFAULT nextval('integrations_
 
 
 --
+-- Name: message_bus id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY message_bus ALTER COLUMN id SET DEFAULT nextval('message_bus_id_seq'::regclass);
+
+
+--
 -- Name: metrics id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -614,6 +653,14 @@ ALTER TABLE ONLY integration_states
 
 ALTER TABLE ONLY integrations
     ADD CONSTRAINT integrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: message_bus message_bus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY message_bus
+    ADD CONSTRAINT message_bus_pkey PRIMARY KEY (id);
 
 
 --
@@ -862,6 +909,20 @@ CREATE INDEX index_usage_limits_on_metric_id ON usage_limits USING btree (metric
 --
 
 CREATE INDEX index_usage_limits_on_tenant_id ON usage_limits USING btree (tenant_id);
+
+
+--
+-- Name: table_added_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX table_added_at_index ON message_bus USING btree (added_at);
+
+
+--
+-- Name: table_channel_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX table_channel_id_index ON message_bus USING btree (channel, id);
 
 
 --

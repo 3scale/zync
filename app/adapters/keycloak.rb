@@ -103,7 +103,16 @@ class Keycloak
   end
 
   # Raised when there is no Access Token to authenticate with.
-  class AuthenticationError < StandardError; end
+  class AuthenticationError < StandardError
+    include Bugsnag::MetaData
+
+    def initialize(error: , endpoint: )
+      self.bugsnag_meta_data = {
+        faraday: { uri: endpoint.to_s }
+      }
+      super(error)
+    end
+  end
 
   protected
 
@@ -223,6 +232,6 @@ class Keycloak
   def access_token
     @access_token.value!
   rescue => error
-    raise AuthenticationError, error
+    raise AuthenticationError, error: error, endpoint: endpoint
   end
 end

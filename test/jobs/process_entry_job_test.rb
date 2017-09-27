@@ -30,4 +30,12 @@ class ProcessEntryJobTest < ActiveJob::TestCase
       assert ProcessEntryJob.perform_now(proxy)
     end
   end
+
+  test 'skips deleted proxy' do
+    proxy = entries(:proxy)
+
+    proxy.data = nil
+
+    ProcessEntryJob.perform_now(proxy)
+  end
 end

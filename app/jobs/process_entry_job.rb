@@ -29,18 +29,21 @@ class ProcessEntryJob < ApplicationJob
 
   # Wrapper for creating Keycloak when Proxy is created
   CreateKeycloakIntegration = Struct.new(:entry) do
-    attr_reader :service
+    attr_reader :service, :data
 
     def initialize(*)
       super
       @service = Model.find_by!(record: proxy.record.service)
+      @data = entry.data || {}.freeze
     end
 
     def endpoint
-      entry.data[:oidc_issuer_endpoint]
+      data[:oidc_issuer_endpoint]
     end
 
     def call
+      return unless endpoint
+
       transaction do
         integration = find_integration
         integration.update(endpoint: endpoint)

@@ -7,6 +7,7 @@ class UpdateJob < ApplicationJob
   queue_as :default
 
   retry_on Errno::ECONNREFUSED, wait: :exponentially_longer, attempts: 10
+  retry_on Model::LockTimeoutError, wait: :exponentially_longer, attempts: 10
 
   def initialize(*)
     super

@@ -63,8 +63,11 @@ class IncomingNotificationServiceTest < ActiveSupport::TestCase
       end
       runner.abort_on_exception = true
 
-    assert_kind_of UpdateState, queue.pop
-    assert IncomingNotificationService.call(notification.dup)
+      assert_kind_of UpdateState, queue.pop
+
+      UpdateJob.stub(:perform_later, nil) do
+        assert IncomingNotificationService.call(notification.dup)
+      end
 
     ensure
       runner.kill

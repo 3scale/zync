@@ -47,6 +47,14 @@ module Zync
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
 
+    initializer 'lograge.defaults' do
+      require 'lograge/custom_options'
+      config.lograge.base_controller_class = 'ActionController::API'
+      config.lograge.ignore_actions = %w[Status/LiveController#show Status/ReadyController#show]
+      config.lograge.formatter = Lograge::Formatters::Json.new
+      config.lograge.custom_options = Lograge::CustomOptions
+    end
+
     initializer 'message_bus.middleware', before: 'message_bus.configure_init' do
       config.middleware.use(ActionDispatch::Flash) # to fix loading message bus
     end

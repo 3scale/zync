@@ -44,8 +44,6 @@ Rails.application.configure do
   config.log_tags = [ ]
 
   config.lograge.enabled = true
-  config.lograge.ignore_actions = %w[Status/LiveController#show Status/ReadyController#show]
-  config.lograge.formatter = Lograge::Formatters::Json.new
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store

@@ -6,4 +6,8 @@ export DISABLE_SPRING=1
 
 bundle exec bash -c '(BUGSNAG_API_KEY="" bin/rails db:setup) 2>/dev/null || bin/rails db:migrate'
 
+if [ -n "$OPENSHIFT_BUILD_COMMIT" ]; then
+  rake environment bugsnag:deploy BUGSNAG_REPOSITORY="$OPENSHIFT_BUILD_SOURCE" BUGSNAG_REVISION="$OPENSHIFT_BUILD_COMMIT"
+fi
+
 exec bundle exec bin/rails server --binding 0.0.0.0 --port 8080

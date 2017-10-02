@@ -39,6 +39,8 @@ gem 'message_bus' # for publishing notifications about integration status
 
 gem 'validate_url'
 
+gem 'prometheus-client', require: %w[prometheus/client prometheus/middleware/exporter]
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug', platforms: [:mri, :mingw, :x64_mingw]

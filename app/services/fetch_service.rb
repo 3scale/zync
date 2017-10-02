@@ -15,7 +15,9 @@ class FetchService
 
   # @return [ThreeScale::API]
   def build_client(tenant)
-    ThreeScale::API.new(endpoint: tenant.endpoint, provider_key: tenant.access_token)
+    http_client = ThreeScale::API::InstrumentedHttpClient.new(endpoint: tenant.endpoint,
+                                                              provider_key: tenant.access_token)
+    ThreeScale::API::Client.new(http_client)
   end
 
   def call(model)

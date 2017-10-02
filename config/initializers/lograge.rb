@@ -16,4 +16,7 @@ if Rails.application.config.lograge.enabled
 
   require 'lograge/oidc_subscriber'
   Lograge::OIDCSubscriber.attach_to :oidc
+
+  require 'lograge/http_subscriber'
+  Lograge::HTTPSubscriber.attach_to :three_scale_api_client
 end

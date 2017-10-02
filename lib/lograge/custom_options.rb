@@ -8,7 +8,7 @@ module Lograge
     NO_PARAMS = {}.freeze
 
     def call(event)
-      params = event.payload.fetch(:params) { return NO_PARAMS }
+      params = event.payload.fetch(:params) { return NO_PARAMS } || NO_PARAMS
 
       { params: params.except(*ActionController::LogSubscriber::INTERNAL_PARAMS) }
     end

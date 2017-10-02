@@ -27,6 +27,8 @@ module Zync
     config.middleware.insert_before Rack::Sendfile,
                                     ActionDispatch::DebugLocks
 
+    config.middleware.use Prometheus::Middleware::Exporter
+
     config.que = ActiveSupport::InheritableOptions.new(config.que)
 
     config.que.worker_count = ENV.fetch('RAILS_MAX_THREADS'){ 5 }.to_i * 3

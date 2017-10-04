@@ -18,14 +18,14 @@ jobs:
       # Restore bundle cache
       - restore_cache:
           keys:
-            - zync-bundle-{{ checksum "Gemfile.lock" }}
-            - zync-bundle-{{ .Branch }}
-            - zync-branch-master
+            - zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - zync-bundle-{{ arch }}-{{ .Branch }}
+            - zync-branch-{{ arch }}-master
 
       - run: bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
       - save_cache:
-          key: zync-bundle-{{ checksum "Gemfile.lock" }}
+          key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -40,6 +40,6 @@ jobs:
           path: test/reports
 
       - save_cache:
-          key: zync-branch-{{ .Branch }}
+          key: zync-branch-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle

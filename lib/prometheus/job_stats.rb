@@ -42,12 +42,22 @@ module Prometheus
 
     protected
 
+    DEFAULT_STATEMENT_TIMEOUT = 'SET LOCAL statement_timeout TO DEFAULT'
+    READ_ONLY_TRANSACTION =  'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE'
+
     def job_stats
+      connection = ActiveRecord::Base.connection
+
       filter = "WHERE #{@filter}" if @filter
       sql = <<~SQL
           SELECT job, COUNT(*) FROM jobs_list #{filter} GROUP BY job
       SQL
-      Que.execute(CTE + sql)
+
+      connection.transaction do
+        connection.execute(DEFAULT_STATEMENT_TIMEOUT)
+        connection.execute(READ_ONLY_TRANSACTION)
+        connection.select_all(CTE + sql)
+      end
     end
   end
 end

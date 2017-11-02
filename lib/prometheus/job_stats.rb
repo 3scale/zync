@@ -25,7 +25,7 @@ module Prometheus
     SQL
 
     def type
-      :job_stats
+      :gauge
     end
 
     def filter(sql)

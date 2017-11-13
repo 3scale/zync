@@ -74,7 +74,7 @@ class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
     {
         uri: endpoint.merge(req.path).to_s,
         path: req.path,
-        ednpoint: endpoint,
+        endpoint: endpoint,
         method: req.method,
         adapter: self
     }

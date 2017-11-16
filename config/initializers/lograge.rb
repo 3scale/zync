@@ -19,4 +19,7 @@ if Rails.application.config.lograge.enabled
 
   require 'lograge/http_subscriber'
   Lograge::HTTPSubscriber.attach_to :three_scale_api_client
+
+  require 'lograge/net_http_subscriber'
+  Lograge::NetHttpSubscriber.attach_to :net_http
 end

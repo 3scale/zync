@@ -96,10 +96,20 @@ class Keycloak
   # Raised when unexpected response is returned by the Keycloak API.
   class InvalidResponseError < StandardError
     attr_reader :response
+    include Bugsnag::MetaData
 
     def initialize(response: , message: )
       @response = response
-      super(message.presence || '%s %s' % [response.status, response.reason ])
+      self.bugsnag_meta_data = {
+        response: {
+          status: status = response.status,
+          reason: reason = response.reason,
+          content_type: response.content_type,
+          body: response.body,
+        },
+        headers: response.headers
+      }
+      super(message.presence || '%s %s' % [ status, reason ])
     end
   end
 

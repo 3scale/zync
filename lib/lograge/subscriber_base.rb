@@ -60,11 +60,13 @@ module Lograge
     private_constant :EMPTY_DATA
 
     def extract_error(payload)
-      exception, message = payload.fetch(:exception) { return EMPTY_DATA }
+      error_class, message = payload.fetch(:exception) { return EMPTY_DATA }
+      exception = payload[:exception_object]
 
       {
-        exception: exception,
-        error: "#{exception}: #{message}"
+        exception: error_class,
+        error: "#{error_class}: #{message}",
+        metadata: exception.try(:bugsnag_meta_data)
       }
     end
 

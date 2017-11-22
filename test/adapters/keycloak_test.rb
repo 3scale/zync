@@ -34,4 +34,15 @@ class KeycloakTest < ActiveSupport::TestCase
       assert error.bugsnag_meta_data.presence
     end
   end
+
+  test 'invalid response error' do
+    stub_request(:get, 'http://lvh.me:3000/auth/realm/name/.well-known/openid-configuration').
+        to_return(status: 200, body: 'somebody', headers: {'Content-Type' => 'text/plain'} )
+
+    keycloak = Keycloak.new('http://id:secret@lvh.me:3000/auth/realm/name', access_token: 'something')
+
+    assert_raises Keycloak::InvalidResponseError do
+      keycloak.test
+    end
+  end
 end

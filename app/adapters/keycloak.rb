@@ -12,11 +12,12 @@ class Keycloak
 
   attr_reader :endpoint
 
-  def initialize(endpoint)
+  def initialize(endpoint, access_token: nil)
     endpoint = EndpointConfiguration.new(endpoint)
     @endpoint = endpoint.uri
     @access_token = AccessToken.new(endpoint.client_id, endpoint.client_secret,
                                     @endpoint.normalize, http_client)
+    @access_token.value = access_token if access_token
   end
 
   def create_client(client)
@@ -95,10 +96,20 @@ class Keycloak
   # Raised when unexpected response is returned by the Keycloak API.
   class InvalidResponseError < StandardError
     attr_reader :response
+    include Bugsnag::MetaData
 
     def initialize(response: , message: )
       @response = response
-      super(message.presence || '%s %s' % [response.status, response.reason ])
+      self.bugsnag_meta_data = {
+        response: {
+          status: status = response.status,
+          reason: reason = response.reason,
+          content_type: response.content_type,
+          body: response.body,
+        },
+        headers: response.headers
+      }
+      super(message.presence || '%s %s' % [ status, reason ])
     end
   end
 
@@ -198,6 +209,11 @@ class Keycloak
       ref.try_update(&method(:fresh_token))
 
       ref.value
+    end
+
+    def value=(value)
+      @value.try_set { Concurrent::AtomicReference.new(OAuth2::AccessToken.new(oauth_client, value)) }
+      @value.value
     end
 
     def value!

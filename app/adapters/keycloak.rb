@@ -12,11 +12,12 @@ class Keycloak
 
   attr_reader :endpoint
 
-  def initialize(endpoint)
+  def initialize(endpoint, access_token: nil)
     endpoint = EndpointConfiguration.new(endpoint)
     @endpoint = endpoint.uri
     @access_token = AccessToken.new(endpoint.client_id, endpoint.client_secret,
                                     @endpoint.normalize, http_client)
+    @access_token.value = access_token if access_token
   end
 
   def create_client(client)
@@ -198,6 +199,11 @@ class Keycloak
       ref.try_update(&method(:fresh_token))
 
       ref.value
+    end
+
+    def value=(value)
+      @value.try_set { Concurrent::AtomicReference.new(OAuth2::AccessToken.new(oauth_client, value)) }
+      @value.value
     end
 
     def value!

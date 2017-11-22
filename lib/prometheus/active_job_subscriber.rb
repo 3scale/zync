@@ -9,12 +9,12 @@ module Prometheus
     prometheus = Prometheus::Client.registry or raise 'Missing Prometheus client registry'
 
     metrics = {
-        retried_jobs: prometheus.counter(:job_retries, 'A number of Jobs retried'),
-        failed_jobs: prometheus.counter(:failed_jobs, 'A number of Jobs errored'),
-        performed_jobs: prometheus.counter(:performed_jobs, 'A number of Jobs performed'),
-        enqueued_jobs: prometheus.counter(:enqueued_jobs, 'A number of Jobs enqueued'),
-        histogram: prometheus.histogram(:jobs_histogram, 'A histogram of Jobs perform times'),
-        summary: prometheus.summary(:jobs_summary, 'A summary of Jobs perform times'),
+        retried_jobs: prometheus.counter(:zync_job_retries, 'A number of Jobs retried'),
+        failed_jobs: prometheus.counter(:zync_failed_jobs, 'A number of Jobs errored'),
+        performed_jobs: prometheus.counter(:zync_performed_jobs, 'A number of Jobs performed'),
+        enqueued_jobs: prometheus.counter(:zync_enqueued_jobs, 'A number of Jobs enqueued'),
+        histogram: prometheus.histogram(:zync_jobs_histogram, 'A histogram of Jobs perform times'),
+        summary: prometheus.summary(:zync_jobs_summary, 'A summary of Jobs perform times'),
     }
     METRICS = OpenStruct.new(metrics).freeze
 

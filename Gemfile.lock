@@ -53,7 +53,9 @@ GEM
     arel (8.0.0)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
-    bugsnag (5.3.3)
+    bugsnag (6.6.1)
+      concurrent-ruby (~> 1.0)
+    bugsnag-capistrano (1.1.1)
     builder (3.2.3)
     byebug (9.0.6)
     codecov (0.1.10)
@@ -217,6 +219,7 @@ PLATFORMS
 DEPENDENCIES
   3scale-api (~> 0.1.4)
   bugsnag
+  bugsnag-capistrano
   codecov
   httpclient
   license_finder (~> 3.0)
@@ -241,4 +244,4 @@ DEPENDENCIES
   webmock (~> 3.0)
 
 BUNDLED WITH
-   1.15.4
+   1.16.0

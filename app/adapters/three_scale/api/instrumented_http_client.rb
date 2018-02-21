@@ -5,6 +5,20 @@ require 'securerandom'
 # Custom HTTP Client for 3scale API client with added instrumentation.,
 class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
 
+  def initialize(**)
+    super
+
+    if (system_provider_port = ENV['SYSTEM_PROVIDER_PORT'].presence)
+      proxy = URI(system_provider_port).freeze
+
+      @http = Net::HTTP.new(proxy.host, proxy.port)
+      @http.set_debug_output($stdout) if debug?
+
+      @headers = headers.merge('X-Forwarded-Host' => admin_domain,
+                               'X-Forwarded-Proto' =>  endpoint.scheme)
+    end
+  end
+
   def get(path, params: nil)
     req = build_request(Net::HTTP::Get, path, params)
     parse request(req, params: params)

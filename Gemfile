@@ -31,7 +31,9 @@ gem 'que'
 gem 'bugsnag'
 gem 'bugsnag-capistrano', require: false
 
-gem 'httpclient'
+# This fork allows setting SSL_CERT_FILE and SSL_CERT_DIR
+# https://github.com/nahi/httpclient/issues/369
+gem 'httpclient', github: 'mikz/httpclient', branch: 'ssl-env-cert'
 gem 'oauth2'
 
 gem 'lograge'

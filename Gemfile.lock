@@ -6,6 +6,13 @@ GIT
     license_finder_xml_reporter (0.1.0)
       license_finder
 
+GIT
+  remote: https://github.com/mikz/httpclient.git
+  revision: ba21d0d44c9f5f4602c7fc151f7c24f827480361
+  branch: ssl-env-cert
+  specs:
+    httpclient (2.8.3)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -77,7 +84,6 @@ GEM
     hashdiff (0.3.5)
     httparty (0.15.6)
       multi_xml (>= 0.5.2)
-    httpclient (2.8.3)
     i18n (0.8.6)
     interception (0.5)
     json (2.1.0)
@@ -221,7 +227,7 @@ DEPENDENCIES
   bugsnag
   bugsnag-capistrano
   codecov
-  httpclient
+  httpclient!
   license_finder (~> 3.0)
   license_finder_xml_reporter!
   lograge

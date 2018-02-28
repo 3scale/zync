@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: https://github.com/mikz/httpclient.git
-  revision: ba21d0d44c9f5f4602c7fc151f7c24f827480361
+  revision: fec23fb32fb899b87a8b2c94e2d2069b6b4c633c
   branch: ssl-env-cert
   specs:
     httpclient (2.8.3)
@@ -250,4 +250,4 @@ DEPENDENCIES
   webmock (~> 3.0)
 
 BUNDLED WITH
-   1.16.0
+   1.16.1

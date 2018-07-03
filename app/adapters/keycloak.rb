@@ -75,6 +75,10 @@ class Keycloak
         secret: client_secret,
         redirectUris: [ redirect_url ].compact,
         attributes: { '3scale' => true },
+        standardFlowEnabled: true,
+        implicitFlowEnabled: true,
+        serviceAccountsEnabled: true,
+        directAccessGrantsEnabled: true,
         enabled: enabled?,
       }.to_json
     end

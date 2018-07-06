@@ -89,7 +89,7 @@ class Keycloak
     end
 
     def enabled?
-      state ? state == 'live' : enabled
+      enabled
     end
   end
 

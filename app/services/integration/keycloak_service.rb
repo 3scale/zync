@@ -65,7 +65,7 @@ class Integration::KeycloakService
 
   def client_params(data)
     params = ActionController::Parameters.new(data)
-    params.permit(:client_id, :client_secret, :redirect_url, :state, :name, :description)
+    params.permit(:client_id, :client_secret, :redirect_url, :state, :enabled, :name, :description)
   end
 
   def remove(client)

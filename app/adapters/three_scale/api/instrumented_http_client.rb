@@ -58,10 +58,10 @@ class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
   protected
 
   def headers
-    super.merge(extra_headers)
+    super.merge(self.class.extra_headers)
   end
 
-  def extra_headers
+  def self.extra_headers
     { 'X-Request-Id' => SecureRandom.uuid, 'X-Zync-Token' => Rails.application.secrets.authentication[:token] }.compact
   end
 

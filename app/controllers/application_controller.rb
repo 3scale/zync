@@ -12,9 +12,9 @@ class ApplicationController < ActionController::API
   protected
 
   def authenticate
-    authentication = Rails.application.secrets.authentication || {}.freeze
+    expected_token = Rails.application.secrets.authentication[:token].presence
 
-    expected_token = authentication.fetch(:token) { return }
+    return unless expected_token
 
     authenticate_or_request_with_http_token do |token|
       ActiveSupport::SecurityUtils.secure_compare(

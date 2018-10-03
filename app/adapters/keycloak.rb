@@ -76,6 +76,7 @@ class Keycloak
         redirectUris: [ redirect_url ].compact,
         attributes: { '3scale' => true },
         enabled: enabled?,
+        directAccessGrantsEnabled: directAccess?,
       }.to_json
     end
 
@@ -90,6 +91,10 @@ class Keycloak
 
     def enabled?
       enabled
+    end
+
+    def directAccess?
+      ENV['DIRECT_ACCESS_ENABLED'] == 'true'
     end
   end
 

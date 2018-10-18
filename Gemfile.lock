@@ -63,7 +63,7 @@ GEM
     blankslate (2.1.2.4)
     bugsnag (6.8.0)
       concurrent-ruby (~> 1.0)
-    bugsnag-capistrano (1.1.1)
+    bugsnag-capistrano (1.1.2)
     builder (3.2.3)
     byebug (10.0.2)
     codecov (0.1.13)

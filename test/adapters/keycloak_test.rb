@@ -45,4 +45,30 @@ class KeycloakTest < ActiveSupport::TestCase
       keycloak.test
     end
   end
+
+  test 'using configuration' do
+    config = {
+        attributes: {
+            serviceAccountsEnabled: true
+        }
+    }
+
+    Rails.application.config.x.stub(:keycloak, config) do
+      client = Keycloak::Client.new(name: 'foo')
+
+      assert_includes client.attributes, :serviceAccountsEnabled
+    end
+  end
+
+  test 'client attributes' do
+    client = Keycloak::Client.new(name: 'name')
+
+    assert_includes client.attributes, :name
+  end
+
+  test 'client serialization' do
+    client = Keycloak::Client.new(name: 'name')
+
+    assert_equal client.attributes.to_json, client.to_json
+  end
 end

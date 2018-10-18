@@ -64,5 +64,7 @@ module Zync
     initializer 'message_bus.middleware', after: 'message_bus.configure_init' do
       config.middleware.delete(ActionDispatch::Flash) # remove it after message bus loaded
     end
+
+    config.x.keycloak = config_for(:keycloak) || Hash.new
   end
 end

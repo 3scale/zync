@@ -1,11 +1,18 @@
 # frozen_string_literal: true
+
+if ENV.key?('CI')
+  require 'simplecov'
+  require 'codecov'
+
+  SimpleCov.start('rails') do
+    formatter SimpleCov::Formatter::Codecov
+  end
+end
+
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'minitest/mock'
 require 'webmock/minitest'
-
-require 'simplecov'
-require 'codecov'
 
 if ENV.key?('CI')
   Minitest.extensions << 'ci'
@@ -14,10 +21,6 @@ if ENV.key?('CI')
       require 'minitest/reporters/junit_reporter'
       reporter << Minitest::Reporters::JUnitReporter.new
     end
-  end
-
-  SimpleCov.start('rails') do
-    formatter SimpleCov::Formatter::Codecov
   end
 end
 

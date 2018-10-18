@@ -9,9 +9,19 @@ class NotificationsControllerTest < ActionDispatch::IntegrationTest
       to_return(status: 200, body: '{}', headers: {})
 
     perform_enqueued_jobs do
-      put notification_url(format: :json), params: { type: 'Application', tenant_id: tenants(:one).id }
+      put notification_url(format: :json),
+          params: { type: 'Application', tenant_id: tenants(:one).id }
     end
 
     assert_response :success
+  end
+
+  test 'update invalid notification' do
+    perform_enqueued_jobs do
+      put notification_url(format: :json),
+          params: { type: 'Unknown', tenant_id: tenants(:one).to_param }
+    end
+
+    assert_response :unprocessable_entity
   end
 end

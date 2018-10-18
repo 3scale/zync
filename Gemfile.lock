@@ -61,7 +61,7 @@ GEM
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
     blankslate (2.1.2.4)
-    bugsnag (6.7.1)
+    bugsnag (6.8.0)
       concurrent-ruby (~> 1.0)
     bugsnag-capistrano (1.1.1)
     builder (3.2.3)

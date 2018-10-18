@@ -26,6 +26,8 @@ gem 'puma', '~> 3.7'
 gem 'responders', '~> 2.4.0'
 gem '3scale-api', '~> 0.1.4'
 
+gem 'bootsnap'
+
 gem 'que'
 
 gem 'bugsnag'

@@ -12,7 +12,12 @@ class Notification < ApplicationRecord
     end
 
     ALLOWED_MODELS = Set.new(%w(Application Proxy Service)).freeze
-    NULL_TYPE = OpenStruct.new(attribute_names: [].freeze).freeze
+    NULL_TYPE = Object.new.tap do |object|
+      def object.find_or_create_by!(*); end
+      def object.attribute_names; end
+
+      object.freeze
+    end
 
     def type
       type = @data.fetch(:type)

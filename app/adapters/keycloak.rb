@@ -67,16 +67,19 @@ class Keycloak
     alias_attribute :client_id, :id
     alias_attribute :client_secret, :secret
 
-    def read
+    delegate :to_json, to: :attributes
+    alias read to_json
+
+    def attributes
       {
-        name: name,
-        description: description,
-        clientId: id,
-        secret: client_secret,
-        redirectUris: [ redirect_url ].compact,
-        attributes: { '3scale' => true },
-        enabled: enabled?,
-      }.to_json
+          name: name,
+          description: description,
+          clientId: id,
+          secret: client_secret,
+          redirectUris: [ redirect_url ].compact,
+          attributes: { '3scale' => true },
+          enabled: enabled?,
+      }.merge(self.class.attributes)
     end
 
     # This method smells of :reek:UncommunicativeMethodName but it comes from Keycloak
@@ -90,6 +93,10 @@ class Keycloak
 
     def enabled?
       enabled
+    end
+
+    def self.attributes
+      Rails.application.config.x.keycloak.dig(:attributes) || Hash.new
     end
   end
 

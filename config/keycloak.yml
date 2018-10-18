@@ -1,0 +1,13 @@
+example:
+  attributes:
+    # see other properties in https://www.keycloak.org/docs-api/3.4/javadocs/org/keycloak/representations/idm/ClientTemplateRepresentation.html
+    standardFlowEnabled: true
+    implicitFlowEnabled: false
+    serviceAccountsEnabled: true
+    directAccessGrantsEnabled: true
+
+development:
+
+production:
+
+test:

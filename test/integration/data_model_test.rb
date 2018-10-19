@@ -6,6 +6,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
 
   def teardown
     assert_not_outstanding_requests
+  ensure
     super
   end
 
@@ -59,9 +60,9 @@ class DataModelTest < ActionDispatch::IntegrationTest
       oidc_issuer_endpoint.userinfo = ''
       stub_request(:post, "#{oidc_issuer_endpoint}/protocol/openid-connect/token").
           with(
-              body: {"client_id"=>"foo", "client_secret"=>"bar", "grant_type"=>"client_credentials"},
+              body: {'client_id' => 'foo', 'client_secret' => 'bar', 'grant_type' => 'client_credentials'},
               headers: (urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' })).
-          to_return(status: 200, body: "access_token=token", headers: urlencoded)
+          to_return(status: 200, body: 'access_token=token', headers: urlencoded)
 
       stub_request(:get, "#{oidc_issuer_endpoint}/.well-known/openid-configuration").
           to_return(status: 200)
@@ -80,12 +81,16 @@ class DataModelTest < ActionDispatch::IntegrationTest
     client = { client_id: 'foo', client_secret: 'bar' }
     find_application = stub_request(:get, "#{tenant[:endpoint]}/admin/api/applications/find.json?application_id=1").
         with(headers: http_fetch_headers).
+        to_return(body: client.to_json)
+
+    stub_request(:get, "http://example.com/admin/api/applications/find.json?app_id=foo").
+        with(basic_auth: ['', tenant[:access_token]], headers: http_fetch_headers).
         to_return(body: client.to_json).then.
         to_return(body: client.merge(name: 'new-name').to_json).then.
         to_return(status: 404)
 
     perform_enqueued_jobs do
-      stub_request(:put, "http://example.com/auth/realm/master/clients-registrations/default/foo").
+      stub_request(:put, 'http://example.com/auth/realm/master/clients-registrations/default/foo').
           with(
               body: '{"name":null,"description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}',
               headers: {
@@ -94,7 +99,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
               }).
           to_return(status: 200)
 
-      stub_request(:put, "http://example.com/auth/realm/master/clients-registrations/default/foo").
+      stub_request(:put, 'http://example.com/auth/realm/master/clients-registrations/default/foo').
           with(
               body: '{"name":"new-name","description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}',
               headers: {
@@ -103,7 +108,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
               }).
           to_return(status: 200)
 
-      stub_request(:delete, "http://example.com/auth/realm/master/clients-registrations/default/foo").
+      stub_request(:delete, 'http://example.com/auth/realm/master/clients-registrations/default/foo').
           with(headers: { 'Authorization'=>'Bearer token' }).
           to_return(status: 200)
 
@@ -117,7 +122,66 @@ class DataModelTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'recreating application in Keycloak with the same client id' do
+    keycloak = integrations(:keycloak)
+    service = keycloak.model.record
+    tenant = keycloak.tenant
+
+    json_request_headers = {
+        'Accept'=>'application/json',
+        'Content-Type'=>'application/json',
+    }
+
+    perform_enqueued_jobs do
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
+          with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json).
+          then.to_return(status: 404)
+
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo").
+          with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+
+      stub_oauth_access_token(keycloak)
+
+      stub_request(:put, "http://example.com/clients-registrations/default/foo").
+        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        to_return(status: 200)
+
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=2").
+          with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+
+      put_notification(type: 'Application', id: 1, service_id: service.to_param, tenant_id: tenant.to_param)
+      put_notification(type: 'Application', id: 2, service_id: service.to_param, tenant_id: tenant.to_param)
+      put_notification(type: 'Application', id: 1, service_id: service.to_param, tenant_id: tenant.to_param)
+    end
+
+  end
+
   protected
+
+  def put_notification(payload)
+    put notification_url(format: :json), params: payload
+    assert_response :success
+  end
+
+  def stub_oauth_access_token(integration, value: SecureRandom.hex)
+    endpoint = URI(integration.endpoint)
+
+    user = endpoint.user
+    password = endpoint.password
+
+    endpoint.userinfo = ''
+
+    urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' }
+
+    stub_request(:post, "#{endpoint}/protocol/openid-connect/token").
+        with(
+            body: {'client_id' =>user, 'client_secret' =>password, 'grant_type' => 'client_credentials'},
+            headers: urlencoded).
+        to_return(status: 200, body: { access_token: value }.to_query, headers: urlencoded)
+  end
 
   # Backported https://github.com/rails/rails/commit/ec1630148853c46a1e3b35cd48bf85aa0e049d81
   # Can be removed on Rails 6.0

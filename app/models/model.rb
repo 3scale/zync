@@ -9,6 +9,10 @@ class Model < ApplicationRecord
     record.try(:integration_model) || self
   end
 
+  def weak_record
+    record_type.constantize.new(id: record_id)
+  end
+
   # Error raised when weak lock can't be acquired.
   class LockTimeoutError < StandardError; end
 

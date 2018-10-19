@@ -11,13 +11,22 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     end
   end
 
-  test 'model integrations for' do
+  test 'model integrations for proxy' do
     job = ProcessEntryJob.new
     proxy = entries(:proxy)
 
     integrations = job.model_integrations_for(proxy)
 
     assert_equal 0, integrations.size
+  end
+
+  test 'model integrations for client' do
+    job = ProcessEntryJob.new
+    proxy = entries(:client)
+
+    integrations = job.model_integrations_for(proxy)
+
+    assert_equal 1, integrations.size
   end
 
   test 'creates keycloak integration for Proxy' do

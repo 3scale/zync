@@ -36,10 +36,8 @@ class Notification < ApplicationRecord
     type = data.type
     attributes = data.to_hash.merge(tenant: tenant)
 
-    retry_record_not_unique do
-      record = type.find_or_create_by!(attributes)
-
-      Model.find_or_create_by!(record: record, tenant: tenant)
+    Model.create_record!(tenant) do
+      type.find_or_create_by!(attributes)
     end
   end
 end

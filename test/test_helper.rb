@@ -35,4 +35,9 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
+  def assert_not_outstanding_requests
+    WebMock::StubRegistry.instance.request_stubs.each do |stub|
+      assert_request_requested(stub, at_least_times: 1)
+    end
+  end
 end

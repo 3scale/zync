@@ -35,6 +35,23 @@ class KeycloakTest < ActiveSupport::TestCase
     end
   end
 
+  test 'test' do
+    form_urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' }
+    token = stub_request(:post, 'http://example.com/auth/realm/name/protocol/openid-connect/token').
+        with(
+            body: {'client_id' => 'id', 'client_secret' => 'secret', 'grant_type' => 'client_credentials'},
+            headers: form_urlencoded).
+        to_return(status: 200, body: 'access_token=foo', headers: form_urlencoded)
+    well_known = stub_request(:get, "http://example.com/auth/realm/name/.well-known/openid-configuration").
+        to_return(status: 200)
+    keycloak = Keycloak.new('http://id:secret@example.com/auth/realm/name')
+
+    keycloak.test
+
+    assert_requested token
+    assert_requested well_known
+  end
+
   test 'invalid response error' do
     stub_request(:get, 'http://lvh.me:3000/auth/realm/name/.well-known/openid-configuration').
         to_return(status: 200, body: 'somebody', headers: {'Content-Type' => 'text/plain'} )

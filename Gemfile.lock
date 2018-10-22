@@ -16,7 +16,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    3scale-api (0.1.5)
+    3scale-api (0.1.6)
     actioncable (5.2.1)
       actionpack (= 5.2.1)
       nio4r (~> 2.0)

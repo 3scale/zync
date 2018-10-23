@@ -26,6 +26,8 @@ class FetchService
       fetch_service(model)
     when Application
       fetch_application(model)
+    when Client
+      fetch_client(model)
     when Proxy
       fetch_proxy(model)
     else
@@ -63,10 +65,23 @@ class FetchService
     build_entry(model, data: application)
   end
 
+  def fetch_client(model)
+    client = build_client(model.tenant)
+
+    begin
+      application = client.find_application(application_id: model.record.client_id)
+        # right now the client raises runtime error, but rather should return a result
+    rescue RuntimeError
+      application = nil # 404'd
+    end
+
+    build_entry(model, data: application)
+  end
+
   def build_entry(model, **attributes)
     Entry.for_model(model).tap do |entry|
       entry.assign_attributes attributes
-      Rails.logger.debug "[FetchService] got Entry: #{entry.attributes.compact}"
+      Rails.logger.debug "[FetchService] got Entry (#{model.record.class}): #{entry.attributes.compact}"
     end
   end
 end

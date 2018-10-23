@@ -4,6 +4,10 @@ application:
   tenant: one
   record: one (Application)
 
+client:
+  tenant: two
+  record: two (Client)
+
 service:
   tenant: two
   record: two (Service)

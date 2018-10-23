@@ -1,9 +1,16 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 application:
-  data: 
+  data:
+    client_id: one
   tenant: one
   model: application
+  created_at: <%= 1.week.ago %>
+
+client:
+  data:
+  tenant: two
+  model: client
   created_at: <%= 1.week.ago %>
 
 service:

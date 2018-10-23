@@ -12,23 +12,47 @@ class Integration::KeycloakService
   def call(entry)
     case entry.record
     when Proxy then handle_test
-    when Application then handle_application(entry)
+    when Application then ClientFromApplication.call(entry)
+    when Client then handle_client(entry)
     else handle_rest(entry)
     end
   end
 
-  def handle_application(entry)
+  def handle_client(entry)
     client = build_client(entry)
-
-    unless client.id
-      # Not OAuth
-      return
-    end
 
     if persist?(client)
       persist(client)
     else
       remove(client)
+    end
+  end
+
+  # Convert Application to Client and trigger new update from the API.
+  # Creates new Client if needed and triggers UpdateJob for it.
+  class ClientFromApplication
+    def self.call(entry)
+      new(entry).call
+    end
+
+    attr_reader :tenant, :client_id, :scope
+
+    def initialize(entry)
+      @client_id = entry.data&.dig('client_id')
+      @tenant = entry.tenant
+      @scope = Client.for_service(entry.record.service)
+    end
+
+    def call
+      return unless client_id
+
+      model = Model.create_record!(tenant) do
+        scope.find_or_create_by!(client_id: client_id)
+      end
+
+      UpdateJob.perform_later(model)
+
+      model
     end
   end
 
@@ -44,8 +68,12 @@ class Integration::KeycloakService
   private_constant :EMPTY_DATA
 
   def client_id(entry)
-    return unless entry.model.record_type == 'Application'
-    (entry.data || entry.previous_data).fetch('client_id') { return }
+    case entry.model.weak_record
+    when Client
+      (entry.data || entry.previous_data).fetch('client_id') { return }
+    else
+      return
+    end
   end
 
   def persist?(client)

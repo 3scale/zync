@@ -1,9 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  tenant: one
   service: one
+  tenant: one
+  client_id: one
 
 two:
-  tenant: two
   service: two
+  tenant: two
+  client_id: two

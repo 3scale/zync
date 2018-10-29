@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: zync-buildconfig
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: zync
+    name: zync
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: zync:latest
+    postCommit:
+      command:
+      - /bin/bash
+      - -c
+      - bin/rails runner 'puts Rails.env'
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/3scale/zync.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: ruby-24-centos7:latest
+      type: Source
+    triggers:
+    - github:
+        secret: "${GITHUB_SECRET}"
+      type: GitHub
+    - type: ImageChange
+    - type: ConfigChange
+ 
+parameters:
+- name: GITHUB_SECRET
+  displayName: GitHub WebHook Secret
+  description: Secret for Github Webhook.
+  generate: expression
+  from: "[a-z0-9]{12}"
+  required: true

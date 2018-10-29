@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: zync-services
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: zync
+      prometheus.io/scrape: "true"
+    name: zync
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: zync
+      deploymentconfig: zync
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: zync-database
+  spec:
+    externalName: "${ZYNC_EXTERNAL_DB_HOST}"
+    sessionAffinity: None
+    type: ExternalName
+
+parameters:
+- name: ZYNC_EXTERNAL_DB_HOST
+  description: Zync external postgres database server
+  required: true

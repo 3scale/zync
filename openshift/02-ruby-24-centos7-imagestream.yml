@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ImageStream
+metadata:
+  labels:
+    app: zync
+  name: ruby-24-centos7
+spec:
+  tags:
+  - from:
+      kind: DockerImage
+      name: centos/ruby-24-centos7
+    name: latest
+    referencePolicy:
+      type: Source

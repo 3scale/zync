@@ -69,7 +69,7 @@ GEM
       msgpack (~> 1.0)
     bugsnag (6.8.0)
       concurrent-ruby (~> 1.0)
-    bugsnag-capistrano (1.1.2)
+    bugsnag-capistrano (2.0.0)
     builder (3.2.3)
     byebug (10.0.2)
     codecov (0.1.13)
@@ -241,7 +241,7 @@ DEPENDENCIES
   3scale-api (~> 0.1.4)
   bootsnap
   bugsnag
-  bugsnag-capistrano (< 2)
+  bugsnag-capistrano (< 3)
   codecov
   httpclient!
   license_finder (~> 3.0)

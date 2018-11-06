@@ -33,7 +33,7 @@ gem 'que'
 gem 'bugsnag'
 # bugsnag-capistrano 2.x does not have a rake task to report deploys
 # https://github.com/bugsnag/bugsnag-capistrano/blob/8bcfb27cf6eaff312eef086cce729d553a431460/UPGRADING.md
-gem 'bugsnag-capistrano', '< 2', require: false
+gem 'bugsnag-capistrano', '< 3', require: false
 
 # This fork allows setting SSL_CERT_FILE and SSL_CERT_DIR
 # https://github.com/nahi/httpclient/issues/369

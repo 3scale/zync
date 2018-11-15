@@ -1,10 +1,10 @@
-.PHONY: all secrets imagestream buildconfig deploy service route help
+.PHONY: all secrets imagestream buildconfig deploy service route hpa help
 .DEFAULT_GOAL := help
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 THISDIR_PATH := $(patsubst %/,%,$(abspath $(dir $(MKFILE_PATH))))
 
-all: secrets imagestream buildconfig deploy service route
+all: secrets imagestream buildconfig deploy service route hpa
 
 secrets: ## Create the secrets. Parameters: BUGSNAG_API_KEY, DB_URL, DB_NAME, DB_USER, DB_PASSWORD, DB_PORT, SECRET_KEY_BASE, SKYLIGHT_AUTHENTICATION, ZYNC_AUTHENTICATION_TOKEN.
 	oc new-app -f $(THISDIR_PATH)/00-secrets-template.yml \
@@ -35,6 +35,8 @@ service: ## Create the Services. Parameters: ZYNC_EXTERNAL_DB_HOST.
 route: ## Create the Routes.Parameters: HOST.
 	oc new-app -f $(THISDIR_PATH)/06-route-template.yml \
 		-p HOST=${HOST}
+hpa: ## Create the HPA.
+	oc create -f $(THISDIR_PATH)/07-zync-hpa.yml
 
 help: ## Print this help
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)

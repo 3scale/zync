@@ -1,6 +1,6 @@
 # Zync - the sync tool
 
-Zync is going to take your 3scale data and push it somewhere else, reliably. Offers only one directional sync (from 3scale to other systems).
+Zync is going to take your 3scale data and pushes it somewhere else, reliably. Offers only one directional sync (from 3scale to other systems).
 
 ## Terminology
 

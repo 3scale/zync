@@ -224,7 +224,7 @@ GEM
     validate_url (1.0.2)
       activemodel (>= 3.0.0)
       addressable
-    webmock (3.4.2)
+    webmock (3.5.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
@@ -263,7 +263,7 @@ DEPENDENCIES
   spring
   tzinfo-data
   validate_url
-  webmock (~> 3.0)
+  webmock (~> 3.5)
 
 BUNDLED WITH
    1.16.6

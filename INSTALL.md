@@ -1,10 +1,17 @@
-# Install Zync
+# Install Zync (only explained for MacOS so far)
+1. Download this repository.
+`git clone git@github.com:3scale/zync.git`
 
-Download this repository and run `bundle install`.
+2. Move to the folder of the project.
+`cd zync`
 
-Install PostgreSQL with `brew install postgresql`
-Start its service with `brew services start postgresql`
+3. Install the dependencies. There is `Brewfile` containing all the dependencies.
+`brew bundle`
 
-Make sure that it is running. See the services running with `brew services list` and `postgresql` should be in that list with status `started` and looking green. If you see an orange `orange` started, that means that it is trying to start but it is having errors, which you can see with more detail in the logs with `tail -f /usr/local/var/log/postgres.log`.
+4. Start postgres.
+`brew services start postgresql`
 
-Create the database with `rails db:create`.
+5. Setup Zync.
+`./bin/setup`
+
+The command `brew services start postgresql` starts the service of PostgreSQL. If `./bin/setup` aborts, make sure that the `PostgreSQL` service is running. Verify with `brew services list` that has a status `started` and looking green. If the status is `started` but coloured orange, fix the errors indicated in the log located in `/usr/local/var/log/postgres.log`

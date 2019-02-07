@@ -144,7 +144,7 @@ GEM
     parslet (1.5.0)
       blankslate (~> 2.0)
     pg (1.1.4)
-    prometheus-client (0.8.0)
+    prometheus-client (0.9.0)
       quantile (~> 0.2.1)
     pry (0.12.2)
       coderay (~> 1.1.0)

@@ -68,7 +68,7 @@ class KeycloakTest < ActiveSupport::TestCase
         attributes: {
             serviceAccountsEnabled: true
         }
-    }
+    }.deep_stringify_keys
 
     Rails.application.config.x.stub(:keycloak, config) do
       client = Keycloak::Client.new(name: 'foo')

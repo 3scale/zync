@@ -96,7 +96,7 @@ class Keycloak
     end
 
     def self.attributes
-      Rails.application.config.x.keycloak.dig(:attributes) || Hash.new
+      Rails.application.config.x.keycloak.deep_symbolize_keys.dig(:attributes) || Hash.new
     end
   end
 

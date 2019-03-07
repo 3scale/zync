@@ -132,6 +132,10 @@ class Keycloak
     end
   end
 
+  def access_token=(value)
+    @access_token.value = value
+  end
+
   protected
 
   JSON_TYPE = Mime[:json]

@@ -12,6 +12,14 @@ class KeycloakTest < ActiveSupport::TestCase
     assert_kind_of URI, keycloak.endpoint
   end
 
+  test 'setting access token' do
+    subject = Keycloak.new('http://lvh.me:3000')
+
+    subject.access_token = 'sometoken'
+
+    assert_equal 'sometoken', subject.send(:access_token).token
+  end
+
   test 'endpoint normalization' do
     uri = URI('http://lvh.me:3000/auth/realm/name/')
 

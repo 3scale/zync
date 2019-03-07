@@ -23,6 +23,7 @@ jobs:
             - zync-branch-{{ arch }}-master
 
       - run: bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+      - run: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
           key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}

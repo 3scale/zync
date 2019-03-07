@@ -96,4 +96,16 @@ class KeycloakTest < ActiveSupport::TestCase
 
     assert_equal client.to_h.to_json, client.to_json
   end
+
+  test 'oauth flows' do
+    keycloak = { clientId: "client_id", implicitFlowEnabled: true, serviceAccountsEnabled: true }
+
+    assert_equal keycloak, Keycloak::Client.new({
+                                                    id: 'client_id',
+                                                    oidc_configuration: {
+                                                        implicit_flow_enabled: true,
+                                                        service_accounts_enabled: true,
+                                                    }
+                                                }).to_h.slice(*keycloak.keys)
+  end
 end

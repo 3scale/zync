@@ -34,6 +34,27 @@ class Integration::KeycloakServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test 'client auth flows attributes' do
+    entry = entries(:client)
+
+    stub_request(:put, "http://example.com/clients-registrations/default/two_id").
+      with(
+        body: {
+            name: "client name", description: "client description",
+            clientId: "two_id", secret: "two_secret",
+            redirectUris: ["http://example.com"], attributes: {'3scale' => true},
+            enabled: true,
+            standardFlowEnabled: true, implicitFlowEnabled: true,
+            serviceAccountsEnabled: true, directAccessGrantsEnabled: true,
+        }.to_json,
+      ).to_return(status: 200)
+
+    subject.tap do |service|
+      service.adapter.access_token = 'foobar'
+      service.call(entry)
+    end
+  end
+
   protected
 
   def subject

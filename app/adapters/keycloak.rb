@@ -18,6 +18,7 @@ class Keycloak
     @access_token = AccessToken.new(endpoint.client_id, endpoint.client_secret,
                                     @endpoint.normalize, http_client)
     @access_token.value = access_token if access_token
+    freeze
   end
 
   def create_client(client)
@@ -54,14 +55,37 @@ class Keycloak
     parse http_client.get(well_known_url, header: headers)
   end
 
+  # Serialize OAuth Configuration to Keycloak format
+  class OAuthConfiguration
+    def initialize(params)
+      @params = params
+    end
+
+    def to_hash
+      {
+          standardFlowEnabled: params[:standard_flow_enabled],
+          implicitFlowEnabled: params[:implicit_flow_enabled],
+          serviceAccountsEnabled: params[:service_accounts_enabled],
+          directAccessGrantsEnabled: params[:direct_access_grants_enabled],
+      }.compact
+    end
+
+    protected
+
+    attr_reader :params
+  end
+  private_constant :OAuthConfiguration
+
   # The Client entity. Mapping the Keycloak Client Representation.
   class Client
     include ActiveModel::Model
     include ActiveModel::Conversion
+    include ActiveModel::Attributes
 
     # noinspection RubyResolve
     # ActiveModel::AttributeAssignment needs public accessors breaking :reek:Attribute
-    attr_accessor :id, :secret, :redirect_url, :state, :enabled, :name, :description
+    attr_accessor :id, :secret, :redirect_url,
+                  :state, :enabled, :name, :description
 
     alias_attribute :clientId, :id
     alias_attribute :client_id, :id
@@ -69,6 +93,8 @@ class Keycloak
 
     delegate :to_json, to: :to_h
     alias read to_json
+
+    attribute :oidc_configuration, default: {}.freeze
 
     def to_h
       {
@@ -79,12 +105,18 @@ class Keycloak
           redirectUris: [ redirect_url ].compact,
           attributes: { '3scale' => true },
           enabled: enabled?,
-      }.merge(self.class.attributes)
+          **oidc_configuration,
+          **self.class.attributes,
+      }
     end
 
     # This method smells of :reek:UncommunicativeMethodName but it comes from Keycloak
     def redirectUris=(uris)
       self.redirect_url = uris.first
+    end
+
+    def oidc_configuration=(params)
+      write_attribute :oidc_configuration, OAuthConfiguration.new(params)
     end
 
     def persisted?

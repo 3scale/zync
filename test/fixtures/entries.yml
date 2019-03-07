@@ -9,6 +9,18 @@ application:
 
 client:
   data:
+    name: "client name"
+    description: "client description"
+    state: "live"
+    enabled: true
+    redirect_url: "http://example.com"
+    client_id: "two_id"
+    client_secret: "two_secret"
+    oidc_configuration:
+      standard_flow_enabled: true
+      implicit_flow_enabled: true
+      service_accounts_enabled: true
+      direct_access_grants_enabled: true
   tenant: two
   model: client
   created_at: <%= 1.week.ago %>

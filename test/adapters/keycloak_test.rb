@@ -12,6 +12,14 @@ class KeycloakTest < ActiveSupport::TestCase
     assert_kind_of URI, keycloak.endpoint
   end
 
+  test 'setting access token' do
+    subject = Keycloak.new('http://lvh.me:3000')
+
+    subject.access_token = 'sometoken'
+
+    assert_equal 'sometoken', subject.send(:access_token).token
+  end
+
   test 'endpoint normalization' do
     uri = URI('http://lvh.me:3000/auth/realm/name/')
 
@@ -73,19 +81,31 @@ class KeycloakTest < ActiveSupport::TestCase
     Rails.application.config.x.stub(:keycloak, config) do
       client = Keycloak::Client.new(name: 'foo')
 
-      assert_includes client.attributes, :serviceAccountsEnabled
+      assert_includes client.to_h, :serviceAccountsEnabled
     end
   end
 
-  test 'client attributes' do
+  test 'client hash' do
     client = Keycloak::Client.new(name: 'name')
 
-    assert_includes client.attributes, :name
+    assert_includes client.to_h, :name
   end
 
   test 'client serialization' do
     client = Keycloak::Client.new(name: 'name')
 
-    assert_equal client.attributes.to_json, client.to_json
+    assert_equal client.to_h.to_json, client.to_json
+  end
+
+  test 'oauth flows' do
+    keycloak = { clientId: "client_id", implicitFlowEnabled: true, serviceAccountsEnabled: true }
+
+    assert_equal keycloak, Keycloak::Client.new({
+                                                    id: 'client_id',
+                                                    oidc_configuration: {
+                                                        implicit_flow_enabled: true,
+                                                        service_accounts_enabled: true,
+                                                    }
+                                                }).to_h.slice(*keycloak.keys)
   end
 end

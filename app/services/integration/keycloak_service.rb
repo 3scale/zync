@@ -91,9 +91,16 @@ class Integration::KeycloakService
     client
   end
 
+  OIDC_FLOWS = %i[
+    standard_flow_enabled implicit_flow_enabled service_accounts_enabled direct_access_grants_enabled
+  ].freeze
+  private_constant :OIDC_FLOWS
+
   def client_params(data)
     params = ActionController::Parameters.new(data)
-    params.permit(:client_id, :client_secret, :redirect_url, :state, :enabled, :name, :description)
+    params.permit(:client_id, :client_secret, :redirect_url,
+                  :state, :enabled, :name, :description,
+                  oidc_configuration: OIDC_FLOWS)
   end
 
   def remove(client)

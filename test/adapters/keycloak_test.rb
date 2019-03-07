@@ -81,19 +81,19 @@ class KeycloakTest < ActiveSupport::TestCase
     Rails.application.config.x.stub(:keycloak, config) do
       client = Keycloak::Client.new(name: 'foo')
 
-      assert_includes client.attributes, :serviceAccountsEnabled
+      assert_includes client.to_h, :serviceAccountsEnabled
     end
   end
 
-  test 'client attributes' do
+  test 'client hash' do
     client = Keycloak::Client.new(name: 'name')
 
-    assert_includes client.attributes, :name
+    assert_includes client.to_h, :name
   end
 
   test 'client serialization' do
     client = Keycloak::Client.new(name: 'name')
 
-    assert_equal client.attributes.to_json, client.to_json
+    assert_equal client.to_h.to_json, client.to_json
   end
 end

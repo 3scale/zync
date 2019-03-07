@@ -67,10 +67,10 @@ class Keycloak
     alias_attribute :client_id, :id
     alias_attribute :client_secret, :secret
 
-    delegate :to_json, to: :attributes
+    delegate :to_json, to: :to_h
     alias read to_json
 
-    def attributes
+    def to_h
       {
           name: name,
           description: description,

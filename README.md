@@ -2,6 +2,12 @@
 
 Zync is going to take your 3scale data and pushes it somewhere else, reliably. Offers only one directional sync (from 3scale to other systems).
 
+## Building from Source
+
+This component is deployed as part of the overall 3scale API Management solution.
+
+Please follow [these instructions](INSTALL.md) on how to set up your development environment locally and [these instructions](INTEGRATE.md) to integrate it with [Porta](https://github.com/3scale/porta) and Keycloak.
+
 ## Terminology
 
 Before describing the design it is important to define the terms.
@@ -9,7 +15,7 @@ Before describing the design it is important to define the terms.
 * **Zync** - deployment of this project, Web API.
 
 
-* **3scale** - 3scale API Manager (system).
+* **3scale** - 3scale API Manager (Porta).
 * **Tenant** - mapping of Provider id registered in 3scale API Manager to domain and access token.
 * **Model** - relevant object in **3scale** like Application, Limit, Metric, Service.
 * **Notification** - Message sent to **Zync** describing the **model** that changed and having all required properties to fetch it from the API later.
@@ -39,7 +45,7 @@ After adding **entry** to the **log** an **integration** is triggered and acquir
 
 ## Properties
 
-Given the locking on the **model** there will be some parallelisation, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing new one. 
+Given the locking on the **model** there will be some parallelization, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing new one.
 
 Because **Zync** will keep a **log** of **events** it will be able to replay changes and recover last state just taking last revisions of each **model** and even remove the ones that have been created before but have been deleted.
 
@@ -89,7 +95,7 @@ Because **Zync** will keep a **log** of **events** it will be able to replay cha
 | ------- | -------------- | -------------- |
 | uuid    | bigint         | bigint         |
 
-### Update 
+### Update
 
 | id (pk) | model_id (fk) | tenant_id (fk) |
 | ------- | ------------- | -------------- |
@@ -106,4 +112,3 @@ Because **Zync** will keep a **log** of **events** it will be able to replay cha
 | id (pk) | integration_id (fk) | model_id (fk) | tenant_id (fk) |
 | ------- | ------------------- | ------------- | -------------- |
 | uuid    | uuid                | uuid          | bigint         |
-

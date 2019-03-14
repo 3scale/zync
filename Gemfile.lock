@@ -216,8 +216,9 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     url (0.3.2)
-    validate_url (1.0.4)
+    validate_url (1.0.6)
       activemodel (>= 3.0.0)
+      public_suffix
     webmock (3.5.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)

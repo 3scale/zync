@@ -45,7 +45,6 @@ gem 'lograge'
 gem 'message_bus' # for publishing notifications about integration status
 
 gem 'validate_url'
-gem 'public_suffix', require: false # until https://github.com/perfectline/validates_url/issues/72 is fixed
 
 gem 'prometheus-client', require: %w[prometheus/client prometheus/middleware/exporter]
 

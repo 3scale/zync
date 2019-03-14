@@ -251,7 +251,6 @@ DEPENDENCIES
   pry-rails
   pry-rescue
   pry-stack_explorer
-  public_suffix
   puma (~> 3.7)
   que
   rails (~> 5.2.2)

@@ -19,6 +19,10 @@ class Entry < ApplicationRecord
     super&.with_indifferent_access
   end
 
+  def last_known_data
+    (data || previous_data || {})
+  end
+
   def process_entry
     ProcessEntryJob.perform_later(self)
   end

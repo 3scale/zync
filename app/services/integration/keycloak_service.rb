@@ -38,7 +38,7 @@ class Integration::KeycloakService
     attr_reader :tenant, :client_id, :scope
 
     def initialize(entry)
-      @client_id = entry.data&.dig('client_id')
+      @client_id = entry.last_known_data.dig('client_id')
       @tenant = entry.tenant
       @scope = Client.for_service(entry.record.service)
     end

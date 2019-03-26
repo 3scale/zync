@@ -156,7 +156,7 @@ GEM
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
     public_suffix (3.0.3)
-    puma (3.12.0)
+    puma (3.12.1)
     quantile (0.2.1)
     que (0.14.3)
     rack (2.0.6)
@@ -251,7 +251,7 @@ DEPENDENCIES
   pry-rails
   pry-rescue
   pry-stack_explorer
-  puma (~> 3.7)
+  puma (~> 3.12)
   que
   rails (~> 5.2.2)
   responders (~> 2.4.1)

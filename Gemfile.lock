@@ -93,7 +93,7 @@ GEM
     interception (0.5)
     json (2.1.0)
     jwt (2.1.0)
-    license_finder (5.7.0)
+    license_finder (5.7.1)
       bundler
       rubyzip
       thor

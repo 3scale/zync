@@ -64,7 +64,7 @@ GEM
     arel (9.0.0)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    bootsnap (1.4.3)
+    bootsnap (1.4.2)
       msgpack (~> 1.0)
     bugsnag (6.11.1)
       concurrent-ruby (~> 1.0)
@@ -216,7 +216,7 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     url (0.3.2)
-    validate_url (1.0.8)
+    validate_url (1.0.6)
       activemodel (>= 3.0.0)
       public_suffix
     webmock (3.5.1)

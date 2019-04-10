@@ -239,9 +239,7 @@ class Keycloak
       @oauth_client = OAuth2::Client.new(client_id, client_secret,
                                    site: site,
                                          token_url: 'protocol/openid-connect/token') do |builder|
-        builder.adapter :httpclient do |client|
-          client.debug_dev = http_client.debug_dev
-        end
+        builder.adapter(:httpclient).last.instance_variable_set(:@client, http_client)
       end
       @value = Concurrent::IVar.new
       freeze

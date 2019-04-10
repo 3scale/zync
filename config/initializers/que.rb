@@ -13,8 +13,6 @@ unless Rails.configuration.cache_classes
   end
 end
 
-Que.internal_logger = Rails.logger
-
 def Que.start!
   require 'que/locker'
 

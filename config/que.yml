@@ -1,0 +1,7 @@
+development:
+  worker_count: 3
+  wait_period: 100
+
+test:
+  worker_count: 2
+  wait_period: 100

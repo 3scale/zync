@@ -12,6 +12,7 @@ gem 'rails', '~> 5.2.3'
 gem 'pg', '>= 0.20'
 # Use Puma as the app server
 gem 'puma', '~> 3.12'
+gem 'puma-metrics'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use ActiveModel has_secure_password
@@ -28,7 +29,7 @@ gem '3scale-api', '~> 0.1.9'
 
 gem 'bootsnap'
 
-gem 'que'
+gem 'que', '>= 1.0.0.beta3'
 
 gem 'bugsnag'
 # bugsnag-capistrano 2.x does not have a rake task to report deploys

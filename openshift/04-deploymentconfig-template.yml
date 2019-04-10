@@ -25,7 +25,7 @@ objects:
     template:
       metadata:
         annotations:
-          prometheus.io/port: "8080"
+          prometheus.io/port: "9393"
           prometheus.io/scrape: "true"
         labels:
           app: zync
@@ -62,6 +62,8 @@ objects:
               secretKeyRef:
                 key: ZYNC_AUTHENTICATION_TOKEN
                 name: zync
+          - name: RAILS_MAX_THREADS
+            value: '10'
           - name: RAILS_LOG_LEVEL
             value: info
           image: zync:latest
@@ -78,7 +80,11 @@ objects:
             timeoutSeconds: 60
           name: zync
           ports:
-          - containerPort: 8080
+          - name: zync
+            containerPort: 8080
+            protocol: TCP
+          - name: metrics
+            containerPort: 9393
             protocol: TCP
           readinessProbe:
             failureThreshold: 3
@@ -90,6 +96,53 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 250m
+              memory: 250M
+          terminationMessagePath: /dev/termination-log
+        - env:
+          - name: RAILS_LOG_TO_STDOUT
+            value: "true"
+          - name: RAILS_ENV
+            value: production
+          - name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                key: DATABASE_URL
+                name: zync
+          - name: SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                key: SECRET_KEY_BASE
+                name: zync
+          - name: BUGSNAG_API_KEY
+            valueFrom:
+              secretKeyRef:
+                key: BUGSNAG_API_KEY
+                name: zync
+          - name: SKYLIGHT_AUTHENTICATION
+            valueFrom:
+              secretKeyRef:
+                key: SKYLIGHT_AUTHENTICATION
+                name: zync
+          - name: ZYNC_AUTHENTICATION_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: ZYNC_AUTHENTICATION_TOKEN
+                name: zync
+          - name: RAILS_LOG_LEVEL
+            value: info
+          args:
+          - que
+          - --worker-count
+          - 10
+          image: zync:latest
+          imagePullPolicy: Always
+          name: que
           resources:
             limits:
               cpu: "1"

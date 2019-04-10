@@ -8,7 +8,6 @@ objects:
   metadata:
     labels:
       app: zync
-      prometheus.io/scrape: "true"
     name: zync
   spec:
     ports:

@@ -20,7 +20,7 @@ module Prometheus
       options->>'job_id' AS job_uuid,
       (options->>'executions')::integer AS retries,
       options->'arguments' AS arguments,
-      run_at, job_id FROM jobs
+      run_at, id as job_id FROM jobs
       )
     SQL
 

@@ -29,10 +29,12 @@ module Zync
 
     config.middleware.use Prometheus::Middleware::Exporter
 
-    config.que = ActiveSupport::InheritableOptions.new(config.que)
+    begin
+      que = config_for(:que)&.deep_symbolize_keys
 
-    config.que.worker_count = ENV.fetch('RAILS_MAX_THREADS'){ 5 }.to_i * 3
-    config.que.mode = :async
+      config.x.que = que
+      config.x.que[:worker_priorities] ||= Array.new(que.delete(:worker_count).to_i)
+    end
 
     # Use the responders controller from the responders gem
     config.app_generators.scaffold_controller :responders_controller

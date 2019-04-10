@@ -1,35 +1,30 @@
+::Que.module_eval do
+  mattr_accessor :worker_count, default: 0
+  mattr_accessor :locker
+end
+
 unless Rails.configuration.cache_classes
-  worker_count = ::Que.worker_count
-
-  Que::Worker.prepend(Module.new do
-    def wait_until_stopped
-      return false if Thread.current == thread
-      super
-    end
-  end)
-
   ActiveSupport::Reloader.before_class_unload do
-    worker_count = ::Que.worker_count
-
-    ::Que.worker_count = 0
+    Que.locker.stop!
   end
 
   ActiveSupport::Reloader.to_complete do
-    ::Que.worker_count = worker_count
+    Que.start!
   end
 end
 
+Que.internal_logger = Rails.logger
+
 def Que.start!
-  require 'que/adapters/active_record'
-  require 'que/worker'
-  require 'que/job'
+  require 'que/locker'
 
   # Workaround for https://github.com/chanks/que/pull/192
   require 'active_record/base'
+  Que.locker = Que::Locker.new(Rails.application.config.x.que)
+end
 
-  Rails.application.config.que.each do |k,v|
-    Que.public_send("#{k}=", v)
-  end
+def Que.stop!
+  Que.locker.stop!
 end
 
 # config.ru is going to call Que.start!

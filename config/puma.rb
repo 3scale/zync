@@ -53,6 +53,8 @@ environment ENV.fetch("RAILS_ENV") { "development" }
 # end
 #
 
+queue_requests false # let the higher layer figure that out
+
 plugin 'metrics'
 metrics_url 'tcp://0.0.0.0:9393'
 

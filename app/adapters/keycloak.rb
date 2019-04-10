@@ -6,8 +6,13 @@ require 'httpclient/include_client'
 # Keycloak adapter to create/update/delete Clients on using the Keycloak Client Registration API.
 class Keycloak
   extend ::HTTPClient::IncludeClient
-  include_http_client do |http|
-    http.debug_dev = $stderr if ENV.fetch('DEBUG', '0') == '1'
+  include_http_client do |client|
+    client.debug_dev = $stderr if ENV.fetch('DEBUG', '0') == '1'
+
+    Rails.application.config.x.keycloak.deep_symbolize_keys.fetch(:http_client, {})
+        .slice(:connect_timeout, :send_timeout, :receive_timeout).each do |key, value|
+      client.public_send("#{key}=", value)
+    end
   end
 
   attr_reader :endpoint

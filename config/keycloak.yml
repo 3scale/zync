@@ -6,8 +6,15 @@ example:
     serviceAccountsEnabled: true
     directAccessGrantsEnabled: true
 
+default: &default
+  http_client:
+    connect_timeout: 3
+    send_timeout: 3
+    receive_timeout: 3
+
 development:
 
 production:
+  <<: *default
 
 test:

@@ -157,6 +157,9 @@ GEM
       pry (>= 0.9.11)
     public_suffix (3.0.3)
     puma (3.12.1)
+    puma-metrics (1.0.1)
+      prometheus-client (~> 0.8)
+      puma (~> 3.0)
     quantile (0.2.1)
     que (1.0.0.beta3)
     rack (2.0.6)
@@ -252,6 +255,7 @@ DEPENDENCIES
   pry-rescue
   pry-stack_explorer
   puma (~> 3.12)
+  puma-metrics
   que (>= 1.0.0.beta3)
   rails (~> 5.2.3)
   responders (~> 2.4.1)

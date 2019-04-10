@@ -53,6 +53,9 @@ environment ENV.fetch("RAILS_ENV") { "development" }
 # end
 #
 
+plugin 'metrics'
+metrics_url 'tcp://0.0.0.0:9393'
+
 before_fork do
   MessageBus.destroy
 end

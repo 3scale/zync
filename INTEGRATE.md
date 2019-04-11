@@ -20,7 +20,6 @@ Go to the folder where you have zync installed and run it in the port 5000.
 5. Run Porta
 These configurations are needed:
   - In `config/rolling_updates.yml`, make sure to have `apicast_v2: true` and `apicast_oidc: true`.
-  - In `config/sandbox_proxy.yml`, make sure to have `apicast_registry_url: <%= ENV.fetch('APICAST_REGISTRY_URL', '<Insert a URL that contains policies in JSON. It can be and empty JSON>') %>`
 
 Run porta.
 `UNICORN_WORKERS=8 ZYNC_ENDPOINT=http://localhost:5000 ZYNC_AUTHENTICATION_TOKEN=zynctoken bundle exec rails server -b 0.0.0.0`

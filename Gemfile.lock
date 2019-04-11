@@ -82,6 +82,7 @@ GEM
     crass (1.0.4)
     debug_inspector (0.0.3)
     docile (1.3.1)
+    dry-initializer (2.5.0)
     erubi (1.8.0)
     faraday (0.15.3)
       multipart-post (>= 1.2, < 3)
@@ -157,9 +158,6 @@ GEM
       pry (>= 0.9.11)
     public_suffix (3.0.3)
     puma (3.12.1)
-    puma-metrics (1.0.1)
-      prometheus-client (~> 0.8)
-      puma (~> 3.0)
     quantile (0.2.1)
     que (1.0.0.beta3)
     rack (2.0.6)
@@ -231,6 +229,18 @@ GEM
     websocket-extensions (0.1.3)
     with_env (1.1.0)
     xml-simple (1.1.5)
+    yabeda (0.1.3)
+      concurrent-ruby
+      dry-initializer
+    yabeda-prometheus (0.1.4)
+      yabeda
+    yabeda-puma-plugin (0.1.0)
+      json
+      puma
+      yabeda
+    yabeda-rails (0.1.3)
+      rails
+      yabeda
 
 PLATFORMS
   ruby
@@ -255,7 +265,6 @@ DEPENDENCIES
   pry-rescue
   pry-stack_explorer
   puma (~> 3.12)
-  puma-metrics
   que (>= 1.0.0.beta3)
   rails (~> 5.2.3)
   responders (~> 2.4.1)
@@ -263,6 +272,9 @@ DEPENDENCIES
   tzinfo-data
   validate_url
   webmock (~> 3.5)
+  yabeda-prometheus
+  yabeda-puma-plugin
+  yabeda-rails
 
 BUNDLED WITH
    1.17.1

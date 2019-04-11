@@ -1,4 +1,3 @@
-require 'prometheus/middleware/exporter'
 require 'prometheus/job_stats'
 require 'prometheus/worker_stats'
 

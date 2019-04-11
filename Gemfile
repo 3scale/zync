@@ -29,6 +29,7 @@ gem '3scale-api', '~> 0.1.9'
 gem 'bootsnap'
 
 gem 'que', '>= 1.0.0.beta3'
+gem 'que-web'
 
 gem 'bugsnag'
 # bugsnag-capistrano 2.x does not have a rake task to report deploys

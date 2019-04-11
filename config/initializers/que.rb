@@ -5,11 +5,11 @@ end
 
 unless Rails.configuration.cache_classes
   ActiveSupport::Reloader.before_class_unload do
-    Que.locker.stop!
+    Que.locker&.stop
   end
 
   ActiveSupport::Reloader.to_complete do
-    Que.start!
+    # Que.start!
   end
 end
 

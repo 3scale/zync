@@ -136,10 +136,11 @@ objects:
                 name: zync
           - name: RAILS_LOG_LEVEL
             value: info
+          command:
+            - /usr/bin/bash
           args:
-          - que
-          - --worker-count
-          - 10
+            - '-c'
+            - bundle exec que --worker-count 10
           image: zync:latest
           imagePullPolicy: Always
           name: que

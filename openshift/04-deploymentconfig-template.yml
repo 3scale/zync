@@ -160,6 +160,7 @@ objects:
         automatic: true
         containerNames:
         - zync
+        - que
         from:
           kind: ImageStreamTag
           name: zync:latest

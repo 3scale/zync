@@ -5,22 +5,24 @@ module Prometheus
   ## ActiveJob Subscriber to record Prometheus metrics.
   ## Those metrics are per process, so they have to be aggregated by Prometheus.
   class ActiveJobSubscriber < ActiveSupport::Subscriber
-
-    prometheus = Prometheus::Client.registry or raise 'Missing Prometheus client registry'
-
-    metrics = {
-        retried_jobs: prometheus.counter(:zync_job_retries, 'A number of Jobs retried'),
-        failed_jobs: prometheus.counter(:zync_failed_jobs, 'A number of Jobs errored'),
-        performed_jobs: prometheus.counter(:zync_performed_jobs, 'A number of Jobs performed'),
-        enqueued_jobs: prometheus.counter(:zync_enqueued_jobs, 'A number of Jobs enqueued'),
-        histogram: prometheus.histogram(:zync_jobs_histogram, 'A histogram of Jobs perform times'),
-        summary: prometheus.summary(:zync_jobs_summary, 'A summary of Jobs perform times'),
-    }
-    METRICS = OpenStruct.new(metrics).freeze
+    Yabeda.configure do
+      group :que do
+        counter :job_retries_total, comment: 'A number of Jobs retried by this process'
+        counter :job_failures_total, comment: 'A number of Jobs errored by this process'
+        counter :job_performed_total, comment: 'A number of Jobs performed by this process'
+        counter :job_enqueued_total, comment: 'A number of Jobs enqueued by this process'
+        histogram :job_duration_seconds do
+          comment 'A histogram of Jobs perform times by this process'
+          buckets false
+        end
+        # summary :job_runtime_seconds, comment: 'A summary of Jobs perform times'
+      end
+    end
 
     def initialize
       super
-      @metrics = METRICS
+      @metrics = Yabeda.que
+      @job_runtime_seconds = Yabeda::Prometheus.registry.summary(:que_job_runtime_seconds, 'A summary of Jobs perform times')
     end
 
     def enqueue(event)
@@ -28,9 +30,9 @@ module Prometheus
       labels = extract_labels(payload)
 
       if payload.fetch(:job).executions == 0
-        enqueued_jobs.increment(labels)
+        job_enqueued_total.increment(labels)
       else
-        retried_jobs.increment(labels)
+        job_retries_total.increment(labels)
       end
     end
 
@@ -47,10 +49,10 @@ module Prometheus
     private
 
     def observe_duration(event, labels)
-      duration = event.duration
+      duration = event.duration / 1000.0
 
-      histogram.observe(labels, duration)
-      summary.observe(labels, duration)
+      job_duration_seconds.measure(labels, duration)
+      job_runtime_seconds.observe(labels, duration)
     end
 
     def observe_perform(payload, labels)
@@ -58,9 +60,9 @@ module Prometheus
 
       if ex
         # not measuring failed job duration, but we could
-        failed_jobs.increment(labels)
+        job_failures_total.increment(labels)
       else
-        performed_jobs.increment(labels)
+        job_performed_total.increment(labels)
       end
     end
 
@@ -71,8 +73,10 @@ module Prometheus
       }
     end
 
-    delegate :performed_jobs, :enqueued_jobs, :retried_jobs, :histogram, :summary, :failed_jobs,
+    delegate :job_duration_seconds, :job_enqueued_total, :job_performed_total, :job_failures_total, :job_retries_total,
              to: :@metrics
+
+    attr_reader :job_runtime_seconds
 
     attach_to :active_job
   end

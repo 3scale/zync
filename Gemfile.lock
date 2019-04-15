@@ -157,7 +157,7 @@ GEM
       pry (>= 0.9.11)
     public_suffix (3.0.3)
     puma (3.12.1)
-    puma-metrics (1.0.1)
+    puma-metrics (1.0.2)
       prometheus-client (~> 0.8)
       puma (~> 3.0)
     quantile (0.2.1)

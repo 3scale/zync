@@ -1,0 +1,89 @@
+---
+openapi: 3.0.2
+info:
+  title: 'Zync generic HTTP '
+  version: 1.0.0
+paths:
+  /clients/{clientId}:
+    get:
+      summary: Get a Client
+      operationId: readClient
+      parameters:
+      - name: clientId
+        in: path
+        description: client_id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Client resource was found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        404:
+          description: Client not found.
+          content:
+            application/json: {}
+    put:
+      summary: Create or update the Client
+      operationId: saveClient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+            examples:
+              Client:
+                value:
+                  client_id: foo-bar
+                  client_secret: some-secret
+        required: true
+      responses:
+        200:
+          description: When the Client was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        201:
+          description: When the Client was created on the IDP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+    delete:
+      summary: Delete the Client
+      operationId: deleteClient
+      responses:
+        200:
+          description: When the client was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        204:
+          description: When the Client was already gone from the IDP.
+          content:
+            application/json: {}
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+components:
+  schemas:
+    Client:
+      title: Root Type for Client
+      description: A Client representation.
+      type: object
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+      example: |-
+        {
+            "client_id": "foo-bar",
+            "client_secret": "some-secret"
+        }

@@ -20,11 +20,13 @@ module Prometheus
     def job_stats(filter = nil)
       filter = "WHERE #{filter}" if filter
       sql = <<~SQL
-          SELECT job, COUNT(*) FROM jobs_list #{filter} GROUP BY job
+        SELECT args->0->>'job_class' AS job_class, COUNT(*) as count
+        FROM que_jobs #{filter}
+        GROUP BY args->0->>'job_class'
       SQL
 
       execute do |connection|
-        connection.select_all(JOB_STATS_CTE + sql)
+        connection.select_all(sql)
       end
     end
 
@@ -44,19 +46,6 @@ module Prometheus
       delegate :connection, to: ActiveRecord::Base.name
     end
 
-    JOB_STATS_CTE = <<~SQL
-      WITH jobs AS (
-          SELECT *, args::jsonb -> 0 AS options FROM que_jobs
-      ),
-       jobs_list AS (
-      SELECT options->>'job_class' AS job,
-      options->>'job_id' AS job_uuid,
-      (options->>'executions')::integer AS retries,
-      options->'arguments' AS arguments,
-      run_at, id as job_id FROM jobs
-      )
-    SQL
-
     DEFAULT_STATEMENT_TIMEOUT = 'SET LOCAL statement_timeout TO DEFAULT'
     READ_ONLY_TRANSACTION =  'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE READ ONLY DEFERRABLE'
   end
@@ -69,19 +58,19 @@ Yabeda.configure do
 
     collect do
       Prometheus::QueStats.job_stats.each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job') }, stats.fetch('count'))
+        scheduled_jobs.set({ job: stats.fetch('job_class') }, stats.fetch('count'))
       end
 
-      Prometheus::QueStats.job_stats('retries > 0').each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job'), type: 'retry' }, stats.fetch('count'))
+      Prometheus::QueStats.job_stats(%q[(args->0->>'retries')::integer > 0]).each do |stats|
+        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'retry' }, stats.fetch('count'))
       end
 
       Prometheus::QueStats.job_stats('run_at < now()').each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job'), type: 'scheduled' }, stats.fetch('count'))
+        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'scheduled' }, stats.fetch('count'))
       end
 
       Prometheus::QueStats.job_stats('run_at > now()').each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job'), type: 'future' }, stats.fetch('count'))
+        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'future' }, stats.fetch('count'))
       end
 
       workers.set({ }, Prometheus::QueStats.worker_stats.fetch('workers'))

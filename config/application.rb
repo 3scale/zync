@@ -24,11 +24,6 @@ module Zync
 
     config.active_job.queue_adapter = :que
 
-    config.middleware.insert_before Rack::Sendfile,
-                                    ActionDispatch::DebugLocks
-
-    config.middleware.use Prometheus::Middleware::Exporter
-
     begin
       que = config_for(:que)&.deep_symbolize_keys
 

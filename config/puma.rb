@@ -55,8 +55,11 @@ environment ENV.fetch("RAILS_ENV") { "development" }
 
 queue_requests false # let the higher layer figure that out
 
-plugin 'metrics'
-metrics_url 'tcp://0.0.0.0:9393'
+# plugin 'metrics'
+# metrics_url 'tcp://0.0.0.0:9393'
+activate_control_app
+plugin :yabeda
+plugin :yabeda_prometheus
 
 before_fork do
   MessageBus.destroy

@@ -17,7 +17,7 @@ objects:
       targetPort: 8080
     selector:
       app: zync
-      deploymentconfig: zync
+      deploymentconfig: zync-puma
     sessionAffinity: None
     type: ClusterIP
 - apiVersion: v1

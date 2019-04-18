@@ -8,12 +8,12 @@ objects:
   metadata:
     labels:
       app: zync
-    name: zync
+    name: zync-puma
   spec:
     replicas: 2
     selector:
       app: zync
-      deploymentconfig: zync
+      deploymentconfig: zync-puma
     strategy:
       rollingParams:
         intervalSeconds: 1
@@ -29,7 +29,7 @@ objects:
           prometheus.io/scrape: "true"
         labels:
           app: zync
-          deploymentconfig: zync
+          deploymentconfig: zync-puma
       spec:
         containers:
         - env:
@@ -66,7 +66,7 @@ objects:
             value: '10'
           - name: RAILS_LOG_LEVEL
             value: info
-          image: zync:latest
+          image: _
           imagePullPolicy: Always
           livenessProbe:
             failureThreshold: 3
@@ -78,9 +78,9 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 60
-          name: zync
+          name: puma
           ports:
-          - name: zync
+          - name: puma
             containerPort: 8080
             protocol: TCP
           - name: metrics
@@ -103,65 +103,116 @@ objects:
             requests:
               cpu: 250m
               memory: 250M
-          terminationMessagePath: /dev/termination-log
-        - env:
-          - name: RAILS_LOG_TO_STDOUT
-            value: "true"
-          - name: RAILS_ENV
-            value: production
-          - name: DATABASE_URL
-            valueFrom:
-              secretKeyRef:
-                key: DATABASE_URL
-                name: zync
-          - name: SECRET_KEY_BASE
-            valueFrom:
-              secretKeyRef:
-                key: SECRET_KEY_BASE
-                name: zync
-          - name: BUGSNAG_API_KEY
-            valueFrom:
-              secretKeyRef:
-                key: BUGSNAG_API_KEY
-                name: zync
-          - name: SKYLIGHT_AUTHENTICATION
-            valueFrom:
-              secretKeyRef:
-                key: SKYLIGHT_AUTHENTICATION
-                name: zync
-          - name: ZYNC_AUTHENTICATION_TOKEN
-            valueFrom:
-              secretKeyRef:
-                key: ZYNC_AUTHENTICATION_TOKEN
-                name: zync
-          - name: RAILS_LOG_LEVEL
-            value: info
-          command:
-            - /usr/bin/bash
-          args:
-            - '-c'
-            - bundle exec que --worker-count 10
-          image: zync:latest
-          imagePullPolicy: Always
-          name: que
-          resources:
-            limits:
-              cpu: "1"
-              memory: 512Mi
-            requests:
-              cpu: 250m
-              memory: 250M
-          terminationMessagePath: /dev/termination-log
-        restartPolicy: Always
-        terminationGracePeriodSeconds: 30
     triggers:
     - type: ConfigChange
     - imageChangeParams:
         automatic: true
         containerNames:
-        - zync
-        - que
+        - puma
         from:
           kind: ImageStreamTag
           name: zync:latest
       type: ImageChange
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: zync
+    name: zync-que
+  spec:
+    replicas: 2
+    selector:
+      app: zync
+      deploymentconfig: zync-que
+    strategy:
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          prometheus.io/port: "9394"
+          prometheus.io/scrape: "true"
+        labels:
+          app: zync
+          deploymentconfig: zync-que
+      spec:
+        containers:
+          - env:
+              - name: RAILS_LOG_TO_STDOUT
+                value: "true"
+              - name: RAILS_ENV
+                value: production
+              - name: DATABASE_URL
+                valueFrom:
+                  secretKeyRef:
+                    key: DATABASE_URL
+                    name: zync
+              - name: SECRET_KEY_BASE
+                valueFrom:
+                  secretKeyRef:
+                    key: SECRET_KEY_BASE
+                    name: zync
+              - name: BUGSNAG_API_KEY
+                valueFrom:
+                  secretKeyRef:
+                    key: BUGSNAG_API_KEY
+                    name: zync
+              - name: SKYLIGHT_AUTHENTICATION
+                valueFrom:
+                  secretKeyRef:
+                    key: SKYLIGHT_AUTHENTICATION
+                    name: zync
+              - name: ZYNC_AUTHENTICATION_TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: ZYNC_AUTHENTICATION_TOKEN
+                    name: zync
+              - name: RAILS_LOG_LEVEL
+                value: info
+            command:
+              - /usr/bin/bash
+            args:
+              - '-c'
+              - bundle exec rake 'que[--worker-count 10]'
+            image: _
+            livenessProbe:
+              failureThreshold: 3
+              httpGet:
+                path: /metrics
+                port: 9394
+                scheme: HTTP
+              initialDelaySeconds: 10
+              periodSeconds: 10
+              successThreshold: 1
+              timeoutSeconds: 60
+            imagePullPolicy: Always
+            ports:
+              - name: metrics
+                containerPort: 9394
+                protocol: TCP
+            name: que
+            resources:
+              limits:
+                cpu: "1"
+                memory: 512Mi
+              requests:
+                cpu: 250m
+                memory: 250M
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+    triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+            - que
+          from:
+            kind: ImageStreamTag
+            name: zync:latest
+        type: ImageChange

@@ -40,4 +40,8 @@ class ActiveSupport::TestCase
       assert_request_requested(stub, at_least_times: 1)
     end
   end
+
+  setup do
+    Que.connection = ActiveRecord # checkout new connection, using transaction
+  end
 end

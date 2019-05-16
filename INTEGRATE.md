@@ -26,7 +26,7 @@ Run porta.
 
 6. Run Porta's sidekiq
 Run Porta's Sidekiq to process Zync Worker jobs from the `low` queue.
-`ZYNC_ENDPOINT=http://localhost:5000 ZYNC_AUTHENTICATION_TOKEN=zynctoken bundle exec sidekiq -q low`
+`ZYNC_ENDPOINT=http://localhost:5000 ZYNC_AUTHENTICATION_TOKEN=zynctoken bundle exec sidekiq -q zync`
 
 7. Configure 3scale to use Keycloak
 Follow the documentation to [configure 3scale](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.4/html/api_authentication/openid-connect#configure_3scale).

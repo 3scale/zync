@@ -95,7 +95,7 @@ GEM
     interception (0.5)
     json (2.1.0)
     jwt (2.1.0)
-    license_finder (5.7.1)
+    license_finder (5.8.0)
       bundler
       rubyzip
       thor
@@ -266,7 +266,7 @@ DEPENDENCIES
   bugsnag-capistrano (< 2)
   codecov
   httpclient!
-  license_finder (~> 5.7)
+  license_finder (~> 5.8)
   license_finder_xml_reporter!
   lograge
   message_bus

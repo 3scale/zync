@@ -8,6 +8,10 @@ client:
   tenant: two
   record: two (Client)
 
+first_service:
+  tenant: one
+  record: one (Service)
+
 service:
   tenant: two
   record: two (Service)

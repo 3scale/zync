@@ -55,17 +55,18 @@ class DataModelTest < ActionDispatch::IntegrationTest
 
       stub_request(:get, "#{tenant[:endpoint]}/admin/api/services/1/proxy.json").
           with(headers: http_fetch_headers).
-          to_return(body: { oidc_issuer_endpoint: oidc_issuer_endpoint }.to_json)
+          to_return(body: { oidc_issuer_endpoint: oidc_issuer_endpoint, oidc_issuer_type: 'keycloak' }.to_json)
 
       oidc_issuer_endpoint.userinfo = ''
-      stub_request(:post, "#{oidc_issuer_endpoint}/protocol/openid-connect/token").
+      stub_request(:post, "#{oidc_issuer_endpoint}/protocol/oidc/token").
           with(
               body: {'client_id' => 'foo', 'client_secret' => 'bar', 'grant_type' => 'client_credentials'},
               headers: (urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' })).
           to_return(status: 200, body: 'access_token=token', headers: urlencoded)
 
       stub_request(:get, "#{oidc_issuer_endpoint}/.well-known/openid-configuration").
-          to_return(status: 200)
+          to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                    body: { token_endpoint: 'protocol/oidc/token' }.to_json)
 
       assert_difference Integration.method(:count) do
         put notification_url(format: :json),
@@ -122,7 +123,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'recreating application in Keycloak with the same client id' do
+  test 'recreating application in KeycloakAdapter with the same client id' do
     keycloak = integrations(:keycloak)
     service = keycloak.model.record
     tenant = keycloak.tenant
@@ -222,7 +223,12 @@ class DataModelTest < ActionDispatch::IntegrationTest
 
     urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' }
 
-    stub_request(:post, "#{endpoint}/protocol/openid-connect/token").
+    stub_request(:get, "#{endpoint}/.well-known/openid-configuration").
+        to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
+                  body: { token_endpoint: 'protocol/oidc/token' }.to_json)
+
+
+    stub_request(:post, "#{endpoint}/protocol/oidc/token").
         with(
             body: {'client_id' =>user, 'client_secret' =>password, 'grant_type' => 'client_credentials'},
             headers: urlencoded).

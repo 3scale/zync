@@ -18,14 +18,16 @@ class DiscoverIntegrationService
     klass = case integration
             when Integration::Keycloak
               Integration::KeycloakService
+            when Integration::Generic
+              Integration::GenericService
             when integration
               Integration::EchoService
             else # the only one for now
-              raise NotImplementedError
+              raise NoMethodError
             end
 
     return DISABLED unless integration.try(:enabled?)
 
-    klass.new(integration)
+    klass.new(integration).freeze
   end
 end

@@ -29,6 +29,19 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     assert_equal 1, integrations.size
   end
 
+  test 'model integrations for proxy without type' do
+    job = ProcessEntryJob.new
+
+    entry = entries(:proxy)
+    entry.data = entry.data.except(:oidc_issuer_type)
+
+    Integration::Keycloak.delete_all
+
+    assert_difference Integration::Keycloak.method(:count) do
+      job.model_integrations_for(entry)
+    end
+  end
+
   test 'creates keycloak integration for Proxy' do
     proxy = entries(:proxy)
 

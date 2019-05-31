@@ -11,3 +11,10 @@ keycloak:
   type: Integration::Keycloak
   configuration:
     endpoint: 'http://id:pass@example.com'
+
+generic:
+  tenant: one
+  model: first_service
+  type: Integration::Generic
+  configuration:
+    endpoint: 'http://id:pass@example.com/generic/api'

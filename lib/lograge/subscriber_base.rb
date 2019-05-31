@@ -53,7 +53,7 @@ module Lograge
     end
 
     def initial_data(_)
-      raise NotImplementedError, "#{__method__} needs to define initial data"
+      raise NoMethodError, "#{__method__} needs to define initial data"
     end
 
     EMPTY_DATA = {}.freeze

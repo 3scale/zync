@@ -4,7 +4,7 @@ jobs:
   build:
     working_directory: /home/circleci/zync
     docker:
-      - image: circleci/ruby:2.4.4
+      - image: circleci/ruby:2.4.6
       - image: circleci/postgres:10-alpine-ram
     environment:
         RAILS_ENV: test
@@ -22,20 +22,32 @@ jobs:
             - zync-bundle-{{ arch }}-{{ .Branch }}
             - zync-branch-{{ arch }}-master
 
-      - run: bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
-      - run: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
+      - run:
+          name: bundle install
+          command: |
+            gem install bundler --version=2.0.1
+            bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+      - run:
+          name: boot zync
+          command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
           key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
-      - run: bundle exec bin/rake db:wait db:setup
+      - run:
+          name: rails db:setup
+          command: bundle exec bin/rails db:wait db:setup
 
-      - run: |
-          bundle exec bin/rails test $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)
-      - run: |
-          bundle exec license_finder
+      - run:
+          name: rails test
+          command: |
+            bundle exec bin/rails test $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)
+      - run:
+          name: license_finder
+          command: |
+            bundle exec license_finder
 
       - store_test_results:
           path: test/reports

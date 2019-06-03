@@ -407,6 +407,38 @@ ALTER SEQUENCE public.integrations_id_seq OWNED BY public.integrations.id;
 
 
 --
+-- Name: message_bus; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.message_bus (
+    id bigint NOT NULL,
+    channel text NOT NULL,
+    value text NOT NULL,
+    added_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT message_bus_value_check CHECK ((octet_length(value) >= 2))
+);
+
+
+--
+-- Name: message_bus_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.message_bus_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: message_bus_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.message_bus_id_seq OWNED BY public.message_bus.id;
+
+
+--
 -- Name: metrics; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -759,6 +791,13 @@ ALTER TABLE ONLY public.integrations ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: message_bus id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_bus ALTER COLUMN id SET DEFAULT nextval('public.message_bus_id_seq'::regclass);
+
+
+--
 -- Name: metrics id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -867,6 +906,14 @@ ALTER TABLE ONLY public.integration_states
 
 ALTER TABLE ONLY public.integrations
     ADD CONSTRAINT integrations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: message_bus message_bus_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.message_bus
+    ADD CONSTRAINT message_bus_pkey PRIMARY KEY (id);
 
 
 --
@@ -1176,6 +1223,20 @@ CREATE INDEX que_poll_idx ON public.que_jobs USING btree (queue, priority, run_a
 
 
 --
+-- Name: table_added_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX table_added_at_index ON public.message_bus USING btree (added_at);
+
+
+--
+-- Name: table_channel_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX table_channel_id_index ON public.message_bus USING btree (channel, id);
+
+
+--
 -- Name: que_jobs que_job_notify; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -1387,6 +1448,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170620114832'),
 ('20181019101631'),
 ('20190410112007'),
-('20190530080459');
+('20190530080459'),
+('20190603140450');
 
 

@@ -10,6 +10,8 @@ end
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.2.3'
 gem 'pg', '>= 0.20'
+gem 'schema_plus_enums'
+
 # Use Puma as the app server
 gem 'puma', '~> 3.12'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
@@ -61,6 +63,8 @@ group :development, :test do
 
   gem 'license_finder', '~> 5.8'
   gem 'license_finder_xml_reporter', git: 'https://github.com/3scale/license_finder_xml_reporter.git', tag: '1.0.0'
+
+  gem 'httplog'
 end
 
 group :development do

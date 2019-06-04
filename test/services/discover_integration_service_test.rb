@@ -11,9 +11,11 @@ class DiscoverIntegrationServiceTest < ActiveSupport::TestCase
       true
     end
   end
+
   def test_call
-    integration = FakeIntegration.new
-    assert_kind_of Integration::EchoService, @service.call(integration)
+    assert_kind_of Integration::EchoService, @service.call(FakeIntegration.new)
+    assert_kind_of Integration::KeycloakService, @service.call(integrations(:keycloak))
+    assert_kind_of Integration::GenericService, @service.call(integrations(:generic))
   end
 
   def test_disabled

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   config.middleware.insert_before Rack::Sendfile,
                                   ActionDispatch::DebugLocks
@@ -46,4 +48,9 @@ Rails.application.configure do
   # Use an evented file watcher to asynchronously detect changes in source code,
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
+end
+
+HttpLog.configure do |config|
+  config.enabled = true
+  config.color = true
 end

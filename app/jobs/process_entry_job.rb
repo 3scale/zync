@@ -16,8 +16,7 @@ class ProcessEntryJob < ApplicationJob
 
     integrations = Integration.retry_record_not_unique do
       case model.record
-        when Proxy
-          CreateKeycloakIntegration.new(entry).call
+      when Proxy then CreateProxyIntegration.new(entry).call
       end
 
       Integration.for_model(model)
@@ -27,8 +26,8 @@ class ProcessEntryJob < ApplicationJob
     integrations.each.with_object(model)
   end
 
-  # Wrapper for creating Keycloak when Proxy is created
-  CreateKeycloakIntegration = Struct.new(:entry) do
+  # Wrapper for creating KeycloakAdapter when Proxy is created
+  CreateProxyIntegration = Struct.new(:entry) do
     attr_reader :service, :data
 
     def initialize(*)
@@ -41,12 +40,25 @@ class ProcessEntryJob < ApplicationJob
       data[:oidc_issuer_endpoint]
     end
 
+    def type
+      data[:oidc_issuer_type]
+    end
+
+    def valid?
+      endpoint
+    end
+
     def call
-      return unless endpoint
+      unless valid?
+        service.logger.info "Not creating integration for #{data}"
+        return cleanup
+      end
 
       transaction do
+        cleanup
+
         integration = find_integration
-        integration.update(endpoint: endpoint)
+        integration.update(endpoint: endpoint, type: model, state: model.states.fetch(:active))
 
         ProcessIntegrationEntryJob.perform_later(integration, proxy)
         ProcessIntegrationEntryJob.perform_later(integration, service)
@@ -56,14 +68,31 @@ class ProcessEntryJob < ApplicationJob
     delegate :transaction, to: :model
     delegate :tenant, to: :entry
 
-    def model
-      ::Integration::Keycloak
+    def cleanup
+      integrations.update_all(state: Integration.states.fetch(:disabled))
     end
+
+    def model
+      case type
+      when 'generic'
+        ::Integration::Generic
+      when 'keycloak', nil
+        ::Integration::Keycloak
+      else raise UnknownOIDCIssuerTypeError, type
+      end
+    end
+
+    def integrations
+      ::Integration.where(tenant: tenant, model: service)
+    end
+
+    # Unknown oidc_issuer_type in the entry.
+    class UnknownOIDCIssuerTypeError < StandardError; end
 
     def find_integration
       model
           .create_with(endpoint: endpoint)
-          .find_or_create_by!(tenant: tenant, model: service)
+          .find_or_create_by!(integrations.where_values_hash)
     end
 
     def proxy

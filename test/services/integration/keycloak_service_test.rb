@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'test_helper'
 
 class Integration::KeycloakServiceTest < ActiveSupport::TestCase
@@ -50,7 +52,7 @@ class Integration::KeycloakServiceTest < ActiveSupport::TestCase
       ).to_return(status: 200)
 
     subject.tap do |service|
-      service.adapter.access_token = 'foobar'
+      service.adapter.authentication = 'foobar'
       service.call(entry)
     end
   end

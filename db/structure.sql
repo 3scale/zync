@@ -5,8 +5,19 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: integration_state; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.integration_state AS ENUM (
+    'active',
+    'disabled'
+);
+
 
 --
 -- Name: que_validate_tags(jsonb); Type: FUNCTION; Schema: public; Owner: -
@@ -371,7 +382,8 @@ CREATE TABLE public.integrations (
     tenant_id bigint,
     model_id bigint,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    state public.integration_state DEFAULT 'active'::public.integration_state NOT NULL
 );
 
 
@@ -402,7 +414,7 @@ CREATE TABLE public.message_bus (
     id bigint NOT NULL,
     channel text NOT NULL,
     value text NOT NULL,
-    added_at timestamp without time zone DEFAULT now() NOT NULL,
+    added_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT message_bus_value_check CHECK ((octet_length(value) >= 2))
 );
 
@@ -465,7 +477,7 @@ ALTER SEQUENCE public.metrics_id_seq OWNED BY public.metrics.id;
 CREATE TABLE public.models (
     id bigint NOT NULL,
     tenant_id bigint NOT NULL,
-    record_type character varying,
+    record_type character varying NOT NULL,
     record_id bigint NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
@@ -1435,6 +1447,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20170612073714'),
 ('20170620114832'),
 ('20181019101631'),
-('20190410112007');
+('20190410112007'),
+('20190530080459'),
+('20190603140450');
 
 

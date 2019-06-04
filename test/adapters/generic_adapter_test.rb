@@ -39,10 +39,22 @@ class GenericAdapterTest < ActiveSupport::TestCase
 
     adapter = GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
 
-    error = assert_raises GenericAdapter::OIDC::AuthenticationError do
+    log = Object.new
+    class << log
+      def error_object
+        @error
+      end
+
+      def error(object)
+        @error = object
+      end
+    end
+
+    Rails.logger.stub :error, log.method(:error) do
       adapter.test
     end
 
+    error = log.error_object
     assert_kind_of Faraday::TimeoutError, error.cause
     assert error.bugsnag_meta_data.presence
     assert_requested get_token

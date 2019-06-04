@@ -1,0 +1,6 @@
+Dockerfile
+.dockerignore
+.bundle
+log
+openshift.local.clusterup
+tmp

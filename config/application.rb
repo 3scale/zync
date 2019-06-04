@@ -62,6 +62,23 @@ module Zync
       config.middleware.delete(ActionDispatch::Flash) # remove it after message bus loaded
     end
 
+    initializer 'k8s-client.logger' do
+      case config.log_level
+      when :debug
+        K8s::Logging.debug!
+        K8s::Transport.debug!
+      when :info
+        K8s::Logging.verbose!
+        K8s::Transport.verbose!
+      when :error
+        K8s::Logging.quiet!
+        K8s::Transport.quiet!
+      else
+        K8s::Logging.log_level = K8s::Transport.log_level = Rails.logger.level
+      end
+    end
+
     config.x.keycloak = config_for(:keycloak) || Hash.new
+    config.x.openshift = ActiveSupport::InheritableOptions.new(config_for(:openshift)&.deep_symbolize_keys)
   end
 end

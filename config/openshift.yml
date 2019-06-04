@@ -1,0 +1,18 @@
+default: &default
+  enabled: <%=
+    ENV.values_at(
+      'APICAST_STAGING_SERVICE_PORT_GATEWAY',
+      'APICAST_STAGING_SERVICE_PORT_GATEWAY',
+      'SYSTEM_DEVELOPER_SERVICE_PORT_HTTP',
+      'SYSTEM_PROVIDER_SERVICE_PORT_HTTP',
+      'SYSTEM_MASTER_SERVICE_PORT_HTTP',
+    ).all?
+  %>
+
+development:
+  <<: *default
+production:
+  <<: *default
+
+test:
+  enabled: false

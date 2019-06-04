@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Returns a Service for each Integration.
 # Each Integration can be using different Service.
 # This class creates a mapping between Integration and Service.
@@ -20,6 +21,8 @@ class DiscoverIntegrationService
               Integration::KeycloakService
             when Integration::REST
               Integration::GenericService
+            when Integration::Kubernetes
+              Integration::KubernetesService
             when integration
               Integration::EchoService
             else # the only one for now

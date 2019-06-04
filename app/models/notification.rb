@@ -11,7 +11,7 @@ class Notification < ApplicationRecord
       @data = ActiveSupport::HashWithIndifferentAccess.new(data)
     end
 
-    ALLOWED_MODELS = Set.new(%w(Application Proxy Service)).freeze
+    ALLOWED_MODELS = Set.new(%w(Application Proxy Service Provider)).freeze
     NULL_TYPE = Object.new.tap do |object|
       def object.find_or_create_by!(*); end
       def object.attribute_names; end

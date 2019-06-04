@@ -15,9 +15,15 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     job = ProcessEntryJob.new
     proxy = entries(:proxy)
 
-    integrations = job.model_integrations_for(proxy)
+    ProcessEntryJob::CreateK8SIntegration.stub(:enabled, true) do
+      integrations = job.model_integrations_for(proxy)
 
-    assert_equal 0, integrations.size
+      integrations.each do |integration|
+        assert_kind_of Integration::Kubernetes, integration
+      end
+
+      assert_equal 1, integrations.size
+    end
   end
 
   test 'model integrations for client' do

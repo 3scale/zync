@@ -26,7 +26,7 @@ gem 'puma', '~> 3.12'
 # gem 'rack-cors'
 
 gem 'responders', '~> 2.4.1'
-gem '3scale-api', '~> 0.1.9'
+gem '3scale-api'
 
 gem 'bootsnap'
 
@@ -43,6 +43,7 @@ gem 'bugsnag-capistrano', '< 2', require: false
 # https://github.com/nahi/httpclient/issues/369
 gem 'httpclient', github: 'mikz/httpclient', branch: 'ssl-env-cert'
 gem 'oauth2'
+gem 'k8s-client', '>= 0.10'
 
 gem 'lograge'
 
@@ -73,6 +74,6 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 group :test do
   gem 'minitest-reporters'
-  gem 'webmock', '~>3.6'
+  gem 'webmock'
   gem 'codecov', require: false
 end

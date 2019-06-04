@@ -24,3 +24,5 @@
 /coverage
 
 .byebug_history
+
+openshift.local.clusterup

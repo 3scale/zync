@@ -89,7 +89,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
-    hashdiff (0.3.8)
+    hashdiff (0.4.0)
     httplog (1.3.0)
       rack (>= 1.0)
       rainbow (>= 2.0.0)
@@ -165,7 +165,7 @@ GEM
     pry-stack_explorer (0.4.9.3)
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
-    public_suffix (3.0.3)
+    public_suffix (3.1.0)
     puma (3.12.1)
     quantile (0.2.1)
     que (1.0.0.beta3)
@@ -211,7 +211,7 @@ GEM
       railties (>= 4.2.0, < 6.0)
     ruby-progressbar (1.10.0)
     rubyzip (1.2.2)
-    safe_yaml (1.0.4)
+    safe_yaml (1.0.5)
     schema_monkey (2.1.5)
       activerecord (>= 4.2)
       modware (~> 0.1)
@@ -253,10 +253,10 @@ GEM
     validate_url (1.0.6)
       activemodel (>= 3.0.0)
       public_suffix
-    webmock (3.5.1)
+    webmock (3.6.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
-      hashdiff
+      hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.0)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.3)
@@ -307,7 +307,7 @@ DEPENDENCIES
   spring
   tzinfo-data
   validate_url
-  webmock (~> 3.5)
+  webmock (~> 3.6)
   yabeda-prometheus
   yabeda-puma-plugin
   yabeda-rails

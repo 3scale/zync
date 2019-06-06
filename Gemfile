@@ -26,7 +26,7 @@ gem 'puma', '~> 3.12'
 # gem 'rack-cors'
 
 gem 'responders', '~> 2.4.1'
-gem '3scale-api', '~> 0.1.9'
+gem '3scale-api', '~> 0.4.0'
 
 gem 'bootsnap'
 

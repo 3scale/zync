@@ -74,8 +74,8 @@ class ProcessEntryJob < ApplicationJob
 
     def model
       case type
-      when 'generic'
-        ::Integration::Generic
+      when 'rest'
+        ::Integration::REST
       when 'keycloak', nil
         ::Integration::Keycloak
       else raise UnknownOIDCIssuerTypeError, type

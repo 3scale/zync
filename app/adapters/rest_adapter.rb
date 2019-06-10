@@ -3,7 +3,7 @@
 require 'uri'
 
 # KeycloakAdapter adapter to create/update/delete Clients on using the KeycloakAdapter Client Registration API.
-class GenericAdapter < AbstractAdapter
+class RESTAdapter < AbstractAdapter
   def self.build_client(*attrs)
     Client.new(*attrs)
   end

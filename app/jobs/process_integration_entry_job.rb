@@ -5,6 +5,8 @@
 class ProcessIntegrationEntryJob < ApplicationJob
   queue_as :default
 
+  self.deduplicate = true
+
   delegate :instrument, to: 'ActiveSupport::Notifications'
 
   def perform(integration, model, service: DiscoverIntegrationService.call(integration))

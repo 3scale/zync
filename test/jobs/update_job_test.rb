@@ -39,7 +39,7 @@ class UpdateJobTest < ActiveJob::TestCase
     adapter.enqueue(job)
 
     assert_difference job.relation.method(:count), -1 do
-      UpdateJob.perform_later(job) # this is not using the same adapter, so it actually just removes previous one
+      ApplicationJob.perform_later(job) # this is not using the same adapter, so it actually just removes previous one
     end
   end
 

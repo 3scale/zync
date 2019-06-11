@@ -63,4 +63,34 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
 
     assert_mock service
   end
+
+  test 'relation' do
+    service = ProcessIntegrationEntryJob.new(integrations(:keycloak), models(:service))
+    application = ProcessIntegrationEntryJob.new(integrations(:keycloak), models(:application))
+
+    refute_equal application.relation.to_sql, service.relation.to_sql
+
+    adapter = ActiveJob::QueueAdapters::QueAdapter.new
+
+    assert_difference application.relation.method(:count), 2 do
+      adapter.enqueue(application)
+      adapter.enqueue(application)
+
+      assert_difference service.relation.method(:count), 2 do
+        adapter.enqueue(service)
+        adapter.enqueue(service)
+      end
+    end
+  end
+
+  test 'perform later' do
+    adapter = ActiveJob::QueueAdapters::QueAdapter.new
+    job = ProcessIntegrationEntryJob.new(integrations(:keycloak), models(:application))
+
+    adapter.enqueue(job)
+
+    assert_difference job.relation.method(:count), -1 do
+      ApplicationJob.perform_later(job) # this is not using the same adapter, so it actually just removes previous one
+    end
+  end
 end

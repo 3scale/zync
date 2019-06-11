@@ -14,7 +14,13 @@ class Model < ApplicationRecord
   end
 
   # Error raised when weak lock can't be acquired.
-  class LockTimeoutError < StandardError; end
+  class LockTimeoutError < StandardError
+
+    # No need to report this error.
+    def skip_bugsnag
+      true
+    end
+  end
 
   def self.create_record!(tenant)
     retry_record_not_unique do

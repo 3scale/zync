@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-# Handles persisting/removing clients using the Generic HTTP adapter.
+# Handles persisting/removing clients using the REST HTTP adapter.
 class Integration::GenericService < Integration::AbstractService
-  self.adapter_class = ::GenericAdapter
+  self.adapter_class = ::RESTAdapter
 
   def remove(client)
     payload = { client: client, adapter: adapter }

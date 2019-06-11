@@ -18,7 +18,7 @@ class DiscoverIntegrationService
     klass = case integration
             when Integration::Keycloak
               Integration::KeycloakService
-            when Integration::Generic
+            when Integration::REST
               Integration::GenericService
             when integration
               Integration::EchoService

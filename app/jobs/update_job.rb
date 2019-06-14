@@ -2,12 +2,15 @@
 # Uses FetchService to get Entity and persist it in database.
 # Maintains UpdateState and can be only one running at a time by using a lock on model.
 
+
 class UpdateJob < ApplicationJob
   include JobWithTimestamp
   queue_as :default
 
   retry_on Errno::ECONNREFUSED, wait: :exponentially_longer, attempts: 10
   retry_on Model::LockTimeoutError, wait: :exponentially_longer, attempts: 10
+
+  self.deduplicate = true
 
   def initialize(*)
     super

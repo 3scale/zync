@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+require 'que/active_record/model'
+
 # Base class for all Jobs
 class ApplicationJob < ActiveJob::Base
   # Copied from ActiveJob::Exceptions, but uses debug log level.
@@ -16,5 +19,28 @@ class ApplicationJob < ActiveJob::Base
         end
       end
     end
+  end
+
+  class_attribute :deduplicate
+
+  before_enqueue :delete_duplicates, if: :deduplicate?
+  around_enqueue if: :deduplicate? do |job, block|
+    job.class.model.transaction(&block)
+  end
+
+  def relation
+    record = self.class.model
+    arguments = serialize.slice('arguments')
+    record.where.has {
+      args.op('@>', quoted([arguments].to_json))
+    }
+  end
+
+  def delete_duplicates
+    relation.delete_all
+  end
+
+  def self.model
+    Que::ActiveRecord::Model.by_job_class(to_s)
   end
 end

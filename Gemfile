@@ -33,7 +33,7 @@ gem 'bootsnap'
 gem 'que', '>= 1.0.0.beta3'
 gem 'que-web'
 
-gem 'bugsnag'
+gem 'bugsnag', github: 'bugsnag/bugsnag-ruby', branch: 'tobyhs/check_nil_job_in_que'
 # bugsnag-capistrano 2.x does not have a rake task to report deploys
 # https://github.com/bugsnag/bugsnag-capistrano/blob/8bcfb27cf6eaff312eef086cce729d553a431460/UPGRADING.md
 gem 'bugsnag-capistrano', '< 2', require: false

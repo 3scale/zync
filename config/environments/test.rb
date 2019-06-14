@@ -36,7 +36,9 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 end
 
-HttpLog.configure do |config|
-  config.enabled = true
-  config.color = true
+if defined?(HttpLog)
+  HttpLog.configure do |config|
+    config.enabled = true
+    config.color = true
+  end
 end

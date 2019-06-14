@@ -66,7 +66,7 @@ group :development, :test do
   gem 'license_finder', '~> 5.8'
   gem 'license_finder_xml_reporter', git: 'https://github.com/3scale/license_finder_xml_reporter.git', tag: '1.0.0'
 
-  gem 'httplog'
+  # gem 'httplog'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

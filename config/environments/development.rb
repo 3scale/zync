@@ -50,7 +50,9 @@ Rails.application.configure do
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 end
 
-HttpLog.configure do |config|
-  config.enabled = true
-  config.color = true
+if defined?(HttpLog)
+  HttpLog.configure do |config|
+    config.enabled = true
+    config.color = true
+  end
 end

@@ -34,5 +34,13 @@ proxy:
   data:
     oidc_issuer_endpoint: http://example.com/auth/realm/master
     oidc_issuer_type: keycloak
+    service_id: 2
   tenant: two
   model: proxy
+
+
+provider:
+  data:
+    service_id: 2
+  tenant: two
+  model: provider

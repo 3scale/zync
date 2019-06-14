@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Example Integration that just prints what it is doing the log.
 
 class Integration::EchoService < Integration::ServiceBase

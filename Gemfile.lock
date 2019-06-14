@@ -24,7 +24,7 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
-    3scale-api (0.1.9)
+    3scale-api (0.5.0)
     actioncable (5.2.3)
       actionpack (= 5.2.3)
       nio4r (~> 2.0)
@@ -288,7 +288,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  3scale-api (~> 0.1.9)
+  3scale-api (~> 0.5.0)
   baby_squeel
   bootsnap
   bugsnag!

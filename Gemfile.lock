@@ -7,6 +7,14 @@ GIT
       license_finder
 
 GIT
+  remote: https://github.com/bugsnag/bugsnag-ruby.git
+  revision: 00dac89430281610519a122dc2acbb41a1d2bed3
+  branch: tobyhs/check_nil_job_in_que
+  specs:
+    bugsnag (6.11.1)
+      concurrent-ruby (~> 1.0)
+
+GIT
   remote: https://github.com/mikz/httpclient.git
   revision: fec23fb32fb899b87a8b2c94e2d2069b6b4c633c
   branch: ssl-env-cert
@@ -66,8 +74,6 @@ GEM
       debug_inspector (>= 0.0.1)
     bootsnap (1.4.4)
       msgpack (~> 1.0)
-    bugsnag (6.11.1)
-      concurrent-ruby (~> 1.0)
     bugsnag-capistrano (1.1.2)
     builder (3.2.3)
     byebug (11.0.0)
@@ -279,7 +285,7 @@ PLATFORMS
 DEPENDENCIES
   3scale-api (~> 0.1.9)
   bootsnap
-  bugsnag
+  bugsnag!
   bugsnag-capistrano (< 2)
   codecov
   httpclient!

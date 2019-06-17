@@ -31,6 +31,12 @@ class RESTAdapter < AbstractAdapter
     parse http_client.get(oidc.well_known_url, header: headers)
   end
 
+  def authentication
+    super
+  rescue OIDC::AuthenticationError
+    nil
+  end
+
   # The Client entity. Mapping the OpenID Connect Client Metadata representation.
   # https://tools.ietf.org/html/rfc7591#section-2
   class Client

@@ -11,7 +11,7 @@ Follow [the installation guide](https://github.com/3scale/zync/blob/master/INSTA
 Run Keycloak locally.
 `docker run --name keycloak -d -p 8080:8080 -e KEYCLOAK_USER=admin -e KEYCLOAK_PASSWORD=p jboss/keycloak`
 
-Then [configure Red Hat Single Sign-On](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.4/html/api_authentication/openid-connect#configure_red_hat_single_sign_on).
+Then [configure Red Hat Single Sign-On](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.6/html/api_authentication/openid-connect#configure_red_hat_single_sign_on).
 
 4. Run Zync  
 Go to the folder where you have zync installed and run it in the port 5000.
@@ -30,6 +30,6 @@ Run Porta's Sidekiq to process Zync Worker jobs from the `zync` queue.
 `ZYNC_ENDPOINT=http://localhost:5000 ZYNC_AUTHENTICATION_TOKEN=zynctoken bundle exec sidekiq -q zync`
 
 7. Configure 3scale to use Keycloak  
-Follow the documentation to [configure 3scale](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.4/html/api_authentication/openid-connect#configure_3scale).  
-The url must not contain 'locahost', but it is possible to use instead `keycloak.lvh.me:8080`  
+Follow the documentation to [configure 3scale](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.6/html/api_authentication/openid-connect#configure_3scale).  
+The url must not contain 'localhost', but it is possible to use instead `keycloak.lvh.me:8080`  
 Example of the whole url: `http://threescale:2b010e28-f4cf-437c-afc0-1ec0a8139196@keycloak.lvh.me:8080/auth/realms/3scale`

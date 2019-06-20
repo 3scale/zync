@@ -170,7 +170,8 @@ class Integration::KubernetesService < Integration::ServiceBase
       .client_for_resource(list.first, namespace: namespace)
       .list(labelSelector: label_selector)
       .each do |resource|
-      client.delete_resource(resource) unless list.include?(resource)
+      equal = list.any? { |object| object.metadata.uid === resource.metadata.uid && resource.metadata.selfLink  == object.metadata.selfLink }
+      client.delete_resource(resource) unless equal
     end
   end
 

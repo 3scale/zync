@@ -8,8 +8,8 @@ GIT
 
 GIT
   remote: https://github.com/bugsnag/bugsnag-ruby.git
-  revision: 00dac89430281610519a122dc2acbb41a1d2bed3
-  branch: tobyhs/check_nil_job_in_que
+  revision: 90df9965cdb9fa95a45448e8464982f457a23d34
+  branch: next
   specs:
     bugsnag (6.11.1)
       concurrent-ruby (~> 1.0)

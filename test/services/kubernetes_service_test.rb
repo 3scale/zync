@@ -51,7 +51,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
         ]
       }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-    stub_request(:get, 'http://localhost/apis/route.openshift.io/v1/namespaces/zync/routes?labelSelector=3scale.created-by=zync,3scale.tenant_id=298486374,3scale.ingress=proxy,3scale.service_id=2').
+    stub_request(:get, 'http://localhost/apis/route.openshift.io/v1/namespaces/zync/routes?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
       with(
         headers: {
           'Accept'=>'application/json',

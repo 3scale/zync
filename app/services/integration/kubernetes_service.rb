@@ -6,7 +6,16 @@ class Integration::KubernetesService < Integration::ServiceBase
   def initialize(integration, namespace: self.class.namespace)
     super(integration)
     @namespace = namespace
-    @client = K8s::Client.autoconfig(namespace: namespace)
+    @client = K8s::Client.autoconfig(namespace: namespace).extend(MergePatch)
+  end
+
+  module MergePatch
+    # @param resource [K8s::Resource]
+    # @param attrs [Hash]
+    # @return [K8s::Client]
+    def merge_resource(resource, attrs)
+      client_for_resource(resource).merge_patch(resource.metadata.name, attrs)
+    end
   end
 
   def self.namespace
@@ -72,14 +81,22 @@ class Integration::KubernetesService < Integration::ServiceBase
 
   def annotations_for(entry)
     {
-      '3scale.net/gid': entry.to_gid.to_s
+      '3scale.net/gid': entry.to_gid.to_s,
+      'zync.3scale.net/gid': entry.model.record.to_gid.to_s,
     }
+  end
+
+  def label_selector_from(resource)
+    resource.metadata.labels.to_h.with_indifferent_access.slice(
+      '3scale.net/created-by', '3scale.net/tenant_id', 'zync.3scale.net/record', 'zync.3scale.net/route-to'
+    )
   end
 
   def labels_for(entry)
     {
-      '3scale.created-by': 'zync',
-      '3scale.tenant_id': String(entry.tenant_id)
+      '3scale.net/created-by': 'zync',
+      '3scale.net/tenant_id': String(entry.tenant_id),
+      'zync.3scale.net/record': entry.model.record.to_gid_param,
     }
   end
 
@@ -87,8 +104,8 @@ class Integration::KubernetesService < Integration::ServiceBase
     service_id = entry.last_known_data.fetch('service_id') { return }
 
     labels_for(entry).merge(
-      '3scale.ingress': 'proxy',
-      '3scale.service_id': String(service_id)
+      'zync.3scale.net/ingress': 'proxy',
+      '3scale.net/service_id': String(service_id)
     )
   end
 
@@ -96,8 +113,8 @@ class Integration::KubernetesService < Integration::ServiceBase
     provider_id = entry.last_known_data.fetch('id')
 
     labels_for(entry).merge(
-      '3scale.ingress': 'provider',
-      '3scale.provider_id': String(provider_id)
+      'zync.3scale.net/ingress': 'provider',
+      '3scale.net/provider_id': String(provider_id)
     )
   end
 
@@ -142,7 +159,7 @@ class Integration::KubernetesService < Integration::ServiceBase
           namespace: namespace,
           labels: owner.metadata.labels,
           ownerReferences: [as_reference(owner)]
-        }.deep_merge(metadata),
+        }.deep_merge(metadata.deep_merge(labels: { 'zync.3scale.net/route-to': spec.to_h.dig(:to, :name) })),
         spec: spec
       )
     end
@@ -170,22 +187,42 @@ class Integration::KubernetesService < Integration::ServiceBase
       .client_for_resource(list.first, namespace: namespace)
       .list(labelSelector: label_selector)
       .each do |resource|
-      equal = list.any? { |object| object.metadata.uid === resource.metadata.uid && resource.metadata.selfLink  == object.metadata.selfLink }
+      equal = list.any? { |object| object.metadata.uid === resource.metadata.uid && resource.metadata.selfLink == object.metadata.selfLink }
+      Rails.logger.warn "Deleting #{resource.metadata} from k8s because it is not on #{list}"
+
       client.delete_resource(resource) unless equal
     end
   end
 
-  protected def create_resources(list)
-    list.map(&client.method(:create_resource))
+  def extract_route_patch(resource)
+    {
+      metadata: resource.metadata.to_h,
+      spec: { host: resource.spec.host },
+    }
+  end
+
+  protected def persist_resources(list)
+    list.map do |resource|
+      existing = client
+                   .client_for_resource(resource, namespace: namespace)
+                   .list(labelSelector: label_selector_from(resource))
+
+      case existing.size
+      when 0
+        client.create_resource(resource)
+      when 1
+        client.merge_resource(existing.first, extract_route_patch(resource))
+      else
+        existing.each(&client.method(:delete_resource))
+        client.create_resource(resource)
+      end
+    end
   end
 
   def persist_proxy(entry)
     routes = build_proxy_routes(entry)
-    routes = create_resources(routes)
 
-    label_selector = labels_for_proxy(entry)
-
-    cleanup_but(routes, label_selector)
+    persist_resources(routes)
   end
 
   def delete_proxy(entry)
@@ -196,11 +233,8 @@ class Integration::KubernetesService < Integration::ServiceBase
 
   def persist_provider(entry)
     routes = build_provider_routes(entry)
-    routes = create_resources(routes)
 
-    label_selector = labels_for_provider(entry)
-
-    cleanup_but(routes, label_selector)
+    persist_resources(routes)
   end
 
   def delete_provider(entry)

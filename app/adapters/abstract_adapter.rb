@@ -67,7 +67,7 @@ class AbstractAdapter
     HTTPClient.new do
       self.debug_dev = $stderr if ENV.fetch('DEBUG', '0') == '1'
 
-      self.set_auth endpoint, *endpoint.auth
+      self.set_auth endpoint.uri.dup, *endpoint.auth
 
       Rails.application.config.x.http_client.deep_symbolize_keys
           .slice(:connect_timeout, :send_timeout, :receive_timeout).each do |key, value|

@@ -203,7 +203,7 @@ class AbstractAdapter
 
     def fetch_oidc_discovery
       response = http_client.get(well_known_url)
-      config = AbstractAdapter.parse_response(response)
+      config = response.ok? && AbstractAdapter.parse_response(response)
 
       case config
       when ->(obj) { obj.respond_to?(:[]) } then config

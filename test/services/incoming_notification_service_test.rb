@@ -37,41 +37,37 @@ class IncomingNotificationServiceTest < ActiveSupport::TestCase
 
     teardown do
       ::Que.clear!
+      ActiveRecord::Base.connection_pool.disconnect!
     end
 
     def test_process_locked_model
       notification = notifications(:two)
 
-      queue = SizedQueue.new(1)
+      fiber = Fiber.new do
+        first = Model.connection_pool.checkout
+        first.transaction(requires_new: true) do
+          first.execute('SET SESSION statement_timeout TO 100;')
 
-      Model.connection.execute('SET SESSION statement_timeout TO 100;')
-
-      runner = Thread.new do
-        Model.connection_pool.with_connection do |connection|
-          connection.transaction do
-            connection.execute('SET SESSION statement_timeout TO 100;')
+          second = Model.connection_pool.checkout
+          second.transaction(requires_new: true) do
+            second.execute('SET SESSION statement_timeout TO 100;')
             model = Model.find(notification.model_id)
 
             UpdateState.acquire_lock(model) do |state|
-              queue.push state
-              queue.push model.touch
-              queue.push true
+              model.touch
+              Fiber.yield state
             end
-
           end
         end
       end
-      runner.abort_on_exception = true
 
-      assert_kind_of UpdateState, queue.pop
+      assert_kind_of UpdateState, fiber.resume
 
       UpdateJob.stub(:perform_later, nil) do
         assert IncomingNotificationService.call(notification.dup)
       end
-
     ensure
-      runner.kill
-      runner.join
+      assert_nil fiber.resume
     end
   end
 end

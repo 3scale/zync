@@ -61,6 +61,9 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
 
     resource
+  rescue K8s::Error::Forbidden
+    # likely some resource like the operator
+    resource
   end
 
   def get_owner

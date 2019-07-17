@@ -3,6 +3,9 @@
 class Integration::KubernetesService < Integration::ServiceBase
   attr_reader :namespace
 
+  class_attribute :maintain_tls_spec,
+                  default: ActiveModel::Type::Boolean.new.cast(ENV['KUBERNETES_ROUTE_TLS'])
+
   def initialize(integration, namespace: self.class.namespace)
     super(integration)
     @namespace = namespace
@@ -160,7 +163,7 @@ class Integration::KubernetesService < Integration::ServiceBase
         metadata: {
           generateName: name,
           namespace: namespace,
-          labels: owner.metadata.label,
+          labels: owner.metadata.labels,
           ownerReferences: [as_reference(owner)]
         }.deep_merge(metadata.deep_merge(
           labels: {
@@ -258,8 +261,11 @@ class Integration::KubernetesService < Integration::ServiceBase
   end
 
   def update_resource(existing, resource)
+    resource.spec.delete_field(:tls) if maintain_tls_spec?
+
     client.merge_resource(existing, resource)
   rescue K8s::Error::Invalid
+    resource.spec.tls = existing.spec.tls if maintain_tls_spec?
     client.delete_resource(existing)
     client.create_resource(resource)
   end

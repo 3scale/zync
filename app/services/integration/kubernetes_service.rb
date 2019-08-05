@@ -3,6 +3,9 @@
 class Integration::KubernetesService < Integration::ServiceBase
   attr_reader :namespace
 
+  class_attribute :maintain_tls_spec,
+                  default: ActiveModel::Type::Boolean.new.cast(ENV['KUBERNETES_ROUTE_TLS'])
+
   def initialize(integration, namespace: self.class.namespace)
     super(integration)
     @namespace = namespace
@@ -162,7 +165,14 @@ class Integration::KubernetesService < Integration::ServiceBase
           namespace: namespace,
           labels: owner.metadata.labels,
           ownerReferences: [as_reference(owner)]
-        }.deep_merge(metadata.deep_merge(labels: { 'zync.3scale.net/route-to': spec.to_h.dig(:to, :name) })),
+        }.deep_merge(metadata.deep_merge(
+          labels: {
+            'zync.3scale.net/route-to': spec.to_h.dig(:to, :name),
+          },
+          annotations: {
+            'zync.3scale.net/host': spec.host,
+          }
+        )),
         spec: spec
       )
     end
@@ -210,11 +220,11 @@ class Integration::KubernetesService < Integration::ServiceBase
                    .client_for_resource(resource, namespace: namespace)
                    .list(labelSelector: label_selector_from(resource))
 
-      case existing.size
+      client.get_resource case existing.size
       when 0
         client.create_resource(resource)
       when 1
-        client.merge_resource(existing.first, extract_route_patch(resource))
+        update_resource(existing.first, resource)
       else
         existing.each(&client.method(:delete_resource))
         client.create_resource(resource)
@@ -222,10 +232,48 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
   end
 
+  def cleanup_routes(routes)
+    routes.each do |route|
+      begin
+        verify_route_status(route)
+      rescue InvalidStatus => error
+        # they need to be re-created anyway, OpenShift won't re-admit them
+        client.delete_resource(route) if error.reason == 'HostAlreadyClaimed' && error.type == 'Admitted'
+        raise
+      end
+    end
+  end
+
+  class InvalidStatus < StandardError
+    attr_reader :type, :reason
+
+    def initialize(condition)
+      @type, @reason = condition.type, condition.reason
+      super(condition.message)
+    end
+  end
+
+  def verify_route_status(route)
+    ingress = route.status.ingress.find { |ingress| ingress.host == route.spec.host }
+    condition = ingress.conditions.find { |condition| condition.type = 'Admitted' }
+
+    raise InvalidStatus, condition unless condition.status == 'True'
+  end
+
+  def update_resource(existing, resource)
+    resource.spec.delete_field(:tls) if maintain_tls_spec?
+
+    client.merge_resource(existing, resource)
+  rescue K8s::Error::Invalid
+    resource.spec.tls = existing.spec.tls if maintain_tls_spec?
+    client.delete_resource(existing)
+    client.create_resource(resource)
+  end
+
   def persist_proxy(entry)
     routes = build_proxy_routes(entry)
 
-    persist_resources(routes)
+    cleanup_routes persist_resources(routes)
   end
 
   def delete_proxy(entry)
@@ -237,7 +285,7 @@ class Integration::KubernetesService < Integration::ServiceBase
   def persist_provider(entry)
     routes = build_provider_routes(entry)
 
-    persist_resources(routes)
+    cleanup_routes persist_resources(routes)
   end
 
   def delete_provider(entry)

@@ -11,6 +11,26 @@ class RESTAdapterTest < ActiveSupport::TestCase
     assert_nil subject.new('https://example.com').authentication
   end
 
+  test 'create client with OAuth auth' do
+    stub_request(:get, "https://example.com/.well-known/openid-configuration").
+      to_return(status: 200, body: { token_endpoint: 'http://auth.example.com/oauth/token' }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    stub_request(:post, "http://auth.example.com/oauth/token").
+      with(
+        body: { client_id: "id", client_secret: 'secret', grant_type: "client_credentials" },
+        headers: { 'Content-Type'=>'application/x-www-form-urlencoded' }).
+      to_return(status: 200, body: "access_token=token-value", headers: { 'Content-Type'=>'application/x-www-form-urlencoded' })
+
+    client = RESTAdapter::Client.new(id: 'foo')
+    stub_request(:put, "https://example.com/clients/foo").
+      with(
+        body: client.to_json,
+        headers: { 'Content-Type'=>'application/json', 'Authorization' => 'Bearer token-value' }).
+      to_return(status: 200, body: { status: 'ok' }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    assert subject.new('https://id:secret@example.com').create_client(client)
+  end
+
   test 'create client without auth' do
     client = RESTAdapter::Client.new(id: 'foo')
 

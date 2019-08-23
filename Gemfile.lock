@@ -8,7 +8,7 @@ GIT
 
 GIT
   remote: https://github.com/bugsnag/bugsnag-ruby.git
-  revision: 90df9965cdb9fa95a45448e8464982f457a23d34
+  revision: 083f2065d91526411e35c21ffd521f206d08c0bf
   branch: next
   specs:
     bugsnag (6.11.1)

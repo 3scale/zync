@@ -13,7 +13,7 @@ gem 'pg', '>= 0.20'
 gem 'schema_plus_enums'
 
 # Use Puma as the app server
-gem 'puma', '~> 4.0'
+gem 'puma', '~> 4.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use ActiveModel has_secure_password

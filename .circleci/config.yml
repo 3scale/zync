@@ -1,5 +1,19 @@
 version: 2
 jobs:
+  docker-build:
+    resource_class: small
+    working_directory: /home/circleci/zync
+    docker:
+      - image: circleci/postgres:10.9-alpine
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: zync
+    environment:
+      DATABASE_URL: postgresql://postgres:@127.0.0.1:5432/zync
+    steps:
+      - setup_remote_docker
+      - run: sudo docker build . --tag zync:build-{{ .Branch }}
+      - run: sudo docker run --environment DATABASE_URL=${DATABASE_URL} -- zync:build-{{ .Branch }} ./bin/setup
 
   build:
     working_directory: /home/circleci/zync

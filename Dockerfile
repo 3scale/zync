@@ -1,4 +1,4 @@
-FROM centos/ruby-24-centos7
+FROM registry.access.redhat.com/ubi7/ruby-25
 RUN source ${APP_ROOT}/etc/scl_enable \
  && gem install bundler --version=2.0.1 --no-document
 

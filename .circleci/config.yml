@@ -4,16 +4,18 @@ jobs:
     resource_class: small
     working_directory: /home/circleci/zync
     docker:
-      - image: circleci/postgres:10.9-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: zync
-    environment:
-      DATABASE_URL: postgresql://postgres:@127.0.0.1:5432/zync
+      - image: circleci/ruby:2.4.6
     steps:
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - setup_remote_docker
-      - run: sudo docker build . --tag zync:build-{{ .Branch }}
-      - run: sudo docker run --environment DATABASE_URL=${DATABASE_URL} -- zync:build-{{ .Branch }} ./bin/setup
+      - checkout
+      - run: docker-compose run -e RAILS_ENV=test zync bin/setup
+      - run: docker-compose run -e RAILS_ENV=test zync bin/rails test
 
   build:
     working_directory: /home/circleci/zync
@@ -70,3 +72,9 @@ jobs:
           key: zync-branch-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle
+workflows:
+  version: 2
+  build_and_test_docker:
+    jobs:
+      - build
+      - docker-build

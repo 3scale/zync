@@ -1,5 +1,26 @@
 version: 2
 jobs:
+  docker-build:
+    resource_class: small
+    working_directory: /home/circleci/zync
+    docker:
+      - image: circleci/buildpack-deps:latest
+        environment:
+          POSGRES_CONTAINER_NAME: db
+          DATABASE_URL: postgresql://postgres:@db:5432/zync
+          POSTGRES_USER: postgres
+          POSTGRES_DB: zync
+          RAILS_ENV: production
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build --tag zync:build --file ./Dockerfile .
+      - run: docker network create net0
+      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_DB=${POSTGRES_DB} postgres:10-alpine
+      - run:
+          command: |
+            docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \
+            zync:build rails db:setup
 
   build:
     working_directory: /home/circleci/zync
@@ -56,3 +77,10 @@ jobs:
           key: zync-branch-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle
+
+workflows:
+  version: 2
+  build_and_test_docker:
+    jobs:
+      - build
+      - docker-build

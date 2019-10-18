@@ -149,7 +149,7 @@ GEM
       yajl-ruby (~> 1.4.0)
       yaml-safe_load_stream (~> 0.1)
     key_struct (0.4.2)
-    license_finder (5.9.2)
+    license_finder (5.10.2)
       bundler
       rubyzip
       thor
@@ -263,7 +263,7 @@ GEM
       actionpack (>= 5.0)
       railties (>= 5.0)
     ruby-progressbar (1.10.0)
-    rubyzip (1.2.3)
+    rubyzip (2.0.0)
     safe_yaml (1.0.5)
     schema_monkey (2.1.5)
       activerecord (>= 4.2)
@@ -341,7 +341,7 @@ DEPENDENCIES
   codecov
   httpclient!
   k8s-client (>= 0.10)
-  license_finder (~> 5.9)
+  license_finder (~> 5.10)
   license_finder_xml_reporter!
   lograge
   message_bus
@@ -368,4 +368,4 @@ DEPENDENCIES
   yabeda-rails
 
 BUNDLED WITH
-   2.0.1
+   2.0.2

@@ -135,18 +135,19 @@ class Integration::KubernetesService < Integration::ServiceBase
   class RouteSpec < K8s::Resource
     def initialize(url, service, port)
       uri = URI(url)
+      tls_options = {
+        insecureEdgeTerminationPolicy: 'Redirect',
+        termination: 'edge'
+      } if uri.class == URI::HTTPS
+
       super({
         host: uri.host || uri.path,
         port: { targetPort: port },
-        tls: {
-          insecureEdgeTerminationPolicy: 'Redirect',
-          termination: 'edge'
-        },
         to: {
           kind: 'Service',
           name: service
         }
-      })
+      }.merge(tls: tls_options))
     end
   end
 

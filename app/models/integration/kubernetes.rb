@@ -7,7 +7,7 @@ class Integration::Kubernetes < Integration
   validates :server, url: { allow_nil: true, no_local: true }
 
   def enabled?
-    K8s::Client === K8s::Client.autoconfig
+    super && K8s::Client === K8s::Client.autoconfig
   rescue K8s::Error::Configuration
     false
   rescue => error

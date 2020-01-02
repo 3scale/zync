@@ -34,7 +34,7 @@ gem 'que', '>= 1.0.0.beta3'
 gem 'que-web'
 gem 'baby_squeel'
 
-gem 'bugsnag', github: 'bugsnag/bugsnag-ruby', branch: 'next'
+gem 'bugsnag'
 # bugsnag-capistrano 2.x does not have a rake task to report deploys
 # https://github.com/bugsnag/bugsnag-capistrano/blob/8bcfb27cf6eaff312eef086cce729d553a431460/UPGRADING.md
 gem 'bugsnag-capistrano', '< 2', require: false

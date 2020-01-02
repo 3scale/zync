@@ -102,7 +102,7 @@ GEM
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
-    dry-initializer (2.5.0)
+    dry-initializer (3.0.2)
     dry-logic (0.6.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.2)
@@ -319,7 +319,7 @@ GEM
       dry-initializer
     yabeda-prometheus (0.1.4)
       yabeda
-    yabeda-puma-plugin (0.1.0)
+    yabeda-puma-plugin (0.2.1)
       json
       puma
       yabeda

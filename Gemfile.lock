@@ -217,7 +217,7 @@ GEM
     pry-stack_explorer (0.4.9.3)
       binding_of_caller (>= 0.7)
       pry (>= 0.9.11)
-    public_suffix (3.1.0)
+    public_suffix (3.1.1)
     puma (4.3.1)
       nio4r (~> 2.0)
     quantile (0.2.1)
@@ -302,7 +302,7 @@ GEM
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
     url (0.3.2)
-    validate_url (1.0.6)
+    validate_url (1.0.8)
       activemodel (>= 3.0.0)
       public_suffix
     webmock (3.5.1)

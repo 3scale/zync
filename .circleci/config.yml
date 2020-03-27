@@ -7,8 +7,9 @@ jobs:
       - image: circleci/buildpack-deps:latest
         environment:
           POSGRES_CONTAINER_NAME: db
-          DATABASE_URL: postgresql://postgres:@db:5432/zync
+          DATABASE_URL: postgresql://postgres:postgres@db:5432/zync
           POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: zync
           RAILS_ENV: production
     steps:
@@ -16,7 +17,7 @@ jobs:
       - setup_remote_docker
       - run: docker build --tag zync:build --file ./Dockerfile .
       - run: docker network create net0
-      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_DB=${POSTGRES_DB} postgres:10-alpine
+      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} postgres:10-alpine
       - run:
           command: |
             docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \

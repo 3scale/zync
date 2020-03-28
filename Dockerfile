@@ -1,4 +1,13 @@
 FROM registry.access.redhat.com/ubi7/ruby-25
+
+USER root
+RUN rpm -Uvh http://yum.postgresql.org/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm \
+  && yum update -y \
+  && yum remove -y postgresql \
+  && yum install -y postgresql96 postgresql96-devel postgresql96-libs \
+  && yum clean all \
+  && rm -rf /var/cache/yum
+
 RUN source ${APP_ROOT}/etc/scl_enable \
  && gem install bundler --version=2.0.1 --no-document
 

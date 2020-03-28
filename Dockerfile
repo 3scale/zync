@@ -13,7 +13,8 @@ RUN source ${APP_ROOT}/etc/scl_enable \
 
 COPY Gemfile* ./
 RUN source ${APP_ROOT}/etc/scl_enable \
- && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+  && bundle config build.pg --with-pg-config=/usr/pgsql-9.6/bin/pg_config \
+  && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 COPY . .
 ENV RAILS_LOG_TO_STDOUT=1
 USER root

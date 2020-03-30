@@ -1,10 +1,10 @@
 FROM registry.access.redhat.com/ubi7/ruby-25
 
 USER root
-
+RUN rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm\
   && yum update -y \
   && yum remove -y postgresql \
-  && yum install -y postgresql96 postgresql96-devel postgresql96-libs \
+  && yum install -y postgresql1pg 0 postgresql10-devel postgresql10-libs \
   && yum clean all \
   && rm -rf /var/cache/yum
 
@@ -16,7 +16,7 @@ RUN source ${APP_ROOT}/etc/scl_enable \
 
 COPY --chown=default:root Gemfile* ./
 RUN source ${APP_ROOT}/etc/scl_enable \
-  && bundle config build.pg --with-pg-config=/usr/pgsql-9.6/bin/pg_config \
+  && bundle config build.pg --with-pg-config=/usr/pgsql-10/bin/pg_config \
   && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
 COPY --chown=default:root . .

@@ -13,6 +13,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
 
   def after_teardown
     ENV.replace(@_env)
+    super
   end
 
   test 'create ingress ' do

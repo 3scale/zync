@@ -66,33 +66,4 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
 
     service.call(proxy)
   end
-
-  class RouteSpec < ActiveSupport::TestCase
-    test 'secure routes' do
-      url = 'https://my-api.example.com'
-      service_name = 'My API'
-      port = 7443
-      spec = Integration::KubernetesService::RouteSpec.new(url, service_name, port)
-      json = {
-        host: "my-api.example.com",
-        port: {targetPort: 7443},
-        to: {kind: "Service", name: "My API"},
-        tls: {insecureEdgeTerminationPolicy: "Redirect", termination: "edge"}
-      }
-      assert_equal json, spec.to_hash
-
-
-      url = 'http://my-api.example.com'
-      service_name = 'My API'
-      port = 7780
-      spec = Integration::KubernetesService::RouteSpec.new(url, service_name, port)
-      json = {
-        host: "my-api.example.com",
-        port: {targetPort: 7780},
-        to: {kind: "Service", name: "My API"},
-        tls: nil
-      }
-      assert_equal json, spec.to_hash
-    end
-  end
 end

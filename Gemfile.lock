@@ -86,7 +86,7 @@ GEM
       simplecov
       url
     coderay (1.1.2)
-    concurrent-ruby (1.1.5)
+    concurrent-ruby (1.1.6)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.5)
@@ -102,7 +102,7 @@ GEM
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
-    dry-initializer (2.5.0)
+    dry-initializer (3.0.3)
     dry-logic (0.6.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.2)
@@ -314,15 +314,15 @@ GEM
     websocket-extensions (0.1.3)
     with_env (1.1.0)
     xml-simple (1.1.5)
-    yabeda (0.1.3)
+    yabeda (0.5.0)
       concurrent-ruby
       dry-initializer
     yabeda-prometheus (0.1.4)
       yabeda
-    yabeda-puma-plugin (0.1.0)
+    yabeda-puma-plugin (0.3.0)
       json
       puma
-      yabeda
+      yabeda (~> 0.2)
     yabeda-rails (0.1.3)
       rails
       yabeda

@@ -181,17 +181,18 @@ class Integration::KubernetesService < Integration::ServiceBase
 
   def build_provider_routes(entry)
     data = entry.data
-    domain, admin_domain = data.values_at('domain', 'admin_domain')
+    domain = data.fetch('base_url', data.fetch('domain'))
+    admin_domain = data.fetch('admin_base_url', data.fetch('admin_domain'))
     metadata = { labels: labels_for_provider(entry), annotations: annotations_for(entry) }
 
     if admin_domain == domain # master account
       build_routes('zync-3scale-master-', [
-                     RouteSpec.new(data.fetch('domain'), 'system-master', 'http')
+                     RouteSpec.new(domain, 'system-master', 'http')
                    ], **metadata)
     else
       build_routes('zync-3scale-provider-', [
-                     RouteSpec.new(data.fetch('domain'), 'system-developer', 'http'),
-                     RouteSpec.new(data.fetch('admin_domain'), 'system-provider', 'http')
+                     RouteSpec.new(domain, 'system-developer', 'http'),
+                     RouteSpec.new(admin_domain, 'system-provider', 'http')
                    ], **metadata)
     end
   end

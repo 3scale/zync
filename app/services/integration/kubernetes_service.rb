@@ -138,7 +138,7 @@ class Integration::KubernetesService < Integration::ServiceBase
       tls_options = {
         insecureEdgeTerminationPolicy: 'Redirect',
         termination: 'edge'
-      } if uri.class == URI::HTTPS
+      } if uri.class == URI::HTTPS || uri.scheme.blank?
 
       super({
         host: uri.host || uri.path,

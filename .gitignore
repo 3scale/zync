@@ -26,3 +26,4 @@
 .byebug_history
 
 openshift.local.clusterup
+.ruby-version

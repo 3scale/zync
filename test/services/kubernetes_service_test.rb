@@ -81,7 +81,6 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       }
       assert_equal json, spec.to_hash
 
-
       url = 'http://my-api.example.com'
       service_name = 'My API'
       port = 7780
@@ -91,6 +90,20 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
         port: {targetPort: 7780},
         to: {kind: "Service", name: "My API"},
         tls: nil
+      }
+      assert_equal json, spec.to_hash
+    end
+
+    test 'defaults to https when scheme is missing' do
+      url = 'my-api.example.com'
+      service_name = 'My API'
+      port = 7443
+      spec = Integration::KubernetesService::RouteSpec.new(url, service_name, port)
+      json = {
+        host: "my-api.example.com",
+        port: {targetPort: 7443},
+        to: {kind: "Service", name: "My API"},
+        tls: {insecureEdgeTerminationPolicy: "Redirect", termination: "edge"}
       }
       assert_equal json, spec.to_hash
     end

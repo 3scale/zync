@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: https://github.com/bugsnag/bugsnag-ruby.git
-  revision: 90df9965cdb9fa95a45448e8464982f457a23d34
+  revision: 92b605c5a08c2c9c8f6ec3a77dfd6076a71e5c49
   branch: next
   specs:
-    bugsnag (6.11.1)
+    bugsnag (6.13.0)
       concurrent-ruby (~> 1.0)
 
 GIT
@@ -86,7 +86,7 @@ GEM
       simplecov
       url
     coderay (1.1.2)
-    concurrent-ruby (1.1.5)
+    concurrent-ruby (1.1.6)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.5)

@@ -26,7 +26,7 @@ jobs:
   build:
     working_directory: /home/circleci/zync
     docker:
-      - image: circleci/ruby:2.4.6
+      - image: circleci/ruby:2.5.5
       - image: circleci/postgres:10-alpine-ram
     environment:
         RAILS_ENV: test

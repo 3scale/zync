@@ -14,13 +14,20 @@ WORKDIR ${APP_ROOT}
 RUN source ${APP_ROOT}/etc/scl_enable \
   && gem install bundler --version=2.0.1 --no-document
 
-COPY --chown=default:root Gemfile* ./
+USER root
+COPY Gemfile* ./
+RUN chown -fR default:root ./Gemfile
+
+USER default
 RUN source ${APP_ROOT}/etc/scl_enable \
   && bundle config build.pg --with-pg-config=/usr/pgsql-10/bin/pg_config \
   && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
-COPY --chown=default:root . .
+USER root
+COPY . .
+RUN chown -fR default:root .
 
+USER default
 ENV RAILS_LOG_TO_STDOUT=1
 RUN source ${APP_ROOT}/etc/scl_enable \
   && bundle exec bin/rails server -e production -d; \

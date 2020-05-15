@@ -33,8 +33,6 @@ jobs:
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
         DATABASE_URL: postgres://postgres:@localhost/circle_test
     steps:
-      - run: sudo sh -c 'apt update && apt install -y --no-install-recommends -y postgresql-client'
-
       - checkout
 
       # Restore bundle cache

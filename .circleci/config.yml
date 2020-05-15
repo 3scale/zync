@@ -24,25 +24,23 @@ jobs:
             zync:build rails db:setup
 
   build:
-    working_directory: /home/circleci/zync
+    working_directory: /opt/app-root/zync
     docker:
-      - image: circleci/ruby:2.5.5
+      - image: registry.access.redhat.com/ubi7/ruby-25
       - image: circleci/postgres:10-alpine-ram
     environment:
         RAILS_ENV: test
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
         DATABASE_URL: postgres://postgres:@localhost/circle_test
     steps:
-      - run: sudo sh -c 'apt update && apt install -y --no-install-recommends -y postgresql-client'
-
       - checkout
 
       # Restore bundle cache
       - restore_cache:
           keys:
-            - zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - zync-bundle-{{ arch }}-{{ .Branch }}
-            - zync-branch-{{ arch }}-master
+            - zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - zync-bundle-v2-{{ arch }}-{{ .Branch }}
+            - zync-branch-v2-{{ arch }}-master
 
       - run:
           name: bundle install
@@ -54,7 +52,7 @@ jobs:
           command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
-          key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -75,7 +73,7 @@ jobs:
           path: test/reports
 
       - save_cache:
-          key: zync-branch-{{ arch }}-{{ .Branch }}
+          key: zync-branch-v2-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle
 

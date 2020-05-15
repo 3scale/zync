@@ -38,9 +38,9 @@ jobs:
       # Restore bundle cache
       - restore_cache:
           keys:
-            - zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - zync-bundle-{{ arch }}-{{ .Branch }}
-            - zync-branch-{{ arch }}-master
+            - zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - zync-bundle-v2-{{ arch }}-{{ .Branch }}
+            - zync-branch-v2-{{ arch }}-master
 
       - run:
           name: bundle install
@@ -52,7 +52,7 @@ jobs:
           command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
-          key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -73,7 +73,7 @@ jobs:
           path: test/reports
 
       - save_cache:
-          key: zync-branch-{{ arch }}-{{ .Branch }}
+          key: zync-branch-v2-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle
 

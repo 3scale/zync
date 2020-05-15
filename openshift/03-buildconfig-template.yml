@@ -28,7 +28,7 @@ objects:
       dockerStrategy:
         from:
           kind: ImageStreamTag
-          name: ruby-24-centos7:latest
+          name: ruby-25-ubi7:latest
       type: Docker
     triggers:
     - github:
@@ -36,7 +36,7 @@ objects:
       type: GitHub
     - type: ImageChange
     - type: ConfigChange
- 
+
 parameters:
 - name: GITHUB_SECRET
   displayName: GitHub WebHook Secret

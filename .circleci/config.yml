@@ -24,9 +24,9 @@ jobs:
             zync:build rails db:setup
 
   build:
-    working_directory: /home/circleci/zync
+    working_directory: /opt/app-root/zync
     docker:
-      - image: circleci/ruby:2.5.5
+      - image: registry.access.redhat.com/ubi7/ruby-25
       - image: circleci/postgres:10-alpine-ram
     environment:
         RAILS_ENV: test

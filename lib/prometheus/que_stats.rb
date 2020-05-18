@@ -17,8 +17,8 @@ module Prometheus
       end
     end
 
-    def job_stats(filter = nil)
-      filter = "WHERE #{filter}" if filter
+    def job_stats(*filters)
+      filter = "WHERE #{filters.join(' AND ')}" if filters.presence
       sql = <<~SQL
         SELECT args->0->>'job_class' AS job_class, COUNT(*) as count
         FROM que_jobs #{filter}
@@ -28,6 +28,26 @@ module Prometheus
       execute do |connection|
         connection.select_all(sql)
       end
+    end
+
+    def job_stats_ready
+      job_stats('error_count = 0', 'expired_at IS NULL', 'finished_at IS NULL', 'run_at <= now()')
+    end
+
+    def job_stats_scheduled
+      job_stats('run_at > now()')
+    end
+
+    def job_stats_finished
+      job_stats('finished_at IS NOT NULL')
+    end
+
+    def job_stats_retried
+      job_stats(%q[(args->0->>'retries')::integer > 0])
+    end
+
+    def job_stats_failed
+      job_stats('error_count > 0')
     end
 
     mattr_accessor :read_only_transaction, default: true, instance_accessor: false
@@ -54,23 +74,17 @@ end
 Yabeda.configure do
   group :que do
     scheduled_jobs = gauge :jobs_scheduled_total, comment: 'Que Jobs to be executed'
-    workers = gauge :workers_total,  comment: 'Que Workers running'
+    workers = gauge :workers_total, comment: 'Que Workers running'
+
+    set_stats = ->(type, stats) { scheduled_jobs.set({ job: stats.fetch('job_class') }.merge(type), stats.fetch('count')) }
 
     collect do
-      Prometheus::QueStats.job_stats.each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job_class') }, stats.fetch('count'))
-      end
+      set_stats_all = set_stats.curry.call({})
+      Prometheus::QueStats.job_stats.each(&set_stats_all)
 
-      Prometheus::QueStats.job_stats(%q[(args->0->>'retries')::integer > 0]).each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'retry' }, stats.fetch('count'))
-      end
-
-      Prometheus::QueStats.job_stats('run_at < now()').each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'scheduled' }, stats.fetch('count'))
-      end
-
-      Prometheus::QueStats.job_stats('run_at > now()').each do |stats|
-        scheduled_jobs.set({ job: stats.fetch('job_class'), type: 'future' }, stats.fetch('count'))
+      %w[ready scheduled finished retried failed].each do |type|
+        set_stats_type = set_stats.curry.call(type: type)
+        Prometheus::QueStats.public_send("job_stats_#{type}").each(&set_stats_type)
       end
 
       workers.set({ }, Prometheus::QueStats.worker_stats.fetch('workers'))

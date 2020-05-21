@@ -17,12 +17,21 @@ module Prometheus
       end
     end
 
+    # ApplicationJob did not have to be here, but it's just harder to test otherwise because of ApplicationJob#delete_duplicates
+    JOB_CLASSES = %w[ApplicationJob ProcessEntryJob ProcessIntegrationEntryJob UpdateJob].inspect.tr('"', "'").freeze
+
     def job_stats(*filters)
       filter = "WHERE #{filters.join(' AND ')}" if filters.presence
       sql = <<~SQL
-        SELECT args->0->>'job_class' AS job_class, COUNT(*) as count
-        FROM que_jobs #{filter}
-        GROUP BY args->0->>'job_class'
+        WITH
+          jobs AS (SELECT unnest(array#{JOB_CLASSES}) AS job_class),
+          stats AS (
+            SELECT args->0->>'job_class' AS job_class, COUNT(*) as count
+            FROM que_jobs #{filter}
+            GROUP BY args->0->>'job_class'
+          )
+        SELECT jobs.job_class, COALESCE(stats.count, 0) AS count
+        FROM jobs LEFT JOIN stats ON jobs.job_class = stats.job_class
       SQL
 
       execute do |connection|

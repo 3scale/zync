@@ -19,65 +19,65 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   test 'job stats' do
     Que.stop!
     ApplicationJob.perform_later
-    assert Prometheus::QueStats.job_stats.any?
-    assert Prometheus::QueStats.job_stats('1 > 0').any?
-    assert Prometheus::QueStats.job_stats('1 > 0', '2 > 1').any?
-    assert Prometheus::QueStats.job_stats('1 > 0', '2 < 1').empty?
+    assert_equal 1, stats_count
+    assert_equal 1, stats_count(where: ['1 > 0'])
+    assert_equal 1, stats_count(where: ['1 > 0', '2 > 1'])
+    assert_equal 0, stats_count(where: ['1 > 0', '2 < 1'])
   end
 
   test 'ready jobs stats' do
     Que.stop!
-    assert Prometheus::QueStats.job_stats_ready.empty?
+    assert_equal 0, stats_count(type: :ready)
     jobs = Array.new(3) { ApplicationJob.perform_later }
     jobs << ApplicationJob.set(wait_until: 1.day.from_now).perform_later
-    assert_equal 3, Prometheus::QueStats.job_stats_ready.first['count']
+    assert_equal 3, stats_count(type: :ready)
     update_job(jobs[0], error_count: 1)
-    assert_equal 2, Prometheus::QueStats.job_stats_ready.first['count']
+    assert_equal 2, stats_count(type: :ready)
     update_job(jobs[1], expired_at: 1.minute.ago)
-    assert_equal 1, Prometheus::QueStats.job_stats_ready.first['count']
+    assert_equal 1, stats_count(type: :ready)
     update_job(jobs[2], finished_at: 1.minute.ago)
-    assert Prometheus::QueStats.job_stats_ready.empty?
+    assert_equal 0, stats_count(type: :ready)
   end
 
   test 'scheduled jobs stats' do
     Que.stop!
-    assert Prometheus::QueStats.job_stats_scheduled.empty?
+    assert_equal 0, stats_count(type: :scheduled)
     jobs = [ApplicationJob, ApplicationJob.set(wait_until: 1.day.from_now)].map(&:perform_later)
-    assert_equal 1, Prometheus::QueStats.job_stats_scheduled.first['count']
+    assert_equal 1, stats_count(type: :scheduled)
     update_job(jobs.last, run_at: 1.minute.ago)
-    assert Prometheus::QueStats.job_stats_scheduled.empty?
+    assert_equal 0, stats_count(type: :scheduled)
   end
 
   test 'finished jobs stats' do
     Que.stop!
-    assert Prometheus::QueStats.job_stats_finished.empty?
+    assert_equal 0, stats_count(type: :finished)
     jobs = Array.new(2) { ApplicationJob.perform_later }
-    assert Prometheus::QueStats.job_stats_finished.empty?
+    assert_equal 0, stats_count(type: :finished)
     update_job(jobs.first, finished_at: Time.now)
-    assert_equal 1, Prometheus::QueStats.job_stats_finished.first['count']
+    assert_equal 1, stats_count(type: :finished)
   end
 
   test 'retried jobs stats' do
     Que.stop!
-    assert Prometheus::QueStats.job_stats_retried.empty?
+    assert_equal 0, stats_count(type: :retried)
     jobs = Array.new(2) { ApplicationJob.perform_later }
-    assert Prometheus::QueStats.job_stats_retried.empty?
+    assert_equal 0, stats_count(type: :retried)
 
     job = jobs.first
     job_model = ApplicationJob.model.where("args->0->>'job_id' = ?", job.job_id).first
     job_model.args = [job_model.args.first.merge('retries' => 1)]
     job_model.save!
 
-    assert_equal 1, Prometheus::QueStats.job_stats_retried.first['count']
+    assert_equal 1, stats_count(type: :retried)
   end
 
   test 'failed jobs stats' do
     Que.stop!
-    assert Prometheus::QueStats.job_stats_failed.empty?
+    assert_equal 0, stats_count(type: :failed)
     jobs = Array.new(2) { ApplicationJob.perform_later }
-    assert Prometheus::QueStats.job_stats_failed.empty?
+    assert_equal 0, stats_count(type: :failed)
     update_job(jobs.first, error_count: 1)
-    assert_equal 1, Prometheus::QueStats.job_stats_failed.first['count']
+    assert_equal 1, stats_count(type: :failed)
   end
 
   class WithTransaction < ActiveSupport::TestCase
@@ -110,5 +110,11 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
 
   def update_job(job, attributes = {})
     ApplicationJob.model.where("args->0->>'job_id' = ?", job.job_id).update_all(attributes)
+  end
+
+  def stats_count(job_class: ApplicationJob.name, type: nil, where: [])
+    stats = type ? Prometheus::QueStats.public_send("job_stats_#{type}") : Prometheus::QueStats.job_stats(*where)
+    record = stats.find { |record| record['job_class'] == job_class }
+    record['count']
   end
 end

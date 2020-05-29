@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'prometheus/client/metric'
+require 'que/active_record/model'
 
 module Prometheus
 
@@ -21,30 +22,34 @@ module Prometheus
     JOB_CLASSES = %w[ApplicationJob ProcessEntryJob ProcessIntegrationEntryJob UpdateJob].inspect.tr('"', "'").freeze
 
     def job_stats(*filters)
-      filter = "WHERE #{filters.join(' AND ')}" if filters.presence
-      sql = <<~SQL
-        WITH
-          jobs AS (SELECT unnest(array#{JOB_CLASSES}) AS job_class),
-          stats AS (
-            SELECT args->0->>'job_class' AS job_class, COUNT(*) as count
-            FROM que_jobs #{filter}
-            GROUP BY args->0->>'job_class'
-          )
-        SELECT jobs.job_class, COALESCE(stats.count, 0) AS count
-        FROM jobs LEFT JOIN stats ON jobs.job_class = stats.job_class
-      SQL
+      job_classes_expression = Arel.sql("SELECT unnest(ARRAY#{JOB_CLASSES})").as('job_class')
+      job_classes_table = Arel::Table.new(:jobs)
+      job_class_column = job_classes_table['job_class']
+
+      stats_count_relation = Que::ActiveRecord::Model.selecting { [Arel.sql("args->0->>'job_class'").as('job_class'), Arel.star.count.as('count')] }.group("args->0->>'job_class'")
+      stats_count_relation = filters.reduce(stats_count_relation) { |relation, filter| relation.where(filter) }
+      stats_count_table = Arel::Table.new(:stats)
+
+      relation = job_classes_table.join(stats_count_table, Arel::Nodes::OuterJoin).
+                                   on(job_class_column.eq(stats_count_table['job_class'])).
+                                   project([job_class_column, Arel::Nodes::NamedFunction.new('coalesce', [stats_count_table['count'], 0]).as('count')]).
+                                   with([
+        Arel::Nodes::As.new(job_classes_table, Arel.sql("(#{job_classes_expression.to_sql})")),
+        Arel::Nodes::As.new(stats_count_table, stats_count_relation.arel)
+      ])
 
       execute do |connection|
-        connection.select_all(sql)
+        connection.select_all(relation.to_sql)
       end
     end
 
     def job_stats_ready
-      job_stats('error_count = 0', 'expired_at IS NULL', 'finished_at IS NULL', 'run_at <= now()')
+      conditions = [['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at <= ?', Time.zone.now]]
+      job_stats(*conditions)
     end
 
     def job_stats_scheduled
-      job_stats('run_at > now()')
+      job_stats(['run_at > ?', Time.zone.now])
     end
 
     def job_stats_finished
@@ -52,11 +57,11 @@ module Prometheus
     end
 
     def job_stats_retried
-      job_stats(%q[(args->0->>'retries')::integer > 0])
+      job_stats(["(args->0->>'retries')::integer > ?", 0])
     end
 
     def job_stats_failed
-      job_stats('error_count > 0')
+      job_stats(['error_count > ?', 0])
     end
 
     mattr_accessor :read_only_transaction, default: true, instance_accessor: false

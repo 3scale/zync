@@ -13,7 +13,7 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   end
 
   test 'worker stats' do
-    assert Prometheus::QueStats.worker_stats
+    assert Prometheus::QueStats::WorkerStats.new.call
   end
 
   test 'job stats' do
@@ -84,7 +84,7 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     uses_transaction :test_readonly_transaction
     def test_readonly_transaction
       Prometheus::QueStats.stub(:read_only_transaction, true) do
-        Prometheus::QueStats.worker_stats
+        Prometheus::QueStats::WorkerStats.new.call
       end
     end
   end
@@ -113,8 +113,9 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   end
 
   def stats_count(job_class: ApplicationJob.name, type: nil, where: [])
-    stats = type ? Prometheus::QueStats.public_send("job_stats_#{type}") : Prometheus::QueStats.job_stats(*where)
-    record = stats.find { |record| record['job_class'] == job_class }
+    job_stats = Prometheus::QueStats::JobStats.new
+    stats = type ? job_stats.public_send(type) : job_stats.call(*where)
+    record = stats.find { |record| record['job'] == job_class }
     record['count']
   end
 end

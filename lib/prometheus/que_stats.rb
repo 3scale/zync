@@ -89,7 +89,7 @@ module Prometheus
       end
 
       def failed
-        call(['error_count > ?', 0])
+        call(['error_count > ?', 0], { expired_at: nil })
       end
 
       def expired

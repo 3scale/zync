@@ -66,6 +66,10 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     assert_equal 0, stats_count(type: :failed)
     update_job(jobs.first, error_count: 1)
     assert_equal 1, stats_count(type: :failed)
+    update_job(jobs.first, error_count: 15)
+    assert_equal 1, stats_count(type: :failed)
+    update_job(jobs.first, error_count: 16, expired_at: Time.now.utc)
+    assert_equal 0, stats_count(type: :failed)
   end
 
   test 'expired jobs stats' do

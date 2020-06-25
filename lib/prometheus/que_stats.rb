@@ -81,7 +81,7 @@ module Prometheus
       end
 
       def scheduled
-        call(['run_at > ?', Time.zone.now])
+        call(['error_count = ?', 0], ['run_at > ?', Time.zone.now])
       end
 
       def finished

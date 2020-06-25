@@ -42,7 +42,9 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   test 'scheduled jobs stats' do
     Que.stop!
     assert_equal 0, stats_count(type: :scheduled)
-    jobs = [ApplicationJob, ApplicationJob.set(wait_until: 1.day.from_now)].map(&:perform_later)
+    jobs = [ApplicationJob, ApplicationJob.set(wait_until: 1.day.from_now), ApplicationJob.set(wait_until: 2.days.from_now)].map(&:perform_later)
+    assert_equal 2, stats_count(type: :scheduled)
+    update_job(jobs[1], error_count: 16, expired_at: 1.minute.ago)
     assert_equal 1, stats_count(type: :scheduled)
     update_job(jobs.last, run_at: 1.minute.ago)
     assert_equal 0, stats_count(type: :scheduled)

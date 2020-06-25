@@ -80,6 +80,15 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     assert_equal 1, stats_count(type: :failed)
   end
 
+  test 'expired jobs stats' do
+    Que.stop!
+    assert_equal 0, stats_count(type: :expired)
+    jobs = Array.new(2) { ApplicationJob.perform_later }
+    assert_equal 0, stats_count(type: :expired)
+    update_job(jobs.first, error_count: 16, expired_at: Time.now.utc)
+    assert_equal 1, stats_count(type: :expired)
+  end
+
   class WithTransaction < ActiveSupport::TestCase
     uses_transaction :test_readonly_transaction
     def test_readonly_transaction

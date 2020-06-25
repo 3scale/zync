@@ -96,6 +96,10 @@ module Prometheus
         call(['error_count > ?', 0])
       end
 
+      def expired
+        call('expired_at IS NOT NULL')
+      end
+
       protected
 
       # ApplicationJob did not have to be here, but it's just harder to test otherwise because of ApplicationJob#delete_duplicates
@@ -177,7 +181,7 @@ Yabeda.configure do
     collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job')
     collect do
       collector.call
-      %w[ready scheduled finished retried failed].each(&collector.method(:call))
+      %w[ready scheduled finished retried failed expired].each(&collector.method(:call))
     end
   end
 end

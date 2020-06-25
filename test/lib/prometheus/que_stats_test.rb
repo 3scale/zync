@@ -59,20 +59,6 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     assert_equal 1, stats_count(type: :finished)
   end
 
-  test 'retried jobs stats' do
-    Que.stop!
-    assert_equal 0, stats_count(type: :retried)
-    jobs = Array.new(2) { ApplicationJob.perform_later }
-    assert_equal 0, stats_count(type: :retried)
-
-    job = jobs.first
-    job_model = ApplicationJob.model.where("args->0->>'job_id' = ?", job.job_id).first
-    job_model.args = [job_model.args.first.merge('retries' => 1)]
-    job_model.save!
-
-    assert_equal 1, stats_count(type: :retried)
-  end
-
   test 'failed jobs stats' do
     Que.stop!
     assert_equal 0, stats_count(type: :failed)

@@ -88,10 +88,6 @@ module Prometheus
         call('finished_at IS NOT NULL')
       end
 
-      def retried
-        call(["(args->0->>'retries')::integer > ?", 0])
-      end
-
       def failed
         call(['error_count > ?', 0])
       end
@@ -181,7 +177,7 @@ Yabeda.configure do
     collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job')
     collect do
       collector.call
-      %w[ready scheduled finished retried failed expired].each(&collector.method(:call))
+      %w[ready scheduled finished failed expired].each(&collector.method(:call))
     end
   end
 end

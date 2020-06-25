@@ -76,12 +76,11 @@ module Prometheus
       alias_method :all, :call
 
       def ready
-        conditions = [['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at <= ?', Time.zone.now]]
-        call(*conditions)
+        call(['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at <= ?', Time.zone.now])
       end
 
       def scheduled
-        call(['error_count = ?', 0], ['run_at > ?', Time.zone.now])
+        call(['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at > ?', Time.zone.now])
       end
 
       def finished
@@ -89,7 +88,7 @@ module Prometheus
       end
 
       def failed
-        call(['error_count > ?', 0], { expired_at: nil })
+        call(['error_count > ?', 0], { expired_at: nil, finished_at: nil })
       end
 
       def expired

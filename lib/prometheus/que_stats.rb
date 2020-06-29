@@ -76,24 +76,23 @@ module Prometheus
       alias_method :all, :call
 
       def ready
-        conditions = [['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at <= ?', Time.zone.now]]
-        call(*conditions)
+        call(['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at <= ?', Time.zone.now])
       end
 
       def scheduled
-        call(['run_at > ?', Time.zone.now])
+        call(['error_count = ?', 0], { expired_at: nil, finished_at: nil }, ['run_at > ?', Time.zone.now])
       end
 
       def finished
         call('finished_at IS NOT NULL')
       end
 
-      def retried
-        call(["(args->0->>'retries')::integer > ?", 0])
+      def failed
+        call(['error_count > ?', 0], { expired_at: nil, finished_at: nil })
       end
 
-      def failed
-        call(['error_count > ?', 0])
+      def expired
+        call('expired_at IS NOT NULL')
       end
 
       protected
@@ -177,7 +176,7 @@ Yabeda.configure do
     collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job')
     collect do
       collector.call
-      %w[ready scheduled finished retried failed].each(&collector.method(:call))
+      %w[ready scheduled finished failed expired].each(&collector.method(:call))
     end
   end
 end

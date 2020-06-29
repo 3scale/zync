@@ -42,7 +42,9 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   test 'scheduled jobs stats' do
     Que.stop!
     assert_equal 0, stats_count(type: :scheduled)
-    jobs = [ApplicationJob, ApplicationJob.set(wait_until: 1.day.from_now)].map(&:perform_later)
+    jobs = [ApplicationJob, ApplicationJob.set(wait_until: 1.day.from_now), ApplicationJob.set(wait_until: 2.days.from_now)].map(&:perform_later)
+    assert_equal 2, stats_count(type: :scheduled)
+    update_job(jobs[1], error_count: 16, expired_at: 1.minute.ago)
     assert_equal 1, stats_count(type: :scheduled)
     update_job(jobs.last, run_at: 1.minute.ago)
     assert_equal 0, stats_count(type: :scheduled)
@@ -57,20 +59,6 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     assert_equal 1, stats_count(type: :finished)
   end
 
-  test 'retried jobs stats' do
-    Que.stop!
-    assert_equal 0, stats_count(type: :retried)
-    jobs = Array.new(2) { ApplicationJob.perform_later }
-    assert_equal 0, stats_count(type: :retried)
-
-    job = jobs.first
-    job_model = ApplicationJob.model.where("args->0->>'job_id' = ?", job.job_id).first
-    job_model.args = [job_model.args.first.merge('retries' => 1)]
-    job_model.save!
-
-    assert_equal 1, stats_count(type: :retried)
-  end
-
   test 'failed jobs stats' do
     Que.stop!
     assert_equal 0, stats_count(type: :failed)
@@ -78,6 +66,19 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
     assert_equal 0, stats_count(type: :failed)
     update_job(jobs.first, error_count: 1)
     assert_equal 1, stats_count(type: :failed)
+    update_job(jobs.first, error_count: 15)
+    assert_equal 1, stats_count(type: :failed)
+    update_job(jobs.first, error_count: 16, expired_at: Time.now.utc)
+    assert_equal 0, stats_count(type: :failed)
+  end
+
+  test 'expired jobs stats' do
+    Que.stop!
+    assert_equal 0, stats_count(type: :expired)
+    jobs = Array.new(2) { ApplicationJob.perform_later }
+    assert_equal 0, stats_count(type: :expired)
+    update_job(jobs.first, error_count: 16, expired_at: Time.now.utc)
+    assert_equal 1, stats_count(type: :expired)
   end
 
   class WithTransaction < ActiveSupport::TestCase

@@ -59,6 +59,56 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     end
   end
 
+  class ActiveRecordRelationWithFiber < ActiveRecord::Relation
+    def find_by(*attributes)
+      record = super
+      Fiber.yield
+      record
+    end
+  end
+
+  class IntegrationWithFiber < ::Integration::REST
+    def self.relation
+      ActiveRecordRelationWithFiber.new(self)
+    end
+  end
+
+  class CreateProxyIntegrationWithFiber < ProcessEntryJob::CreateOIDCProxyIntegration
+    def model
+      IntegrationWithFiber
+    end
+  end
+
+  class ProcessEntryJobWithFiber < ProcessEntryJob
+    PROXY_INTEGRATIONS = [CreateProxyIntegrationWithFiber]
+  end
+
+  test 'race condition between entry jobs to create same proxy integration' do
+    entry = entries(:proxy)
+
+    existing_integrations = Integration.where(tenant: entry.tenant)
+    UpdateState.where(model: existing_integrations).delete_all
+    existing_integrations.delete_all
+
+    fiber1 = Fiber.new { ProcessEntryJobWithFiber.model_integrations_for(entry) }
+    fiber2 = Fiber.new { ProcessEntryJobWithFiber.model_integrations_for(entry) }
+
+    fiber1.resume
+    fiber2.resume # right now, both jobs believe the integration must be created
+
+    assert_difference(Integration.where(type: 'ProcessEntryJobTest::IntegrationWithFiber').method(:count)) do
+      fiber2.resume # creates the integration first
+    end
+
+    old_logger = ::Integration.logger
+    tmp_logger = Minitest::Mock.new(old_logger)
+    ::Integration.logger = tmp_logger
+    tmp_logger.expect(:warn, true) { |error| ActiveRecord::RecordNotUnique === error }
+
+    fiber1.resume # raises ActiveRecord::RecordNotUnique
+    ::Integration.logger = old_logger
+  end
+
   test 'skips deleted proxy' do
     proxy = entries(:proxy)
 

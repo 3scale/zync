@@ -17,7 +17,7 @@ class ProcessEntryJob < ApplicationJob
 
     integrations = Integration.retry_record_not_unique do
       case model.record
-      when Proxy then PROXY_INTEGRATIONS.map { |i| i.new(entry) }.each(&:call)
+      when Proxy then self.const_get(:PROXY_INTEGRATIONS).map { |i| i.new(entry) }.each(&:call)
       when Provider then CreateK8SIntegration.new(entry).call
       end
 

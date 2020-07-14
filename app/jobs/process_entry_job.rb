@@ -6,6 +6,8 @@
 class ProcessEntryJob < ApplicationJob
   queue_as :default
 
+  class_attribute :proxy_integration_services
+
   def perform(entry)
     model_integrations_for(entry).each do |integration, model|
       ProcessIntegrationEntryJob.perform_later(integration, model)
@@ -23,7 +25,7 @@ class ProcessEntryJob < ApplicationJob
   def self.ensure_integrations_for(entry)
     case entry.model.record
     when Proxy
-      self.const_get(:PROXY_INTEGRATIONS).map { |integration| integration.new(entry) }.each(&:call)
+      proxy_integration_services.map { |integration| integration.new(entry) }.each(&:call)
     when Provider
       CreateK8SIntegration.new(entry).call
     end
@@ -159,9 +161,8 @@ class ProcessEntryJob < ApplicationJob
     end
   end
 
-  PROXY_INTEGRATIONS = [
+  self.proxy_integration_services = [
     CreateOIDCProxyIntegration,
     CreateK8SIntegration
   ].freeze
-  private_constant :PROXY_INTEGRATIONS
 end

@@ -67,7 +67,7 @@ class ProcessEntryJobTest < ActiveJob::TestCase
   end
 
   class ProcessEntryJobWithFiber < ProcessEntryJob
-    PROXY_INTEGRATIONS = [CreateProxyIntegrationWithFiber]
+    self.proxy_integration_services = [CreateProxyIntegrationWithFiber]
   end
 
   test 'race condition between entry jobs to create same proxy integration' do

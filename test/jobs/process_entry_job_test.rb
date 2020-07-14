@@ -59,6 +59,39 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     end
   end
 
+  class CreateProxyIntegrationWithFiber < ProcessEntryJob::CreateOIDCProxyIntegration
+    def find_integration
+      Fiber.yield
+      super
+    end
+  end
+
+  class ProcessEntryJobWithFiber < ProcessEntryJob
+    self.proxy_integration_services = [CreateProxyIntegrationWithFiber]
+  end
+
+  test 'race condition between entry jobs to create same proxy integration' do
+    entry = entries(:proxy)
+
+    existing_integrations = Integration.where(tenant: entry.tenant)
+    UpdateState.where(model: existing_integrations).delete_all
+    existing_integrations.delete_all
+
+    fiber1 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }
+    fiber2 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }
+
+    fiber1.resume
+    fiber2.resume
+
+    assert_difference(existing_integrations.method(:count)) do
+      fiber2.resume # creates the integration first
+    end
+
+    assert_no_difference(existing_integrations.method(:count)) do
+      fiber1.resume
+    end
+  end
+
   test 'skips deleted proxy' do
     proxy = entries(:proxy)
 

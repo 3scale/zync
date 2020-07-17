@@ -6,6 +6,8 @@
 class ProcessEntryJob < ApplicationJob
   queue_as :default
 
+  class_attribute :proxy_integration_services
+
   def perform(entry)
     model_integrations_for(entry).each do |integration, model|
       ProcessIntegrationEntryJob.perform_later(integration, model)
@@ -13,18 +15,20 @@ class ProcessEntryJob < ApplicationJob
   end
 
   def self.model_integrations_for(entry)
+    self.ensure_integrations_for(entry)
+
     model = entry.model
-
-    integrations = Integration.retry_record_not_unique do
-      case model.record
-      when Proxy then PROXY_INTEGRATIONS.map { |i| i.new(entry) }.each(&:call)
-      when Provider then CreateK8SIntegration.new(entry).call
-      end
-
-      Integration.for_model(model)
-    end
-
+    integrations = Integration.for_model(model)
     integrations.each.with_object(model)
+  end
+
+  def self.ensure_integrations_for(entry)
+    case entry.model.record
+    when Proxy
+      proxy_integration_services.map { |integration| integration.new(entry) }.each(&:call)
+    when Provider
+      CreateK8SIntegration.new(entry).call
+    end
   end
 
   protected
@@ -94,7 +98,7 @@ class ProcessEntryJob < ApplicationJob
       return unless enabled?
 
       transaction do
-        integration = integrations.find_or_create_by!(type: integration_type.to_s)
+        integration = integrations.create_or_find_by!(type: integration_type.to_s)
         integration.update(state: Integration.states.fetch(:active))
 
         ProcessIntegrationEntryJob.perform_later(integration, model)
@@ -153,13 +157,12 @@ class ProcessEntryJob < ApplicationJob
     def find_integration
       model
         .create_with(endpoint: endpoint)
-        .find_or_create_by!(integrations.where_values_hash)
+        .create_or_find_by!(integrations.where_values_hash)
     end
   end
 
-  PROXY_INTEGRATIONS = [
+  self.proxy_integration_services = [
     CreateOIDCProxyIntegration,
     CreateK8SIntegration
   ].freeze
-  private_constant :PROXY_INTEGRATIONS
 end

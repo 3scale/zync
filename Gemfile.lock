@@ -7,14 +7,6 @@ GIT
       license_finder
 
 GIT
-  remote: https://github.com/bugsnag/bugsnag-ruby.git
-  revision: 90df9965cdb9fa95a45448e8464982f457a23d34
-  branch: next
-  specs:
-    bugsnag (6.11.1)
-      concurrent-ruby (~> 1.0)
-
-GIT
   remote: https://github.com/mikz/httpclient.git
   revision: fec23fb32fb899b87a8b2c94e2d2069b6b4c633c
   branch: ssl-env-cert
@@ -78,6 +70,8 @@ GEM
       debug_inspector (>= 0.0.1)
     bootsnap (1.4.5)
       msgpack (~> 1.0)
+    bugsnag (6.14.0)
+      concurrent-ruby (~> 1.0)
     bugsnag-capistrano (1.1.2)
     builder (3.2.4)
     byebug (11.0.0)
@@ -336,7 +330,7 @@ DEPENDENCIES
   3scale-api
   baby_squeel
   bootsnap
-  bugsnag!
+  bugsnag
   bugsnag-capistrano (< 2)
   codecov
   httpclient!

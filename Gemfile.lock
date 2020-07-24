@@ -8,10 +8,10 @@ GIT
 
 GIT
   remote: https://github.com/bugsnag/bugsnag-ruby.git
-  revision: 90df9965cdb9fa95a45448e8464982f457a23d34
+  revision: 6ab3d680212141ae83aee3a492fea07ca0364bbb
   branch: next
   specs:
-    bugsnag (6.11.1)
+    bugsnag (6.14.0)
       concurrent-ruby (~> 1.0)
 
 GIT

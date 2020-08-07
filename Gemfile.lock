@@ -102,7 +102,7 @@ GEM
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
-    dry-initializer (2.5.0)
+    dry-initializer (3.0.3)
     dry-logic (0.6.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.2)
@@ -127,7 +127,7 @@ GEM
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     hashdiff (1.0.0)
-    i18n (1.8.2)
+    i18n (1.8.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     interception (0.5)
@@ -161,7 +161,7 @@ GEM
       activesupport (>= 4)
       railties (>= 4)
       request_store (~> 1.0)
-    loofah (2.5.0)
+    loofah (2.6.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -189,7 +189,7 @@ GEM
     multipart-post (2.0.0)
     mustermann (1.0.3)
     nio4r (2.5.2)
-    nokogiri (1.10.9)
+    nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     oauth2 (1.4.1)
       faraday (>= 0.8, < 0.16.0)
@@ -286,7 +286,7 @@ GEM
       rack (~> 2.0)
       rack-protection (= 2.0.5)
       tilt (~> 2.0)
-    sprockets (4.0.0)
+    sprockets (4.0.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.2.1)
@@ -309,12 +309,12 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
-    websocket-driver (0.7.1)
+    websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     with_env (1.1.0)
     xml-simple (1.1.5)
-    yabeda (0.1.3)
+    yabeda (0.7.0)
       concurrent-ruby
       dry-initializer
     yabeda-prometheus (0.1.4)
@@ -323,9 +323,9 @@ GEM
       json
       puma
       yabeda
-    yabeda-rails (0.1.3)
+    yabeda-rails (0.6.0)
       rails
-      yabeda
+      yabeda (~> 0.4)
     yajl-ruby (1.4.1)
     yaml-safe_load_stream (0.1.1)
 

@@ -7,6 +7,6 @@ class Integration::REST < Integration
   validates :endpoint, url: { allow_nil: true, no_local: true }
 
   def enabled?
-    endpoint.present?
+    super && endpoint.present?
   end
 end

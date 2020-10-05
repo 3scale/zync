@@ -63,7 +63,7 @@ group :development, :test do
   gem 'pry-rescue'
   gem 'pry-stack_explorer'
 
-  gem 'license_finder', '~> 5.11'
+  gem 'license_finder', '~> 6.9'
   gem 'license_finder_xml_reporter', git: 'https://github.com/3scale/license_finder_xml_reporter.git', tag: '1.0.0'
   # rubyzip is a transitive depencency from license_finder with vulnerability on < 1.3.0
   gem 'rubyzip', '>= 1.3.0'

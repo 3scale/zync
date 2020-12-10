@@ -81,9 +81,8 @@ GEM
     bugsnag-capistrano (1.1.2)
     builder (3.2.4)
     byebug (11.0.0)
-    codecov (0.2.8)
-      json
-      simplecov
+    codecov (0.2.13)
+      simplecov (~> 0.18.0)
     coderay (1.1.2)
     concurrent-ruby (1.1.7)
     crack (0.4.3)
@@ -275,10 +274,10 @@ GEM
       activerecord (>= 4.2, < 5.3)
       its-it (~> 1.2)
       schema_plus_core
-    simplecov (0.19.0)
+    simplecov (0.18.5)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
-    simplecov-html (0.12.2)
+    simplecov-html (0.12.3)
     sinatra (2.1.0)
       mustermann (~> 1.0)
       rack (~> 2.2)

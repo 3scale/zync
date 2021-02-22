@@ -257,7 +257,7 @@ GEM
       railties (>= 5.0)
     ruby-progressbar (1.11.0)
     ruby2_keywords (0.0.2)
-    rubyzip (2.0.0)
+    rubyzip (2.3.0)
     safe_yaml (1.0.5)
     schema_monkey (2.1.5)
       activerecord (>= 4.2)

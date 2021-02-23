@@ -26,7 +26,7 @@ jobs:
   build:
     working_directory: /opt/app-root/zync
     docker:
-      - image: registry.access.redhat.com/ubi7/ruby-25
+      - image: registry.access.redhat.com/ubi7/ruby-26
       - image: circleci/postgres:10-alpine-ram
     environment:
         RAILS_ENV: test

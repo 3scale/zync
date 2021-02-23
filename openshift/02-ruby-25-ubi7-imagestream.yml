@@ -3,12 +3,12 @@ kind: ImageStream
 metadata:
   labels:
     app: zync
-  name: ruby-25-ubi7
+  name: ruby-26-ubi7
 spec:
   tags:
   - from:
       kind: DockerImage
-      name: registry.access.redhat.com/ubi7/ruby-25
+      name: registry.access.redhat.com/ubi7/ruby-26
     name: latest
     referencePolicy:
       type: Source

@@ -79,4 +79,5 @@ group :test do
   gem 'minitest-stub-const'
   gem 'webmock'
   gem 'codecov', require: false
+  gem 'simplecov', '~> 0.21.2', require: false
 end

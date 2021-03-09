@@ -25,7 +25,7 @@ gem 'puma', '~> 5.2'
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
 
-gem 'responders', '~> 3.0.0'
+gem 'responders', '~> 3.0.1'
 gem '3scale-api'
 
 gem 'bootsnap'
@@ -79,4 +79,5 @@ group :test do
   gem 'minitest-stub-const'
   gem 'webmock'
   gem 'codecov', require: false
+  gem 'simplecov', '~> 0.21.2', require: false
 end

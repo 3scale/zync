@@ -116,7 +116,7 @@ class Prometheus::QueStatsTest < ActiveSupport::TestCase
   def stats_count(job_class: ApplicationJob.name, type: nil, where: [])
     job_stats = Prometheus::QueStats::JobStats.new
     stats = type ? job_stats.public_send(type) : job_stats.call(*where)
-    record = stats.find { |record| record['job'] == job_class }
+    record = stats.find { |record| record['job_name'] == job_class }
     record['count']
   end
 end

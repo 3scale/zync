@@ -30,7 +30,7 @@ module Prometheus
 
     class WorkerStats < Stats
       WORKER_STATS = <<~SQL
-        SELECT SUM(worker_count) AS workers_count, COUNT(*) AS nodes_count FROM que_lockers
+        SELECT COALESCE(SUM("worker_count"),0) AS workers_count, COUNT(*) AS nodes_count FROM que_lockers
       SQL
       private_constant :WORKER_STATS
 
@@ -101,7 +101,7 @@ module Prometheus
       JOB_CLASSES = %w[ApplicationJob ProcessEntryJob ProcessIntegrationEntryJob UpdateJob].inspect.tr('"', "'").freeze
       private_constant :JOB_CLASSES
 
-      JOB_CLASS_COLUMN_NAME = 'job'
+      JOB_CLASS_COLUMN_NAME = 'job_name'
       private_constant :JOB_CLASS_COLUMN_NAME
 
       def job_class_column
@@ -136,7 +136,7 @@ module Prometheus
       protected
 
       def type_hash_and_stats_count(type)
-        type_hash = type ? { type: type } : {}
+        type_hash = { type: type }
         stats_count = stats.public_send(type ? type : :all)
         [type_hash, stats_count]
       end
@@ -153,7 +153,7 @@ module Prometheus
       def call(type = nil)
         type_hash, grouped_stats_count = type_hash_and_stats_count(type)
         grouped_stats_count.each do |stats_count|
-          gauge.set({ grouped_by => stats_count.fetch(grouped_by) }.merge(type_hash), stats_count.fetch('count'))
+          gauge.set({ grouped_by.to_sym => stats_count.fetch(grouped_by) }.merge(type_hash), stats_count.fetch('count'))
         end
       end
     end
@@ -173,7 +173,7 @@ Yabeda.configure do
   group :que do
     jobs = gauge :jobs_scheduled_total, comment: 'Que Jobs to be executed'
     job_stats = Prometheus::QueStats::JobStats.new
-    collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job')
+    collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job_name')
     collect do
       collector.call
       %w[ready scheduled finished failed expired].each(&collector.method(:call))

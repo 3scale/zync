@@ -77,7 +77,5 @@ module Prometheus
              to: :@metrics
 
     attr_reader :job_runtime_seconds
-
-    attach_to :active_job
   end
 end

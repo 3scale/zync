@@ -313,10 +313,10 @@ GEM
       dry-initializer
     yabeda-prometheus (0.1.5)
       yabeda
-    yabeda-puma-plugin (0.1.0)
+    yabeda-puma-plugin (0.6.0)
       json
       puma
-      yabeda
+      yabeda (~> 0.5)
     yabeda-rails (0.1.3)
       rails
       yabeda

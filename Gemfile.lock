@@ -316,9 +316,9 @@ GEM
       json
       puma
       yabeda (~> 0.5)
-    yabeda-rails (0.1.3)
+    yabeda-rails (0.7.1)
       rails
-      yabeda
+      yabeda (~> 0.8)
     yajl-ruby (1.4.1)
     yaml-safe_load_stream (0.1.1)
 

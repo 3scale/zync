@@ -264,7 +264,7 @@ class Integration::KubernetesService < Integration::ServiceBase
 
   def verify_route_status(route)
     ingress = (route.status.ingress or raise MissingStatusIngress).find { |ingress| ingress.host == route.spec.host }
-    condition = ingress.conditions.find { |condition| condition.type = 'Admitted' }
+    condition = ingress.conditions.find { |condition| condition.type == 'Admitted' }
 
     raise InvalidStatus, condition unless condition.status == 'True'
   end

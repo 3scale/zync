@@ -254,8 +254,16 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
   end
 
+  class MissingStatusIngress < InvalidStatus
+    MISSING_STATUS_INGRESS_CONDITION = ActiveSupport::OrderedOptions.new.merge(type: 'unknown', reason: 'unknown', message: "Kubernetes resource status missing 'ingress' property").freeze
+
+    def initialize
+      super(MISSING_STATUS_INGRESS_CONDITION)
+    end
+  end
+
   def verify_route_status(route)
-    ingress = route.status.ingress.find { |ingress| ingress.host == route.spec.host }
+    ingress = (route.status.ingress or raise MissingStatusIngress).find { |ingress| ingress.host == route.spec.host }
     condition = ingress.conditions.find { |condition| condition.type = 'Admitted' }
 
     raise InvalidStatus, condition unless condition.status == 'True'

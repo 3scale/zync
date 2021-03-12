@@ -26,7 +26,7 @@ client:
   created_at: <%= 1.week.ago %>
 
 service:
-  data: 
+  data:
   tenant: two
   model: service
 
@@ -41,6 +41,8 @@ proxy:
 
 provider:
   data:
-    service_id: 2
+    id: 2
+    domain: provider.example.com
+    admin_domain: provider-admin.example.com
   tenant: two
   model: provider

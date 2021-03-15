@@ -8,9 +8,11 @@ end
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.2.3'
+gem 'rails', '~> 6.1.2'
 gem 'pg', '>= 0.20'
-gem 'schema_plus_enums'
+gem 'polyamorous', "~> 1.3.4", git: 'https://github.com/vintrepid/polyamorous.git'
+gem 'rackson'
+
 
 # Use Puma as the app server
 gem 'puma', '~> 5.2'

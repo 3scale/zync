@@ -308,8 +308,10 @@ GEM
     yabeda (0.8.0)
       concurrent-ruby
       dry-initializer
-    yabeda-prometheus (0.1.5)
-      yabeda
+    yabeda-prometheus (0.6.1)
+      prometheus-client (>= 0.10, < 3.0)
+      rack
+      yabeda (~> 0.5)
     yabeda-puma-plugin (0.6.0)
       json
       puma
@@ -340,7 +342,7 @@ DEPENDENCIES
   minitest-stub-const
   oauth2
   pg (>= 0.20)
-  prometheus-client
+  prometheus-client (~> 2.1.0)
   pry-byebug
   pry-rails
   pry-rescue
@@ -356,7 +358,7 @@ DEPENDENCIES
   tzinfo-data
   validate_url
   webmock
-  yabeda-prometheus
+  yabeda-prometheus (~> 0.6.1)
   yabeda-puma-plugin
   yabeda-rails
 

@@ -51,9 +51,9 @@ gem 'message_bus' # for publishing notifications about integration status
 
 gem 'validate_url'
 
-gem 'prometheus-client', require: %w[prometheus/client]
+gem 'prometheus-client', '~> 2.1.0', require: %w[prometheus/client]
 gem 'yabeda-rails'
-gem 'yabeda-prometheus'
+gem 'yabeda-prometheus', '~> 0.6.1'
 gem 'yabeda-puma-plugin'
 
 group :development, :test do

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+RAILS_CONNECTION_PROMETHEUS_TAGS = %i[state].freeze
+
 Yabeda.configure do
   group :rails_connection_pool do
     # Empty label values SHOULD be treated as if the label was not present.
@@ -8,10 +10,11 @@ Yabeda.configure do
     busy = { state: :busy }.freeze
     dead = { state: :dead }.freeze
     idle = { state: :idle }.freeze
+    tags = RAILS_CONNECTION_PROMETHEUS_TAGS
 
-    size = gauge :size, comment: 'Size of the connection pool'
-    connections = gauge :connections, comment: 'Number of connections in the connection pool'
-    waiting = gauge :waiting, comment: 'Number of waiting in the queue of the connection pool'
+    size = gauge :size, comment: 'Size of the connection pool', tags: tags
+    connections = gauge :connections, comment: 'Number of connections in the connection pool', tags: tags
+    waiting = gauge :waiting, comment: 'Number of waiting in the queue of the connection pool', tags: tags
 
     collect do
       stat = ActiveRecord::Base.connection_pool.stat

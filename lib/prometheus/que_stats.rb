@@ -121,6 +121,8 @@ module Prometheus
     end
 
     class StatsCollector
+      PROMETHEUS_TAGS = %i[type].freeze
+
       def initialize(gauge, stats)
         @gauge = gauge
         @stats = stats
@@ -143,6 +145,8 @@ module Prometheus
     end
 
     class GroupedStatsCollector < StatsCollector
+      PROMETHEUS_TAGS = %i[job_name type].freeze
+
       def initialize(gauge, stats, grouped_by:)
         super(gauge, stats)
         @grouped_by = grouped_by
@@ -162,7 +166,9 @@ end
 
 Yabeda.configure do
   group :que do
-    workers = gauge :workers_total, comment: 'Que Workers running'
+    workers = gauge :workers_total,
+                    comment: 'Que Workers running',
+                    tags: Prometheus::QueStats::StatsCollector::PROMETHEUS_TAGS
     worker_stats = Prometheus::QueStats::WorkerStats.new
     collector = Prometheus::QueStats::StatsCollector.new(workers, worker_stats)
     collect(&collector.method(:call))
@@ -171,7 +177,9 @@ end
 
 Yabeda.configure do
   group :que do
-    jobs = gauge :jobs_scheduled_total, comment: 'Que Jobs to be executed'
+    jobs = gauge :jobs_scheduled_total,
+                 comment: 'Que Jobs to be executed',
+                 tags: Prometheus::QueStats::GroupedStatsCollector::PROMETHEUS_TAGS
     job_stats = Prometheus::QueStats::JobStats.new
     collector = Prometheus::QueStats::GroupedStatsCollector.new(jobs, job_stats, grouped_by: 'job_name')
     collect do

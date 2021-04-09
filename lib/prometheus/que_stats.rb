@@ -116,7 +116,7 @@ module Prometheus
       end
 
       def build_stats_count_relation
-        Que::ActiveRecord::Model.selecting { [Arel.sql("args->0->>'job_class'").as(JOB_CLASS_COLUMN_NAME), Arel.star.count.as('count')] }.group("args->0->>'job_class'")
+        Que::ActiveRecord::Model.select([Arel.sql("args->0->>'job_class'").as(JOB_CLASS_COLUMN_NAME), Arel.star.count.as('count')]).group("args->0->>'job_class'")
       end
     end
 

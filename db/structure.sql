@@ -1512,5 +1512,3 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190530080459'),
 ('20190603140450'),
 ('20190605094424');
-
-

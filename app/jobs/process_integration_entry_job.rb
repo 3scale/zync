@@ -43,11 +43,11 @@ class ProcessIntegrationEntryJob < ApplicationJob
     end
 
     def finish(success:)
-      state.update_attributes(success: success, finished_at: timestamp)
+      state.update(success: success, finished_at: timestamp)
     end
 
     def start
-      state.update_attributes(started_at: timestamp, entry: entry, success: nil)
+      state.update(started_at: timestamp, entry: entry, success: nil)
     end
 
     def to_proc

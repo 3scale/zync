@@ -65,7 +65,7 @@ class KeycloakAdapter < AbstractAdapter
     end
 
     def oidc_configuration=(params)
-      write_attribute :oidc_configuration, OAuthConfiguration.new(params)
+      _write_attribute 'oidc_configuration', OAuthConfiguration.new(params)
     end
 
     def persisted?

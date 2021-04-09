@@ -27,7 +27,7 @@ gem 'puma', '~> 5.2'
 gem 'responders', '~> 3.0.1'
 gem '3scale-api'
 
-gem 'bootsnap', '>= 1.4.4', require: false
+gem 'bootsnap', '>= 1.4.4'
 
 gem 'que', '>= 1.0.0.beta3'
 gem 'que-web'

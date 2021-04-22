@@ -23,11 +23,11 @@ class UpdateJob < ApplicationJob
     UpdateState.acquire_lock(model) do |state|
       # this is not going to be visible outside the transaction, does it matter?
       # what matters is that it could be rolled back
-      state.update_attributes(started_at: timestamp)
+      state.update(started_at: timestamp)
 
       entry = fetch.call(model)
 
-      state.update_attributes(success: entry.save, finished_at: timestamp)
+      state.update(success: entry.save, finished_at: timestamp)
     end
   end
 end

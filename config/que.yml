@@ -1,3 +1,7 @@
+production:
+  worker_count: 3
+  wait_period: 100
+
 development:
   worker_count: 3
   wait_period: 100

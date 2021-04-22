@@ -31,9 +31,7 @@ class ApplicationJob < ActiveJob::Base
   def relation
     record = self.class.model
     arguments = serialize.slice('arguments')
-    record.where.has {
-      args.op('@>', quoted([arguments].to_json))
-    }
+    record.where('args @> ?', [arguments].to_json)
   end
 
   def delete_duplicates

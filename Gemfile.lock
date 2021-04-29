@@ -63,6 +63,10 @@ GEM
     activerecord (6.1.3)
       activemodel (= 6.1.3)
       activesupport (= 6.1.3)
+    activerecord-pg_enum (1.2.2)
+      activerecord (>= 4.1.0)
+      activesupport
+      pg
     activestorage (6.1.3)
       actionpack (= 6.1.3)
       activejob (= 6.1.3)
@@ -327,6 +331,7 @@ PLATFORMS
 
 DEPENDENCIES
   3scale-api
+  activerecord-pg_enum
   bootsnap (>= 1.4.4)
   bugsnag
   bugsnag-capistrano (< 2)

@@ -37,8 +37,6 @@ $$;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
-
 --
 -- Name: que_jobs; Type: TABLE; Schema: public; Owner: -
 --
@@ -264,8 +262,8 @@ ALTER SEQUENCE public.applications_id_seq OWNED BY public.applications.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -1178,10 +1176,10 @@ CREATE INDEX index_metrics_on_tenant_id ON public.metrics USING btree (tenant_id
 
 
 --
--- Name: index_models_on_record_type_and_record_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_models_on_record; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_models_on_record_type_and_record_id ON public.models USING btree (record_type, record_id);
+CREATE UNIQUE INDEX index_models_on_record ON public.models USING btree (record_type, record_id);
 
 
 --

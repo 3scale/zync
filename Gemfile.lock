@@ -182,7 +182,7 @@ GEM
       nokogiri (~> 1)
       rake
     mini_mime (1.0.2)
-    mini_portile2 (2.5.0)
+    mini_portile2 (2.5.1)
     minitest (5.14.4)
     minitest-reporters (1.4.3)
       ansi
@@ -197,7 +197,7 @@ GEM
     mustermann (1.1.1)
       ruby2_keywords (~> 0.0.1)
     nio4r (2.5.7)
-    nokogiri (1.11.2)
+    nokogiri (1.11.5)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     oauth2 (1.4.7)

@@ -12,7 +12,7 @@ USER default
 WORKDIR ${APP_ROOT}
 
 RUN source ${APP_ROOT}/etc/scl_enable \
-  && gem install bundler --version=2.0.1 --no-document
+  && gem install bundler --version=2.2.18 --no-document
 
 COPY --chown=default:root Gemfile* ./
 RUN source ${APP_ROOT}/etc/scl_enable \

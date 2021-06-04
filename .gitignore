@@ -27,3 +27,4 @@
 
 openshift.local.clusterup
 .ruby-version
+.tool-versions

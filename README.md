@@ -6,7 +6,7 @@ Zync is going to take your 3scale data and pushes it somewhere else, reliably. O
 
 This component is deployed as part of the overall 3scale API Management solution.
 
-Please follow [these instructions](INSTALL.md) on how to set up your development environment locally and [these instructions](INTEGRATE.md) to integrate it with [Porta](https://github.com/3scale/porta) and Keycloak.
+Please see [these instructions](INSTALL.md) and [Quickstart guide](doc/Quickstart.md) on how to set up your development environment locally and [these instructions](INTEGRATE.md) to integrate it with [Porta](https://github.com/3scale/porta) and Keycloak.
 
 ## Terminology
 

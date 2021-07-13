@@ -235,6 +235,31 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test 'owner reference controller' do
+    replication_controller = { apiVersion: "v1", kind: "ReplicationController", name: "zync-que-1", uid: "252c094e-b23a-4b80-8d82-5ef1499a1771", controller: true, blockOwnerDeletion: true, metadata: { name: 'zync-que-1' } }
+    pod = K8s::Resource.new(kind: 'Pod', apiVersion: 'v1', metadata: { name: 'zync-que-1', generateName: 'zync-que-', namespace: 'zync', selfLink: '/api/v1/namespaces/zync/pods/zync-que-123', uid: 'b145c845-7222-44ce-8d9d-f13b8f357de6', resourceVersion: '3620670', ownerReferences: [replication_controller.except(:metadata)] })
+
+    stub_request(:get, 'http://localhost/api/v1').
+      with(headers: request_headers).
+      to_return(status: 200, body: {
+        kind: 'APIResourceList',
+        apiVersion: 'v1',
+        groupVersion: 'apps.3scale.net/v1alpha1',
+        resources: [
+          { name: 'replicationcontrollers', singularName: '', namespaced: true, kind: 'ReplicationController', verbs: %w(get patch update) },
+        ]
+      }.to_json, headers: response_headers)
+
+    stub_request(:get, 'http://localhost/api/v1/namespaces/zync/replicationcontrollers/zync-que-1').
+      with(headers: request_headers).
+      to_return(status: 200, body: K8s::Resource.new(replication_controller).to_json, headers: response_headers)
+
+    owner_root = service.owner_reference_controller(pod)
+
+    assert_equal 'ReplicationController', owner_root.kind
+    assert_equal 'zync-que-1', owner_root.name
+  end
+
   class RouteSpec < ActiveSupport::TestCase
     test 'secure routes' do
       url = 'https://my-api.example.com'

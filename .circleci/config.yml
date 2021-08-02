@@ -1,4 +1,4 @@
-version: 2
+version: 2.1
 jobs:
   docker-build:
     resource_class: small
@@ -17,17 +17,20 @@ jobs:
       - setup_remote_docker
       - run: docker build --tag zync:build --file ./Dockerfile .
       - run: docker network create net0
-      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} postgres:10-alpine
+      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} postgres:12-alpine
       - run:
           command: |
             docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \
             zync:build rails db:setup
 
   build:
+    parameters:
+      postgresql_version:
+        type: string
     working_directory: /opt/app-root/zync
     docker:
       - image: registry.access.redhat.com/ubi7/ruby-27
-      - image: circleci/postgres:10-alpine-ram
+      - image: circleci/postgres:<< parameters.postgresql_version >>-ram
     environment:
         RAILS_ENV: test
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
@@ -78,8 +81,11 @@ jobs:
             - vendor/bundle
 
 workflows:
-  version: 2
+  version: 2.1
   build_and_test_docker:
     jobs:
-      - build
+      - build:
+          matrix:
+            parameters:
+              postgresql_version: [ "10-alpine", "12-alpine" ]
       - docker-build

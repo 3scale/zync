@@ -53,9 +53,8 @@ class Integration::KubernetesService < Integration::ServiceBase
   def owner_reference_controller(resource)
     owner_references = resource.metadata.ownerReferences or return
     controller = owner_references.find(&:controller)
-    controller.metadata = { namespace: namespace, name: controller.name }
 
-    client.get_resource(controller)
+    client.get_resource(controller.merge(metadata: { namespace: namespace, name: controller.name }))
   end
 
   def owner_reference_root(resource)

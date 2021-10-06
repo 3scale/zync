@@ -3,7 +3,7 @@
 set -ev
 
 # Config & Install
-gem install bundler --version=2.0.1
+gem install bundler --version= 2.2.19
 bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
 # Rails db:setup

@@ -49,6 +49,7 @@ jobs:
           name: bundle install
           command: |
             gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1)
+            bundle config --local force_ruby_platform true
             bundle config set --local deployment 'true'
             bundle config set --local path 'vendor/bundle'
             bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3

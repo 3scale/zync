@@ -48,8 +48,11 @@ jobs:
       - run:
           name: bundle install
           command: |
-            gem install bundler --version=2.0.1
-            bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+            gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1)
+            bundle config --local force_ruby_platform true
+            bundle config set --local deployment 'true'
+            bundle config set --local path 'vendor/bundle'
+            bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
       - run:
           name: boot zync
           command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'

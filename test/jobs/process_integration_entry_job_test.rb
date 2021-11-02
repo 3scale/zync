@@ -43,15 +43,6 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
     assert_equal false, state.success
   end
 
-  test 'log subscriber publishes messages' do
-    subscriber = ProcessIntegrationEntryJob::LogSubscriber.new
-    payload = { model: models(:application) }
-
-    event = subscriber.start('perform', 'foo', payload)
-
-    assert subscriber.perform(event)
-  end
-
   test 'skips disabled integration' do
     integration = integrations(:keycloak)
     model = models(:service)

@@ -63,14 +63,6 @@ module Zync
       config.lograge.custom_options = Lograge::CustomOptions
     end
 
-    initializer 'message_bus.middleware', before: 'message_bus.configure_init' do
-      config.middleware.use(ActionDispatch::Flash) # to fix loading message bus
-    end
-
-    initializer 'message_bus.middleware', after: 'message_bus.configure_init' do
-      config.middleware.delete(ActionDispatch::Flash) # remove it after message bus loaded
-    end
-
     initializer 'k8s-client.logger' do
       case config.log_level
       when :debug

@@ -47,8 +47,6 @@ gem 'k8s-client', '>= 0.10'
 
 gem 'lograge'
 
-gem 'message_bus' # for publishing notifications about integration status
-
 gem 'validate_url'
 
 gem 'prometheus-client', '~> 2.1.0', require: %w[prometheus/client]

@@ -47,14 +47,5 @@ activate_control_app
 plugin :yabeda
 plugin :yabeda_prometheus
 
-before_fork do
-  MessageBus.destroy
-end
-
-on_worker_boot do
-  MessageBus.on
-  MessageBus.after_fork
-end
-
 # Allow puma to be restarted by `rails restart` command.
 plugin :tmp_restart

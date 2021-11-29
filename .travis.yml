@@ -1,7 +1,9 @@
 language: ruby
 sudo: false
 dist: bionic
-arch: ppc64le
+arch:
+- ppc64le
+- s390x
 services:
   - postgresql
 

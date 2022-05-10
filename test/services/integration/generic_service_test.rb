@@ -40,7 +40,7 @@ class Integration::GenericServiceTest < ActiveSupport::TestCase
     entry = entries(:client)
 
     adapter = MiniTest::Mock.new
-    adapter.expect(:update_client, true, [ GenericAdapter::Client ])
+    adapter.expect(:update_client, true, [RESTAdapter::Client ])
 
     subject.stub(:adapter, adapter) do |service|
       service.call(entry)
@@ -54,7 +54,7 @@ class Integration::GenericServiceTest < ActiveSupport::TestCase
     entry.data = entry.data.except(:enabled)
 
     adapter = MiniTest::Mock.new
-    adapter.expect(:delete_client, true, [ GenericAdapter::Client ])
+    adapter.expect(:delete_client, true, [RESTAdapter::Client ])
 
     subject.stub(:adapter, adapter) do |service|
       service.call(entry)

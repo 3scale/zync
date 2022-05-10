@@ -59,15 +59,13 @@ class AbstractAdapter
   JSON_TYPE = Mime[:json]
   private_constant :JSON_TYPE
 
-  NULL_TYPE = Mime::Type.lookup(nil)
-
   attr_reader :http_client
 
   def build_http_client(endpoint)
     HTTPClient.new do
       self.debug_dev = $stderr if ENV.fetch('DEBUG', '0') == '1'
 
-      self.set_auth endpoint, *endpoint.auth
+      self.set_auth endpoint.uri.dup, *endpoint.auth
 
       Rails.application.config.x.http_client.deep_symbolize_keys
           .slice(:connect_timeout, :send_timeout, :receive_timeout).each do |key, value|
@@ -94,9 +92,10 @@ class AbstractAdapter
   def self.parse_response(response)
     body = response.body
 
-    case Mime::Type.lookup(response.content_type)
+    content_type = response.content_type.presence or return body
+
+    case Mime::Type.lookup(content_type)
     when JSON_TYPE then JSON.parse(body)
-    when NULL_TYPE then body
     else raise InvalidResponseError, { response: response, message: 'Unknown Content-Type' }
     end
   end
@@ -195,7 +194,7 @@ class AbstractAdapter
     def oauth_client
       OAuth2::Client.new(@endpoint.client_id, @endpoint.client_secret,
                          site: @endpoint.uri.dup, token_url: token_endpoint) do |builder|
-        builder.adapter(:httpclient).last.instance_variable_set(:@client, http_client)
+        builder.adapter(:httpclient).instance_variable_set(:@client, http_client)
       end
     end
 
@@ -203,7 +202,7 @@ class AbstractAdapter
 
     def fetch_oidc_discovery
       response = http_client.get(well_known_url)
-      config = AbstractAdapter.parse_response(response)
+      config = response.ok? && AbstractAdapter.parse_response(response)
 
       case config
       when ->(obj) { obj.respond_to?(:[]) } then config

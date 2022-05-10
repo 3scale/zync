@@ -19,3 +19,7 @@ service:
 proxy:
   tenant: two
   record: two (Proxy)
+
+provider:
+  tenant: two
+  record: two (Provider)

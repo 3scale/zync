@@ -15,9 +15,15 @@ class ProcessEntryJobTest < ActiveJob::TestCase
     job = ProcessEntryJob.new
     proxy = entries(:proxy)
 
-    integrations = job.model_integrations_for(proxy)
+    ProcessEntryJob::CreateK8SIntegration.stub(:enabled, true) do
+      integrations = job.model_integrations_for(proxy)
 
-    assert_equal 0, integrations.size
+      integrations.each do |integration|
+        assert_kind_of Integration::Kubernetes, integration
+      end
+
+      assert_equal 1, integrations.size
+    end
   end
 
   test 'model integrations for client' do
@@ -50,6 +56,39 @@ class ProcessEntryJobTest < ActiveJob::TestCase
 
     assert_difference integration.method(:count) do
       assert ProcessEntryJob.perform_now(proxy)
+    end
+  end
+
+  class CreateProxyIntegrationWithFiber < ProcessEntryJob::CreateOIDCProxyIntegration
+    def find_integration
+      Fiber.yield
+      super
+    end
+  end
+
+  class ProcessEntryJobWithFiber < ProcessEntryJob
+    self.proxy_integration_services = [CreateProxyIntegrationWithFiber]
+  end
+
+  test 'race condition between entry jobs to create same proxy integration' do
+    entry = entries(:proxy)
+
+    existing_integrations = Integration.where(tenant: entry.tenant)
+    UpdateState.where(model: existing_integrations).delete_all
+    existing_integrations.delete_all
+
+    fiber1 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }
+    fiber2 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }
+
+    fiber1.resume
+    fiber2.resume
+
+    assert_difference(existing_integrations.method(:count)) do
+      fiber2.resume # creates the integration first
+    end
+
+    assert_no_difference(existing_integrations.method(:count)) do
+      fiber1.resume
     end
   end
 

@@ -25,18 +25,18 @@ objects:
         uri: https://github.com/3scale/zync.git
       type: Git
     strategy:
-      sourceStrategy:
+      dockerStrategy:
         from:
           kind: ImageStreamTag
-          name: ruby-24-centos7:latest
-      type: Source
+          name: ruby-25-ubi7:latest
+      type: Docker
     triggers:
     - github:
         secret: "${GITHUB_SECRET}"
       type: GitHub
     - type: ImageChange
     - type: ConfigChange
- 
+
 parameters:
 - name: GITHUB_SECRET
   displayName: GitHub WebHook Secret

@@ -7,4 +7,8 @@ class Integration::ServiceBase
   def initialize(integration)
     @integration = integration
   end
+
+  def call(_entry)
+    raise NoMethodError, __method__
+  end
 end

@@ -1,13 +1,16 @@
 # frozen_string_literal: true
-require_relative 'boot'
+require_relative "boot"
 
 require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
+# require "active_storage/engine"
 require "action_controller/railtie"
 # require "action_mailer/railtie"
+# require "action_mailbox/engine"
+# require "action_text/engine"
 require "action_view/railtie"
 # require "action_cable/engine"
 # require "sprockets/railtie"
@@ -37,9 +40,15 @@ module Zync
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 5.1
 
-    # Settings in config/environments/* take precedence over those specified here.
-    # Application configuration should go into files in config/initializers
-    # -- all .rb files in that directory are automatically loaded.
+    config.integrations = config_for(:integrations)
+
+    # Configuration for the application, engines, and railties goes here.
+    #
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    # config.time_zone = "Central Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
@@ -62,6 +71,23 @@ module Zync
       config.middleware.delete(ActionDispatch::Flash) # remove it after message bus loaded
     end
 
+    initializer 'k8s-client.logger' do
+      case config.log_level
+      when :debug
+        K8s::Logging.debug!
+        K8s::Transport.debug!
+      when :info
+        K8s::Logging.verbose!
+        K8s::Transport.verbose!
+      when :error
+        K8s::Logging.quiet!
+        K8s::Transport.quiet!
+      else
+        K8s::Logging.log_level = K8s::Transport.log_level = Rails.logger.level
+      end
+    end
+
     config.x.keycloak = config_for(:keycloak) || Hash.new
+    config.x.openshift = ActiveSupport::InheritableOptions.new(config_for(:openshift)&.deep_symbolize_keys)
   end
 end

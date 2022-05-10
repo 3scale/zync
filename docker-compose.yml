@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  zync:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && UNICORN_WORKERS=2 bin/rails server -b 0.0.0.0"
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    ports:
+      - "9393:9393"
+    environment:
+      - DATABASE_URL=postgresql://postgres:@postgres:5432/
+
+  postgres:
+    image: postgres:10.5
+    ports:
+      - "5432:5432"
+    environment:
+      - PGUSER=postgres
+    healthcheck:
+        test: ["CMD", "pg_isready", "-U", "postgres"]
+        timeout: 20s
+        retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:

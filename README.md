@@ -6,7 +6,7 @@ Zync is going to take your 3scale data and pushes it somewhere else, reliably. O
 
 This component is deployed as part of the overall 3scale API Management solution.
 
-Please follow [these instructions](INSTALL.md) on how to set up your development environment locally and [these instructions](INTEGRATE.md) to integrate it with [Porta](https://github.com/3scale/porta) and Keycloak.
+Please see [these instructions](INSTALL.md) and [Quickstart guide](doc/Quickstart.md) on how to set up your development environment locally and [these instructions](INTEGRATE.md) to integrate it with [Porta](https://github.com/3scale/porta) and Keycloak.
 
 ## Terminology
 
@@ -16,13 +16,13 @@ Before describing the design it is important to define the terms.
 
 
 * **3scale** - 3scale API Manager (Porta).
-* **Tenant** - mapping of Provider id registered in 3scale API Manager to domain and access token.
+* **Tenant** - mapping of Provider id registered in 3scale API Manager to the domain and access token.
 * **Model** - relevant object in **3scale** like Application, Limit, Metric, Service.
 * **Notification** - Message sent to **Zync** describing the **model** that changed and having all required properties to fetch it from the API later.
   * Example: Application 3456, tenant_id: 26
   * Example: Limit 4566, metric_id: 36, application_id: 46, tenant_id: 16
 * **Update** - **Zync** fetches updated **Model** from the **Notifier** via the API using the information provided by the **Notification**.
-* **Lock** - mechanism that preventing concurrent data access to the same scope.
+* **Lock** - the mechanism that prevents concurrent data access to the same scope.
   * Example: **Tenant Lock** would mean only one can be running for one **Tenant**.
   * Example: **Model** **Lock** - only one per uniquely identified **Model**.
 * **Entry** - The information from the API provided by the **Update**.
@@ -35,9 +35,9 @@ Before describing the design it is important to define the terms.
 
 ## Design
 
-**Zync** is meant to synchronize data from **3scale** to external systems (like IDPs). Some people use Web-hooks  for this but without further logic they can be unreliable and arrive out of order. This tool is meant to synchronize the final state to a different systems.
+**Zync** is meant to synchronize data from **3scale** to external systems (like IDPs). Some people use Web-hooks for this but without further logic, they can be unreliable and arrive out of order. This tool is meant to synchronize the final state to a different system.
 
-The flow is defined as **3scale** -> **Zync** ( <- **3scale**) -> **Integration**. So **3scale** notifies **Zync** there was a change to a **model** but does not say more than primary key and information required to fetch it from the **3scale** API. In some cases **model** needs just its primary key (**id**) and in some it needs other metadata (usually primary keys of its parents) to compose the API call (service_id, metric_id, …).
+The flow is defined as **3scale** -> **Zync** ( <- **3scale**) -> **Integration**. So **3scale** notifies **Zync** there was a change to a **model** but does not say more than the primary key and information required to fetch it from the **3scale** API. In some cases **model** needs just its primary key (**id**) and in some, it needs other metadata (usually primary keys of its parents) to compose the API call (service_id, metric_id, …).
 
 **Zync** upon receiving the notification will acquire an **update model lock** and try to perform an **update**. Any information received this way is added as an **entry** to the **log** and the **model lock** is released. That **entry** can be either new data or information that the record is no longer there (404 from the API). If new **notification** came when the **model lock** was acquired, it is going to be processed after the lock is released.
 
@@ -45,13 +45,13 @@ After adding **entry** to the **log** an **integration** is triggered and acquir
 
 ## Properties
 
-Given the locking on the **model** there will be some parallelization, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing new one.
+Given the locking on the **model** there will be some parallelization, but also updates to one object will be serialized. This needs to be done to limit the network issues and ensure the request was delivered before issuing a new one.
 
-Because **Zync** will keep a **log** of **events** it will be able to replay changes and recover last state just taking last revisions of each **model** and even remove the ones that have been created before but have been deleted.
+Because **Zync** will keep a **log** of **events** it will be able to replay changes and recover the last state just taking last revisions of each **model** and even remove the ones that have been created before but have been deleted.
 
 ## Data Model
 
-**Record** types are for enforcing correctness of data on the database level and referential integrity. There is one relationship (Model -> Record) that can't have foreign constraint but can be recreated from other data.
+**Record** types are for enforcing correctness of data on the database level and referential integrity. There is one relationship (Model -> Record) that can't have foreign constraints but can be recreated from other data.
 
 ### Tenant
 

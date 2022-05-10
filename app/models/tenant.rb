@@ -7,7 +7,7 @@ class Tenant < ApplicationRecord
   def self.upsert(params)
     retry_record_not_unique do
       tenant = find_or_create_by(id: params.require(:id))
-      tenant.update_attributes(params)
+      tenant.update(params)
       tenant
     end
   end

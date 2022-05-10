@@ -39,5 +39,4 @@ class Integration::KeycloakService < Integration::AbstractService
   def persist?(client)
     client.secret
   end
-
 end

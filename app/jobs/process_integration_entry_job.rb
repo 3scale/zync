@@ -1,14 +1,22 @@
 # frozen_string_literal: true
+
 # Update Integration with latest changes to the model.
 # Load latest Entry and push it through the Integration.
 
 class ProcessIntegrationEntryJob < ApplicationJob
   queue_as :default
 
+  self.deduplicate = true
+
   delegate :instrument, to: 'ActiveSupport::Notifications'
 
   def perform(integration, model, service: DiscoverIntegrationService.call(integration))
     return unless service
+
+    if integration.try(:disabled?)
+      logger.info "#{integration.to_gid} is disabled, skipping"
+      return
+    end
 
     result = invoke(model, integration, service) do |invocation|
       payload = build_payload(model, integration, invocation)
@@ -29,17 +37,17 @@ class ProcessIntegrationEntryJob < ApplicationJob
       service.call(entry)
 
       finish(success: true)
-    rescue
+    rescue StandardError
       finish(success: false)
       raise
     end
 
-    def finish(success: )
-      state.update_attributes(success: success, finished_at: timestamp)
+    def finish(success:)
+      state.update(success: success, finished_at: timestamp)
     end
 
     def start
-      state.update_attributes(started_at: timestamp, entry: entry, success: nil)
+      state.update(started_at: timestamp, entry: entry, success: nil)
     end
 
     def to_proc
@@ -76,14 +84,14 @@ class ProcessIntegrationEntryJob < ApplicationJob
     value = instrument('perform.process_integration_entry', payload, &block)
 
     Result.new(true, value)
-  rescue => exception
-    Result.new(false, value, exception)
+  rescue StandardError => e
+    Result.new(false, value, e)
   end
 
   def build_payload(model, integration, invocation)
     {
-        entry_data: invocation.entry_data, integration: integration, model: model,
-        service: invocation.service_name, record: model.record
+      entry_data: invocation.entry_data, integration: integration, model: model,
+      service: invocation.service_name, record: model.record
     }
   end
 
@@ -130,9 +138,8 @@ class ProcessIntegrationEntryJob < ApplicationJob
     def extract_tenant(payload)
       tenant = payload.fetch(:model).tenant
 
-      [ tenant, { user_ids: [ tenant.to_gid_param ] } ]
+      [tenant, { user_ids: [tenant.to_gid_param] }]
     end
-
 
     def build_message_bus(tenant)
       MessageBus::Instance.new.tap do |message_bus|

@@ -37,8 +37,6 @@ $$;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
-
 --
 -- Name: que_jobs; Type: TABLE; Schema: public; Owner: -
 --
@@ -264,8 +262,8 @@ ALTER SEQUENCE public.applications_id_seq OWNED BY public.applications.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
 );
 
 
@@ -534,6 +532,37 @@ CREATE SEQUENCE public.notifications_id_seq
 --
 
 ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
+
+
+--
+-- Name: providers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.providers (
+    id bigint NOT NULL,
+    tenant_id bigint,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: providers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.providers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: providers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.providers_id_seq OWNED BY public.providers.id;
 
 
 --
@@ -819,6 +848,13 @@ ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: providers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.providers ALTER COLUMN id SET DEFAULT nextval('public.providers_id_seq'::regclass);
+
+
+--
 -- Name: proxies id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -938,6 +974,14 @@ ALTER TABLE ONLY public.models
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: providers providers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.providers
+    ADD CONSTRAINT providers_pkey PRIMARY KEY (id);
 
 
 --
@@ -1132,10 +1176,10 @@ CREATE INDEX index_metrics_on_tenant_id ON public.metrics USING btree (tenant_id
 
 
 --
--- Name: index_models_on_record_type_and_record_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_models_on_record; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_models_on_record_type_and_record_id ON public.models USING btree (record_type, record_id);
+CREATE UNIQUE INDEX index_models_on_record ON public.models USING btree (record_type, record_id);
 
 
 --
@@ -1157,6 +1201,13 @@ CREATE INDEX index_notifications_on_model_id ON public.notifications USING btree
 --
 
 CREATE INDEX index_notifications_on_tenant_id ON public.notifications USING btree (tenant_id);
+
+
+--
+-- Name: index_providers_on_tenant_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_providers_on_tenant_id ON public.providers USING btree (tenant_id);
 
 
 --
@@ -1371,6 +1422,14 @@ ALTER TABLE ONLY public.entries
 
 
 --
+-- Name: providers fk_rails_ba1a501ef5; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.providers
+    ADD CONSTRAINT fk_rails_ba1a501ef5 FOREIGN KEY (tenant_id) REFERENCES public.tenants(id);
+
+
+--
 -- Name: applications fk_rails_c363b8b058; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1449,6 +1508,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181019101631'),
 ('20190410112007'),
 ('20190530080459'),
-('20190603140450');
-
-
+('20190603140450'),
+('20190605094424'),
+('20210504152609');

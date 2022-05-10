@@ -17,6 +17,6 @@ class Integration < ApplicationRecord
   end
 
   def enabled?
-    true
+    Rails.application.config.integrations.fetch(self.class.name.demodulize.downcase, true)
   end
 end

@@ -1,0 +1,31 @@
+language: ruby
+sudo: false
+dist: bionic
+arch:
+- ppc64le
+- s390x
+services:
+  - postgresql
+
+env:
+  - DATABASE_URL=postgres://postgres@localhost:5431/travis_test
+  - RAILS_ENV:test
+
+include:
+- os: linux
+  addons:
+    packages:
+    - build-essential
+    - make
+    - gcc
+    - wget
+    - gem
+    - shared-mime-info.ppc64le
+    - zlib.ppc64le
+    - zlib-devel.ppc64le
+
+before_install:
+  - ./.travis/setup_${TRAVIS_OS_NAME}_environment.sh
+
+script:
+  - ./.travis/run_test_${TRAVIS_OS_NAME}.sh

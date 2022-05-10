@@ -3,17 +3,17 @@ require 'test_helper'
 
 class GenericAdapterTest < ActiveSupport::TestCase
   test 'new' do
-    assert GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
+    assert RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
   end
 
   test 'endpoint' do
-    adapter = GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
+    adapter = RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
 
     assert_kind_of URI, adapter.endpoint
   end
 
   test 'setting access token' do
-    subject = GenericAdapter.new('http://lvh.me:3000')
+    subject = RESTAdapter.new('http://lvh.me:3000')
 
     subject.authentication = 'sometoken'
 
@@ -24,10 +24,10 @@ class GenericAdapterTest < ActiveSupport::TestCase
     uri = URI('http://lvh.me:3000/auth/realm/name/')
 
     assert_equal uri,
-                 GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name').endpoint
+                 RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name').endpoint
 
     assert_equal uri,
-                 GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name/').endpoint
+                 RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name/').endpoint
   end
 
   test 'timeout error' do
@@ -37,7 +37,7 @@ class GenericAdapterTest < ActiveSupport::TestCase
 
     get_token = stub_request(:post, 'http://lvh.me:3000/auth/realm/name/protocol/openid-connect/token').to_timeout
 
-    adapter = GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
+    adapter = RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
 
     log = Object.new
     class << log
@@ -61,8 +61,8 @@ class GenericAdapterTest < ActiveSupport::TestCase
   end
 
   test 'create client' do
-    adapter = GenericAdapter.new('http://example.com/adapter', authentication: 'token')
-    client = GenericAdapter::Client.new(name: 'Foo', id: 'foo', secret: 'bar')
+    adapter = RESTAdapter.new('http://example.com/adapter', authentication: 'token')
+    client = RESTAdapter::Client.new(name: 'Foo', id: 'foo', secret: 'bar')
 
     create = stub_request(:put, "http://example.com/adapter/clients/foo").
         with(
@@ -75,8 +75,8 @@ class GenericAdapterTest < ActiveSupport::TestCase
   end
 
   test 'update client' do
-    adapter = GenericAdapter.new('http://example.com/adapter', authentication: 'token')
-    client = GenericAdapter::Client.new(name: 'Foo', id: 'foo', secret: 'bar')
+    adapter = RESTAdapter.new('http://example.com/adapter', authentication: 'token')
+    client = RESTAdapter::Client.new(name: 'Foo', id: 'foo', secret: 'bar')
 
     update = stub_request(:put, "http://example.com/adapter/clients/foo").
         with(
@@ -89,8 +89,8 @@ class GenericAdapterTest < ActiveSupport::TestCase
   end
 
   test 'delete client' do
-    adapter = GenericAdapter.new('http://example.com/adapter', authentication: 'token')
-    client = GenericAdapter::Client.new(id: 'foo')
+    adapter = RESTAdapter.new('http://example.com/adapter', authentication: 'token')
+    client = RESTAdapter::Client.new(id: 'foo')
 
     delete = stub_request(:delete, "http://example.com/adapter/clients/foo").to_return(status: 200)
 
@@ -100,8 +100,8 @@ class GenericAdapterTest < ActiveSupport::TestCase
   end
 
   test 'read client' do
-    adapter = GenericAdapter.new('http://example.com/adapter', authentication: 'token')
-    client = GenericAdapter::Client.new(id: 'foo')
+    adapter = RESTAdapter.new('http://example.com/adapter', authentication: 'token')
+    client = RESTAdapter::Client.new(id: 'foo')
 
     body = { client_id: 'foo', client_name: 'Foo'}
     read = stub_request(:get, "http://example.com/adapter/clients/foo")
@@ -110,7 +110,7 @@ class GenericAdapterTest < ActiveSupport::TestCase
 
     client = adapter.read_client(client)
 
-    assert_kind_of GenericAdapter::Client, client
+    assert_kind_of RESTAdapter::Client, client
     assert_equal 'Foo', client.name
     assert_equal 'foo', client.id
 
@@ -118,7 +118,7 @@ class GenericAdapterTest < ActiveSupport::TestCase
   end
 
   test 'test' do
-    adapter = GenericAdapter.new('http://id:secret@example.com/auth/realm/name')
+    adapter = RESTAdapter.new('http://id:secret@example.com/auth/realm/name')
 
     form_urlencoded = { 'Content-Type'=>'application/x-www-form-urlencoded' }
     token = stub_request(:post, 'http://example.com/auth/realm/name/get-token').
@@ -139,9 +139,9 @@ class GenericAdapterTest < ActiveSupport::TestCase
     stub_request(:get, 'http://lvh.me:3000/auth/realm/name/.well-known/openid-configuration').
         to_return(status: 200, body: 'somebody', headers: {'Content-Type' => 'text/plain'} )
 
-    adapter = GenericAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name', authentication: 'something')
+    adapter = RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name', authentication: 'something')
 
-    assert_raises GenericAdapter::InvalidResponseError do
+    assert_raises RESTAdapter::InvalidResponseError do
       adapter.test
     end
   end
@@ -154,26 +154,26 @@ class GenericAdapterTest < ActiveSupport::TestCase
     }.deep_stringify_keys
 
     Rails.application.config.x.stub(:generic, config) do
-      client = GenericAdapter::Client.new(name: 'foo')
+      client = RESTAdapter::Client.new(name: 'foo')
 
       assert_includes client.to_h.fetch(:grant_types), :client_credentials
     end
   end
 
   test 'client hash' do
-    client = GenericAdapter::Client.new(name: 'name')
+    client = RESTAdapter::Client.new(name: 'name')
 
     assert_includes client.to_h, :client_name
   end
 
   test 'client serialization' do
-    client = GenericAdapter::Client.new(name: 'name')
+    client = RESTAdapter::Client.new(name: 'name')
 
     assert_equal client.to_h.to_json, client.to_json
   end
 
   test 'oauth flows' do
-    client = GenericAdapter::Client.new({
+    client = RESTAdapter::Client.new({
                                             id: 'client_id',
                                             oidc_configuration: {
                                                 implicit_flow_enabled: true,

@@ -5,13 +5,15 @@ module Prometheus
   ## ActiveJob Subscriber to record Prometheus metrics.
   ## Those metrics are per process, so they have to be aggregated by Prometheus.
   class ActiveJobSubscriber < ActiveSupport::Subscriber
+    PROMETHEUS_TAGS = %i[adapter job_name].freeze
+
     Yabeda.configure do
       group :que do
-        counter :job_retries_total, comment: 'A number of Jobs retried by this process'
-        counter :job_failures_total, comment: 'A number of Jobs errored by this process'
-        counter :job_performed_total, comment: 'A number of Jobs performed by this process'
-        counter :job_enqueued_total, comment: 'A number of Jobs enqueued by this process'
-        histogram :job_duration_seconds do
+        counter :job_retries_total, comment: 'A number of Jobs retried by this process', tags: ActiveJobSubscriber::PROMETHEUS_TAGS
+        counter :job_failures_total, comment: 'A number of Jobs errored by this process', tags: ActiveJobSubscriber::PROMETHEUS_TAGS
+        counter :job_performed_total, comment: 'A number of Jobs performed by this process', tags: ActiveJobSubscriber::PROMETHEUS_TAGS
+        counter :job_enqueued_total, comment: 'A number of Jobs enqueued by this process', tags: ActiveJobSubscriber::PROMETHEUS_TAGS
+        histogram :job_duration_seconds, tags: ActiveJobSubscriber::PROMETHEUS_TAGS do
           comment 'A histogram of Jobs perform times by this process'
           buckets false
         end
@@ -22,7 +24,11 @@ module Prometheus
     def initialize
       super
       @metrics = Yabeda.que
-      @job_runtime_seconds = Yabeda::Prometheus.registry.summary(:que_job_runtime_seconds, 'A summary of Jobs perform times')
+      @job_runtime_seconds = Yabeda::Prometheus.registry.summary(
+        :que_job_runtime_seconds,
+        docstring: 'A summary of Jobs perform times',
+        labels: ActiveJobSubscriber::PROMETHEUS_TAGS
+      )
     end
 
     def enqueue(event)
@@ -52,7 +58,7 @@ module Prometheus
       duration = event.duration / 1000.0
 
       job_duration_seconds.measure(labels, duration)
-      job_runtime_seconds.observe(labels, duration)
+      job_runtime_seconds.observe(duration, labels: labels)
     end
 
     def observe_perform(payload, labels)
@@ -77,7 +83,5 @@ module Prometheus
              to: :@metrics
 
     attr_reader :job_runtime_seconds
-
-    attach_to :active_job
   end
 end

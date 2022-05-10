@@ -1,0 +1,11 @@
+shared: &shared
+  kubernetes: <%= ENV.fetch('DISABLE_K8S_ROUTES_CREATION', '0') == '0' %>
+
+production:
+  <<: *shared
+
+development:
+  <<: *shared
+
+test:
+  <<: *shared

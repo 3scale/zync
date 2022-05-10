@@ -1,6 +1,6 @@
 class AddIntegrationState < ActiveRecord::Migration[5.2]
   def up
-    create_enum :integration_state, 'active', 'disabled'
+    create_enum :integration_state, %w[active disabled]
     add_column :integrations, :state, :integration_state
     default = 'active'
     Integration.in_batches.update_all(state: default)

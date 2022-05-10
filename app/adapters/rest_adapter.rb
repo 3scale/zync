@@ -3,7 +3,7 @@
 require 'uri'
 
 # KeycloakAdapter adapter to create/update/delete Clients on using the KeycloakAdapter Client Registration API.
-class GenericAdapter < AbstractAdapter
+class RESTAdapter < AbstractAdapter
   def self.build_client(*attrs)
     Client.new(*attrs)
   end
@@ -29,6 +29,12 @@ class GenericAdapter < AbstractAdapter
 
   def test
     parse http_client.get(oidc.well_known_url, header: headers)
+  end
+
+  def authentication
+    super
+  rescue OIDC::AuthenticationError
+    nil
   end
 
   # The Client entity. Mapping the OpenID Connect Client Metadata representation.

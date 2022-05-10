@@ -15,6 +15,6 @@ keycloak:
 generic:
   tenant: one
   model: first_service
-  type: Integration::Generic
+  type: Integration::REST
   configuration:
     endpoint: 'http://id:pass@example.com/generic/api'

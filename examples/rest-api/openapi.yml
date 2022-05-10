@@ -1,0 +1,146 @@
+---
+openapi: 3.0.2
+info:
+  title: Zync REST API
+  version: 1.0.0
+paths:
+  /clients/{clientId}:
+    get:
+      summary: Get a Client
+      operationId: readClient
+      parameters:
+      - name: clientId
+        in: path
+        description: client_id
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Client resource was found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+      security:
+      - OIDC: []
+        Basic: []
+        Digest: []
+    put:
+      summary: Create or update the Client
+      operationId: saveClient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Client'
+            examples:
+              Client:
+                value:
+                  client_id: foo-bar
+                  client_secret: some-secret
+        required: true
+      responses:
+        200:
+          description: When the Client was updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        201:
+          description: When the Client was created on the IDP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+    delete:
+      summary: Delete the Client
+      operationId: deleteClient
+      responses:
+        200:
+          description: When the client was deleted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        204:
+          description: When the Client was already gone from the IDP.
+          content:
+            application/json: {}
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+  /.well-known/openid-configuration:
+    get:
+      responses:
+        200:
+          description: Enable OAuth2.0 authentication by responding with a token endpoint
+            of an IDP.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OIDC'
+              examples:
+                Enable OAuth2.0 authentication:
+                  value:
+                    token_endpoint: https://idp.example.com/auth/realms/myrealm
+      security:
+      - {}
+components:
+  schemas:
+    Client:
+      title: Root Type for Client
+      description: A Client representation.
+      required: []
+      type: object
+      properties:
+        client_id:
+          type: string
+        client_secret:
+          type: string
+        client_name:
+          type: string
+        redirect_uris:
+          description: A list of allowed redirect uris.
+          type: array
+          items:
+            type: string
+        grant_types:
+          description: A list of allowed grant types.
+          type: array
+          items:
+            type: string
+      example: |-
+        {
+            "client_id": "foo-bar",
+            "client_secret": "some-secret"
+        }
+    OIDC:
+      title: Root Type for OIDC
+      description: OpenID Connect Configuration to define where to get access token.
+      type: object
+      properties:
+        token_endpoint:
+          type: string
+      example: |-
+        {
+            "token_endpoint": "https://idp.example.com/auth/realms/myrealm"
+        }
+  securitySchemes:
+    OIDC:
+      type: openIdConnect
+      description: |-
+        Use OpenID Connect for authentication.
+        Zync will try to access `/.well-known/openid-configuration` and use "token_endpoint" property from the JSON response.
+        Then it will exchange its' credentials for an access token and will use that access token to access this API.
+    Basic:
+      type: http
+      description: Zync will try to send provided credentials as HTTP Basic authentication
+        in case it gets a 401 response with proper WWW-Authenticate header.
+      scheme: basic
+    Digest:
+      type: http
+      description: Zync will try to send provided credentials as HTTP Basic authentication
+        in case it gets a 401 response with proper WWW-Authenticate header.
+      scheme: digest

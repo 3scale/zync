@@ -1,38 +1,64 @@
-version: 2
+version: 2.1
 jobs:
-
-  build:
+  docker-build:
+    resource_class: small
     working_directory: /home/circleci/zync
     docker:
-      - image: circleci/ruby:2.4.6
-      - image: circleci/postgres:10-alpine-ram
+      - image: circleci/buildpack-deps:latest
+        environment:
+          POSGRES_CONTAINER_NAME: db
+          DATABASE_URL: postgresql://postgres:postgres@db:5432/zync
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zync
+          RAILS_ENV: production
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker build --tag zync:build --file ./Dockerfile .
+      - run: docker network create net0
+      - run: docker run --net net0 --name ${POSGRES_CONTAINER_NAME} -d -p 5432:5432 -e POSTGRES_USER=${POSTGRES_USER} -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -e POSTGRES_DB=${POSTGRES_DB} postgres:12-alpine
+      - run:
+          command: |
+            docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \
+            zync:build rails db:setup
+
+  build:
+    parameters:
+      postgresql_version:
+        type: string
+    working_directory: /opt/app-root/zync
+    docker:
+      - image: registry.access.redhat.com/ubi7/ruby-27
+      - image: circleci/postgres:<< parameters.postgresql_version >>-ram
     environment:
         RAILS_ENV: test
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
         DATABASE_URL: postgres://postgres:@localhost/circle_test
     steps:
-      - run: sudo sh -c 'apt update && apt install -y --no-install-recommends -y postgresql-client'
-
       - checkout
 
       # Restore bundle cache
       - restore_cache:
           keys:
-            - zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - zync-bundle-{{ arch }}-{{ .Branch }}
-            - zync-branch-{{ arch }}-master
+            - zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
+            - zync-bundle-v2-{{ arch }}-{{ .Branch }}
+            - zync-branch-v2-{{ arch }}-master
 
       - run:
           name: bundle install
           command: |
-            gem install bundler --version=2.0.1
-            bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+            gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1)
+            bundle config --local force_ruby_platform true
+            bundle config set --local deployment 'true'
+            bundle config set --local path 'vendor/bundle'
+            bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
       - run:
           name: boot zync
           command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
-          key: zync-bundle-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -53,6 +79,16 @@ jobs:
           path: test/reports
 
       - save_cache:
-          key: zync-branch-{{ arch }}-{{ .Branch }}
+          key: zync-branch-v2-{{ arch }}-{{ .Branch }}
           paths:
             - vendor/bundle
+
+workflows:
+  version: 2.1
+  build_and_test_docker:
+    jobs:
+      - build:
+          matrix:
+            parameters:
+              postgresql_version: [ "10-alpine", "12-alpine" ]
+      - docker-build

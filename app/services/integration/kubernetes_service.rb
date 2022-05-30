@@ -12,6 +12,10 @@ class Integration::KubernetesService < Integration::ServiceBase
     @client = K8s::Client.autoconfig(namespace: namespace).extend(MergePatch)
   end
 
+  def use_openshift_route?
+    return client.api_groups.include?('route.openshift.io/v1') && !ActiveModel::Type::Boolean.new.cast(ENV['FORCE_NATIVE_INGRESS'])
+  end
+
   module MergePatch
     # @param resource [K8s::Resource]
     # @param attrs [Hash]
@@ -131,6 +135,14 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
   end
 
+  class Ingress < K8s::Resource
+    def initialize(attributes, **options)
+      super attributes.with_indifferent_access
+                      .merge(apiVersion: 'networking.k8s.io/v1', kind: 'Ingress')
+                      .reverse_merge(metadata: {}), **options
+    end
+  end
+
   class RouteSpec < K8s::Resource
     def initialize(url, service, port)
       uri = URI(url)
@@ -150,10 +162,51 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
   end
 
+  class IngressSpec < K8s::Resource
+    def initialize(url, service, port, tenant_id)
+      uri = URI(url)
+      host = uri.host || uri.path
+
+      tls_options = [{
+        hosts: [host],
+        secretName: service + '-tls-' + tenant_id
+      }] if uri.class == URI::HTTPS || uri.scheme.blank?
+
+      super({
+        rules: [{
+          host: host,
+          http: {
+            paths: [{
+              path: '/',
+              pathType: 'Prefix',
+              backend: {
+                service: {
+                  name: service,
+                  port: {
+                    name: port
+                  }
+                }
+              }
+            }]
+          }
+        }]
+      }.merge(tls: tls_options))
+    end
+  end
+
   def build_proxy_routes(entry)
     build_routes('zync-3scale-api-', [
                    RouteSpec.new(entry.data.fetch('endpoint'), 'apicast-production', 'gateway'),
                    RouteSpec.new(entry.data.fetch('sandbox_endpoint'), 'apicast-staging', 'gateway')
+                 ], labels: labels_for_proxy(entry), annotations: annotations_for(entry))
+  end
+
+  def build_proxy_ingresses(entry)
+    data = entry.data
+    tenant_id = String(entry.tenant_id)
+    build_ingresses('zync-3scale-api-', [
+                   IngressSpec.new(data.fetch('endpoint'), 'apicast-production', 'gateway', tenant_id),
+                   IngressSpec.new(data.fetch('sandbox_endpoint'), 'apicast-staging', 'gateway', tenant_id)
                  ], labels: labels_for_proxy(entry), annotations: annotations_for(entry))
   end
 
@@ -178,7 +231,29 @@ class Integration::KubernetesService < Integration::ServiceBase
     end
   end
 
+  def build_ingresses(name, specs = [], owner: get_owner, **metadata)
+    specs.map do |spec|
+      Ingress.new(
+        metadata: {
+          generateName: name,
+          namespace: namespace,
+          labels: owner.metadata.labels,
+          ownerReferences: [as_reference(owner)]
+        }.deep_merge(metadata.deep_merge(
+          labels: {
+            'zync.3scale.net/route-to': spec.to_h.dig(:rules, 0, :http, :paths, 0, :backend, :service, :name),
+          },
+          annotations: {
+            'zync.3scale.net/host': spec.host,
+          }
+        )),
+        spec: spec
+      )
+    end
+  end
+
   def build_provider_routes(entry)
+    puts "\n\nTEST"
     data = entry.data
     domain, admin_domain = data.values_at('domain', 'admin_domain')
     metadata = { labels: labels_for_provider(entry), annotations: annotations_for(entry) }
@@ -191,6 +266,24 @@ class Integration::KubernetesService < Integration::ServiceBase
       build_routes('zync-3scale-provider-', [
                      RouteSpec.new(data.fetch('domain'), 'system-developer', 'http'),
                      RouteSpec.new(data.fetch('admin_domain'), 'system-provider', 'http')
+                   ], **metadata)
+    end
+  end
+
+  def build_provider_ingresses(entry)
+    data = entry.data
+    domain, admin_domain = data.values_at('domain', 'admin_domain')
+    metadata = { labels: labels_for_provider(entry), annotations: annotations_for(entry) }
+    tenant_id = String(entry.tenant_id)
+
+    if admin_domain == domain # master account
+      build_ingresses('zync-3scale-master-', [
+                     IngressSpec.new(data.fetch('domain'), 'system-master', 'http', tenant_id)
+                   ], **metadata)
+    else
+      build_ingresses('zync-3scale-provider-', [
+                     IngressSpec.new(data.fetch('domain'), 'system-developer', 'http', tenant_id),
+                     IngressSpec.new(data.fetch('admin_domain'), 'system-provider', 'http', tenant_id)
                    ], **metadata)
     end
   end
@@ -219,7 +312,6 @@ class Integration::KubernetesService < Integration::ServiceBase
       existing = client
                    .client_for_resource(resource, namespace: namespace)
                    .list(labelSelector: label_selector_from(resource))
-
       client.get_resource case existing.size
       when 0
         client.create_resource(resource)
@@ -279,26 +371,40 @@ class Integration::KubernetesService < Integration::ServiceBase
   end
 
   def persist_proxy(entry)
-    routes = build_proxy_routes(entry)
-
-    cleanup_routes persist_resources(routes)
+    if use_openshift_route?
+      routes = build_proxy_routes(entry)
+      cleanup_routes persist_resources(routes)
+    else
+      ingresses = build_proxy_ingresses(entry)
+      persist_resources(ingresses)
+    end
   end
 
   def delete_proxy(entry)
     label_selector = labels_for_proxy(entry)
-
-    cleanup_but([Route.new({})], label_selector)
+    if use_openshift_route?
+      cleanup_but([Route.new({})], label_selector)
+    else
+      cleanup_but([Ingress.new({})], label_selector)
+    end
   end
 
   def persist_provider(entry)
-    routes = build_provider_routes(entry)
-
-    cleanup_routes persist_resources(routes)
+    if use_openshift_route?
+      routes = build_provider_routes(entry)
+      cleanup_routes persist_resources(routes)
+    else 
+      ingresses = build_provider_ingresses(entry)
+      persist_resources(ingresses)
+    end
   end
 
   def delete_provider(entry)
     label_selector = labels_for_provider(entry)
-
-    cleanup_but([Route.new({})], label_selector)
+    if use_openshift_route?
+      cleanup_but([Route.new({})], label_selector)
+    else
+      cleanup_but([Ingress.new({})], label_selector)
+    end
   end
 end

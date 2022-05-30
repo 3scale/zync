@@ -16,7 +16,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     super
   end
 
-  setup do
+  setup do 
     ENV['KUBERNETES_NAMESPACE'] = 'zync'
     ENV['KUBE_TOKEN'] = strict_encode64('token')
     ENV['KUBE_SERVER'] = 'http://localhost'
@@ -32,13 +32,29 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       qwUVj52L6/Ptj0Tn4Mt6u+bdVr6jEXkZ8f0=
       -----END CERTIFICATE-----
     CERTIFICATE
+    ENV['FORCE_NATIVE_INGRESS'] = '0'
+
+    stub_request(:get, 'http://localhost/apis').
+      with(
+        headers: {
+          'Accept'=>'application/json',
+          'Authorization'=>'Bearer token',
+        }).
+      to_return(status: 200, body: {
+        kind: "APIGroupList",
+        apiVersion: "v1",
+        groups: [
+          { name: "networking.k8s.io", versions: [{ groupVersion: "networking.k8s.io/v1", version: "v1" }], preferredVersion: { groupVersion: "networking.k8s.io/v1", version: "v1" } },
+          { name: "route.openshift.io", versions: [{ groupVersion: "route.openshift.io/v1", version: "v1" }], preferredVersion: { groupVersion: "route.openshift.io/v1", version: "v1" } },
+        ]
+      }.to_json, headers: { 'Content-Type' => 'application/json' })
 
     @service = Integration::KubernetesService.new(nil)
   end
 
   attr_reader :service
 
-  test 'create ingress' do
+  test 'create openshift route' do
     proxy = entries(:proxy)
 
     stub_request(:get, 'http://localhost/apis/route.openshift.io/v1').
@@ -302,6 +318,110 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     end
   end
 
+  
+  test 'fallback to native ingress if not on openshift' do
+    stub_request(:get, 'http://localhost/apis').
+      with(headers: request_headers).
+      to_return(status: 200, body: {
+        kind: "APIGroupList",
+        apiVersion: "v1",
+        groups: [
+          { name: "networking.k8s.io", versions: [{ groupVersion: "networking.k8s.io/v1", version: "v1" }], preferredVersion: { groupVersion: "networking.k8s.io/v1", version: "v1" } },
+        ]
+      }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    service = Integration::KubernetesService.new(nil)
+    assert_equal service.use_openshift_route?, false
+  end
+
+  test 'force native ingress if FORCE_NATIVE_INGRESS=1' do
+    ENV['FORCE_NATIVE_INGRESS'] = '1'
+    assert_equal service.use_openshift_route?, false
+  end
+
+  test 'create native ingress' do
+    ENV['FORCE_NATIVE_INGRESS'] = '1'
+    proxy = entries(:proxy)
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1').
+      with(headers: request_headers).
+      to_return(status: 200, body: {
+        kind: "APIResourceList",
+        apiVersion: "v1",
+        groupVersion: "networking.k8s.io/v1",
+        resources: [
+          { name: "ingressclasses", singularName: "", namespaced: false, kind: "IngressClass", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], storageVersionHash: "6upRfBq0FOI=" },
+          { name: "ingresses", singularName: "", namespaced: true, kind: "Ingress", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["ing"], storageVersionHash: "ZOAfGflaKd0=" }, 
+          { name: "ingresses/status", singularName: "", namespaced:true, kind: "Ingress", verbs: ["get","patch","update"] }, 
+          { name: "networkpolicies", singularName: "", namespaced: true, kind: "NetworkPolicy", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["netpol"], storageVersionHash: "YpfwF18m1G8=" },
+        ]
+      }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1/namespaces/zync/ingresses?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
+      with(headers: request_headers).
+      to_return(status: 200, body: {
+        kind: 'IngressList',
+        apiVersion: 'networking.k8s.io/v1',
+        metadata: { selfLink: '/apis/networking.k8s.io/v1/namespaces/zync/ingresses', resourceVersion: '651341' },
+        items: [] }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    service.call(proxy)
+  end
+
+  class IngressSpec < ActiveSupport::TestCase
+    test 'secure ingresses' do
+      url = 'https://my-api.example.com'
+      service_name = 'My API'
+      port = 7443
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: [{hosts: ["my-api.example.com"], secretName: "My API-tls-2"}]
+      }
+      assert_equal json, spec.to_hash
+
+      url = 'http://my-api.example.com'
+      service_name = 'My API'
+      port = 7780
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: nil
+      }
+      assert_equal json, spec.to_hash
+    end
+
+    test 'defaults to https when scheme is missing' do
+      url = 'my-api.example.com'
+      service_name = 'My API'
+      port = 7443
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: [{hosts: ["my-api.example.com"], secretName: "My API-tls-2"}]
+      }
+      assert_equal json, spec.to_hash
+    end
+  end
+  
   protected
 
   def request_headers

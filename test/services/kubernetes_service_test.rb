@@ -16,7 +16,10 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     super
   end
 
-  setup do 
+  setup do
+    Integration::KubernetesService.use_openshift_route = nil
+    Rails.application.config.integrations[:kubernetes_force_native_ingress] = false
+
     ENV['KUBERNETES_NAMESPACE'] = 'zync'
     ENV['KUBE_TOKEN'] = strict_encode64('token')
     ENV['KUBE_SERVER'] = 'http://localhost'
@@ -32,7 +35,6 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       qwUVj52L6/Ptj0Tn4Mt6u+bdVr6jEXkZ8f0=
       -----END CERTIFICATE-----
     CERTIFICATE
-    ENV['FORCE_NATIVE_INGRESS'] = '0'
 
     stub_request(:get, 'http://localhost/apis').
       with(
@@ -49,7 +51,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
         ]
       }.to_json, headers: { 'Content-Type' => 'application/json' })
 
-    @service = Integration::KubernetesService.new(nil)
+    @service = Integration::KubernetesService.new(nil).freeze
   end
 
   attr_reader :service
@@ -318,8 +320,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     end
   end
 
-  
-  test 'fallback to native ingress if not on openshift' do
+  test 'create native ingress if not on openshift' do
     stub_request(:get, 'http://localhost/apis').
       with(headers: request_headers).
       to_return(status: 200, body: {
@@ -329,41 +330,32 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
           { name: "networking.k8s.io", versions: [{ groupVersion: "networking.k8s.io/v1", version: "v1" }], preferredVersion: { groupVersion: "networking.k8s.io/v1", version: "v1" } },
         ]
       }.to_json, headers: { 'Content-Type' => 'application/json' })
-
-    service = Integration::KubernetesService.new(nil)
-    assert_equal service.use_openshift_route?, false
-  end
-
-  test 'force native ingress if FORCE_NATIVE_INGRESS=1' do
-    ENV['FORCE_NATIVE_INGRESS'] = '1'
-    assert_equal service.use_openshift_route?, false
-  end
-
-  test 'create native ingress' do
-    ENV['FORCE_NATIVE_INGRESS'] = '1'
+    
     proxy = entries(:proxy)
 
     stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1').
       with(headers: request_headers).
-      to_return(status: 200, body: {
-        kind: "APIResourceList",
-        apiVersion: "v1",
-        groupVersion: "networking.k8s.io/v1",
-        resources: [
-          { name: "ingressclasses", singularName: "", namespaced: false, kind: "IngressClass", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], storageVersionHash: "6upRfBq0FOI=" },
-          { name: "ingresses", singularName: "", namespaced: true, kind: "Ingress", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["ing"], storageVersionHash: "ZOAfGflaKd0=" }, 
-          { name: "ingresses/status", singularName: "", namespaced:true, kind: "Ingress", verbs: ["get","patch","update"] }, 
-          { name: "networkpolicies", singularName: "", namespaced: true, kind: "NetworkPolicy", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["netpol"], storageVersionHash: "YpfwF18m1G8=" },
-        ]
-      }.to_json, headers: { 'Content-Type' => 'application/json' })
+      to_return(status: 200, body: k8s_networking_resource_list_response, headers: { 'Content-Type' => 'application/json' })
 
     stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1/namespaces/zync/ingresses?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
       with(headers: request_headers).
-      to_return(status: 200, body: {
-        kind: 'IngressList',
-        apiVersion: 'networking.k8s.io/v1',
-        metadata: { selfLink: '/apis/networking.k8s.io/v1/namespaces/zync/ingresses', resourceVersion: '651341' },
-        items: [] }.to_json, headers: { 'Content-Type' => 'application/json' })
+      to_return(status: 200, body: k8s_ingress_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    service.call(proxy)
+  end
+
+  test 'create native ingress if kubernetes_force_native_ingress' do
+    Rails.application.config.integrations[:kubernetes_force_native_ingress] = true
+
+    proxy = entries(:proxy)
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_networking_resource_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1/namespaces/zync/ingresses?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_ingress_list_response, headers: { 'Content-Type' => 'application/json' })
 
     service.call(proxy)
   end
@@ -434,5 +426,28 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
 
   def response_headers
     { 'Content-Type' => 'application/json' }
+  end
+
+  def k8s_networking_resource_list_response
+    {
+      kind: "APIResourceList",
+      apiVersion: "v1",
+      groupVersion: "networking.k8s.io/v1",
+      resources: [
+        { name: "ingressclasses", singularName: "", namespaced: false, kind: "IngressClass", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], storageVersionHash: "6upRfBq0FOI=" },
+        { name: "ingresses", singularName: "", namespaced: true, kind: "Ingress", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["ing"], storageVersionHash: "ZOAfGflaKd0=" }, 
+        { name: "ingresses/status", singularName: "", namespaced:true, kind: "Ingress", verbs: ["get","patch","update"] }, 
+        { name: "networkpolicies", singularName: "", namespaced: true, kind: "NetworkPolicy", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["netpol"], storageVersionHash: "YpfwF18m1G8=" },
+      ]
+    }.to_json
+  end
+
+  def k8s_ingress_list_response
+    {
+      kind: 'IngressList',
+      apiVersion: 'networking.k8s.io/v1',
+      metadata: { selfLink: '/apis/networking.k8s.io/v1/namespaces/zync/ingresses', resourceVersion: '651341' },
+      items: []
+    }.to_json
   end
 end

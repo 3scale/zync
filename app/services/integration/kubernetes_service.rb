@@ -12,10 +12,16 @@ class Integration::KubernetesService < Integration::ServiceBase
     @client = K8s::Client.autoconfig(namespace: namespace).extend(MergePatch)
   end
 
-  def use_openshift_route?
-    return client.api_groups.include?('route.openshift.io/v1') && !ActiveModel::Type::Boolean.new.cast(ENV['FORCE_NATIVE_INGRESS'])
+  class << self
+    attr_accessor :use_openshift_route
   end
-
+  
+  def use_openshift_route?
+    return self.class.use_openshift_route unless self.class.use_openshift_route.nil?
+  
+    self.class.use_openshift_route = !Rails.application.config.integrations.fetch(:kubernetes_force_native_ingress, false) && client.api_groups.include?('route.openshift.io/v1')
+  end
+  
   module MergePatch
     # @param resource [K8s::Resource]
     # @param attrs [Hash]
@@ -245,6 +251,7 @@ class Integration::KubernetesService < Integration::ServiceBase
           },
           annotations: {
             'zync.3scale.net/host': spec.host,
+            'kubernetes.io/ingress.class': Rails.application.config.integrations.fetch(:kubernetes_ingress_class, 'nginx'),
           }
         )),
         spec: spec

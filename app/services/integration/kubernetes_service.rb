@@ -260,7 +260,6 @@ class Integration::KubernetesService < Integration::ServiceBase
   end
 
   def build_provider_routes(entry)
-    puts "\n\nTEST"
     data = entry.data
     domain, admin_domain = data.values_at('domain', 'admin_domain')
     metadata = { labels: labels_for_provider(entry), annotations: annotations_for(entry) }

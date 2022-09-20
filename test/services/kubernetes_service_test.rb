@@ -368,6 +368,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       tenant_id = '2'
       spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
       json = {
+        ingressClassName: "nginx",
         rules: [{
           host: "my-api.example.com",
           http: {
@@ -384,6 +385,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       tenant_id = '2'
       spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
       json = {
+        ingressClassName: "nginx",
         rules: [{
           host: "my-api.example.com",
           http: {
@@ -402,6 +404,7 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       tenant_id = '2'
       spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
       json = {
+        ingressClassName: "nginx",
         rules: [{
           host: "my-api.example.com",
           http: {

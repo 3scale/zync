@@ -179,6 +179,7 @@ class Integration::KubernetesService < Integration::ServiceBase
       }] if uri.class == URI::HTTPS || uri.scheme.blank?
 
       super({
+        ingressClassName: Rails.application.config.integrations.fetch(:kubernetes_ingress_class, 'nginx'),
         rules: [{
           host: host,
           http: {
@@ -251,7 +252,6 @@ class Integration::KubernetesService < Integration::ServiceBase
           },
           annotations: {
             'zync.3scale.net/host': spec.host,
-            'kubernetes.io/ingress.class': Rails.application.config.integrations.fetch(:kubernetes_ingress_class, 'nginx'),
           }
         )),
         spec: spec

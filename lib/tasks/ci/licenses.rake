@@ -11,7 +11,7 @@ namespace :ci do
     desc 'Check license compliance of dependencies'
     task :compliance do
       STDOUT.puts 'Checking license compliance'
-      unless system("bundle exec bin/license_finder")
+      unless system("bundle exec license_finder")
         STDERR.puts "*** License compliance test failed  ***"
         exit 1
       end
@@ -19,7 +19,7 @@ namespace :ci do
     desc 'Generates a report with the dependencies and their licenses'
     task :report do
       STDOUT.puts 'Generating report...'
-      exec("bundle exec bin/license_finder report --format=xml > #{Rails.root.join('doc/licenses/licenses.xml')}")
+      exec(%[bundle exec license_finder report --format=xml --save="#{Rails.root.join('doc/licenses/licenses.xml')}"])
     end
   end
 end

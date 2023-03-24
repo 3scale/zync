@@ -12,7 +12,7 @@ RUN dnf --setopt=skip_missing_names_on_install=False,tsflags=nodocs --save \
 USER default
 WORKDIR ${APP_ROOT}
 
-RUN gem install bundler --version=2.2.19 --no-document
+RUN gem install bundler --version=2.3.25 --no-document
 
 COPY --chown=default:root Gemfile* ./
 

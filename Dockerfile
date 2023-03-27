@@ -11,9 +11,10 @@ RUN rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/
 USER default
 WORKDIR ${APP_ROOT}
 
-RUN gem install bundler --version=2.3.25 --no-document
-
 COPY --chown=default:root Gemfile* ./
+
+RUN BUNDLER_VERSION=$(awk '/BUNDLED WITH/ { getline; print $1 }' Gemfile.lock) \
+    && gem install bundler --version=$BUNDLER_VERSION --no-document
 
 RUN bundle config build.pg --with-pg-config=/usr/pgsql-12/bin/pg_config \
   && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3

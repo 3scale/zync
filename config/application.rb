@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require_relative "boot"
 
 require "rails"
@@ -13,7 +12,6 @@ require "action_controller/railtie"
 # require "action_text/engine"
 require "action_view/railtie"
 # require "action_cable/engine"
-# require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -24,6 +22,9 @@ module Zync
   class Application < Rails::Application
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
+
+    # Legacy connection handling is deprecated since Rails 6.1
+    config.active_record.legacy_connection_handling = false
 
     config.active_job.queue_adapter = :que
 

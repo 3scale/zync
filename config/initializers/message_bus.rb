@@ -1,6 +1,6 @@
 # This is very similar to ActiveRecord::ConnectionHandling#postgresql_connection(config)
 
-connection_info = ActiveRecord::Base.connection_config.deep_dup
+connection_info = ActiveRecord::Base.connection_db_config.configuration_hash.deep_dup
 connection_info[:user] = connection_info.delete(:username)
 connection_info[:dbname] = connection_info.delete(:database)
 connection_info.slice!(*PG::Connection.conndefaults_hash.keys)

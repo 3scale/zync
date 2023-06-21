@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 class TenantsController < ApplicationController
-  wrap_parameters Tenant
   rescue_from ActiveRecord::RecordNotUnique, with: :conflict
 
   def update

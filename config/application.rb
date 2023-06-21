@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative "boot"
 
 require "rails"
@@ -20,6 +22,10 @@ Bundler.require(*Rails.groups)
 
 module Zync
   class Application < Rails::Application
+
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 5.1
+
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
 
@@ -37,9 +43,6 @@ module Zync
 
     # Use the responders controller from the responders gem
     config.app_generators.scaffold_controller :responders_controller
-
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
 
     config.integrations = config_for(:integrations)
 

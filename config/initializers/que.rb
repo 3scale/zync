@@ -18,7 +18,7 @@ def Que.start!
 
   # Workaround for https://github.com/chanks/que/pull/192
   require 'active_record/base'
-  Que.locker = Que::Locker.new(Rails.application.config.x.que)
+  Que.locker = Que::Locker.new(**Rails.application.config.x.que)
 end
 
 def Que.stop!

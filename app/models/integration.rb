@@ -2,6 +2,7 @@
 class Integration < ApplicationRecord
   belongs_to :tenant
   belongs_to :model
+  has_many :integration_states, dependent: :destroy
 
   enum state: %i[active disabled].index_with{ |status| status.to_s }
 

@@ -75,7 +75,7 @@ class ProcessEntryJobTest < ActiveJob::TestCase
 
     existing_integrations = Integration.where(tenant: entry.tenant)
     UpdateState.where(model: existing_integrations).delete_all
-    existing_integrations.delete_all
+    existing_integrations.destroy_all
 
     fiber1 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }
     fiber2 = Fiber.new { ProcessEntryJobWithFiber.ensure_integrations_for(entry) }

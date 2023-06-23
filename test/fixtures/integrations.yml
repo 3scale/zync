@@ -1,8 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  configuration: 
+  configuration:
   tenant: one
+  type: Integration
+
+two:
+  configuration:
+  tenant: two
   type: Integration
 
 keycloak:

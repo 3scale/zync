@@ -4,10 +4,10 @@ one:
   started_at: 2017-06-02 16:25:16
   finished_at: 2017-06-02 16:25:16
   success: false
-  model: one
+  model: application
 
 two:
   started_at: 2017-06-02 16:25:16
   finished_at: 2017-06-02 16:25:16
   success: false
-  model: two
+  model: client

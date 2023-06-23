@@ -28,9 +28,9 @@ class ProcessEntryJobTest < ActiveJob::TestCase
 
   test 'model integrations for client' do
     job = ProcessEntryJob.new
-    proxy = entries(:client)
+    client = entries(:client)
 
-    integrations = job.model_integrations_for(proxy)
+    integrations = job.model_integrations_for(client)
 
     assert_equal 1, integrations.size
   end

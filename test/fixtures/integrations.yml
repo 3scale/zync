@@ -5,11 +5,6 @@ one:
   tenant: one
   type: Integration
 
-two:
-  configuration:
-  tenant: two
-  type: Integration
-
 keycloak:
   tenant: two
   model: service

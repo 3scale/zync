@@ -4,7 +4,7 @@ USER root
 RUN rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
   && dnf update -y \
   && dnf remove -y postgresql* \
-  && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info postgresql12-12.13 postgresql12-devel-12.13 postgresql12-libs-12.13 \
+  && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info postgresql13 postgresql13-devel postgresql13-libs \
   && dnf clean all \
   && rm -rf /var/cache/yum
 
@@ -16,7 +16,7 @@ COPY --chown=default:root Gemfile* ./
 RUN BUNDLER_VERSION=$(awk '/BUNDLED WITH/ { getline; print $1 }' Gemfile.lock) \
     && gem install bundler --version=$BUNDLER_VERSION --no-document
 
-RUN bundle config build.pg --with-pg-config=/usr/pgsql-12/bin/pg_config \
+RUN bundle config build.pg --with-pg-config=/usr/pgsql-13/bin/pg_config \
   && bundle install --deployment --path vendor/bundle --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
 COPY --chown=default:root . .

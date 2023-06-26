@@ -30,7 +30,7 @@ jobs:
     working_directory: /opt/app-root/zync
     docker:
       - image: registry.access.redhat.com/ubi7/ruby-27
-      - image: circleci/postgres:<< parameters.postgresql_version >>-ram
+      - image: cimg/postgres:<< parameters.postgresql_version >>
     environment:
         RAILS_ENV: test
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build

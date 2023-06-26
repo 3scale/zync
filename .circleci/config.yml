@@ -4,7 +4,7 @@ jobs:
     resource_class: small
     working_directory: /home/circleci/zync
     docker:
-      - image: circleci/buildpack-deps:latest
+      - image: cimg/base:current
         environment:
           POSGRES_CONTAINER_NAME: db
           DATABASE_URL: postgresql://postgres:postgres@db:5432/zync

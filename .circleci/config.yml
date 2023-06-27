@@ -29,7 +29,7 @@ jobs:
         type: string
     working_directory: /opt/app-root/zync
     docker:
-      - image: registry.access.redhat.com/ubi8/ruby-27
+      - image: registry.access.redhat.com/ubi7/ruby-27
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test

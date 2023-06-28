@@ -1,5 +1,6 @@
 ---
-engines:
+version: "2"
+plugins:
   shellcheck:
     enabled: true
   brakeman:
@@ -15,14 +16,10 @@ engines:
     enabled: true
   rubocop:
     enabled: true
+    channel: rubocop-1-50-2
   reek:
     enabled: true
-ratings:
-  paths:
-  - Gemfile.lock
-  - "**.erb"
-  - "**.rb"
-exclude_paths:
+exclude_patterns:
 - config/
 - db/
 - test/

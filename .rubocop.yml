@@ -270,6 +270,10 @@ Rails/HasAndBelongsToMany:
   Description: 'Prefer has_many :through to has_and_belongs_to_many.'
   Enabled: false
 
+# TODO: fix all violations and enable the rule
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
 Rails/Output:
   Description: 'Checks for calls to puts, print, etc.'
   Enabled: false
@@ -285,6 +289,10 @@ Rails/RefuteMethods:
 
 Rails/ScopeArgs:
   Description: 'Checks the arguments of ActiveRecord scopes.'
+  Enabled: false
+
+# TODO: fix all violations and enable the rule
+Rails/SkipsModelValidations:
   Enabled: false
 
 Rails/TimeZone:

@@ -3,7 +3,7 @@ class Integration < ApplicationRecord
   belongs_to :tenant
   belongs_to :model
 
-  enum state: %i[active disabled].map{|status| [ status, status.to_s ] }.to_h
+  enum state: %i[active disabled].index_with{ |status| status.to_s }
 
   def self.tenant_or_model(tenant, model)
     by_tenant = where(tenant: tenant, model_id: nil)

@@ -4,7 +4,7 @@
 
 class IntegrationState < ApplicationRecord
   belongs_to :model
-  belongs_to :entry, required: false
+  belongs_to :entry, optional: true
   belongs_to :integration
 
   def self.acquire_lock(model, integration)

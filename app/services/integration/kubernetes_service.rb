@@ -228,7 +228,7 @@ class Integration::KubernetesService < Integration::ServiceBase
       else
         existing.each(&client.method(:delete_resource))
         client.create_resource(resource)
-      end
+                          end
     end
   end
 

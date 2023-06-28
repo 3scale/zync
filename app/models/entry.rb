@@ -28,7 +28,7 @@ class Entry < ApplicationRecord
   end
 
   def self.for_model(model)
-    new(model: model, tenant: model.try!(:tenant))
+    new(model: model, tenant: model&.tenant)
   end
 
   def self.last_for_model!(model)

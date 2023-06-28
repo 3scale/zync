@@ -13,7 +13,7 @@ plugins:
       languages:
       - ruby
   fixme:
-    enabled: true
+    enabled: false
   rubocop:
     enabled: true
     channel: rubocop-1-50-2

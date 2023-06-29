@@ -4,9 +4,7 @@ require 'test_helper'
 class TenantsControllerTest < ActionDispatch::IntegrationTest
   test 'creating tenant' do
     assert_difference Tenant.method(:count) do
-      put tenant_url, params: {
-            tenant: { id: 16, endpoint: 'http://example.com:3000', access_token: 'sometoken' }
-          }
+      put tenant_url, params: { id: 16, endpoint: 'http://example.com:3000', access_token: 'sometoken' }, as: :json
       assert_response :created
     end
 
@@ -19,9 +17,7 @@ class TenantsControllerTest < ActionDispatch::IntegrationTest
     tenant = tenants(:one)
 
     assert_no_difference Tenant.method(:count) do
-      put tenant_url, params: {
-        tenant: { id: tenant.id, endpoint: 'http://example.com:3000', access_token: 'sometoken' }
-      }
+      put tenant_url, params: { id: tenant.id, endpoint: 'http://example.com:3000', access_token: 'sometoken' }, as: :json
       assert_response :no_content
     end
 
@@ -32,9 +28,7 @@ class TenantsControllerTest < ActionDispatch::IntegrationTest
 
   test 'conflict' do
     Tenant.stub(:upsert, ->(_f) { raise ActiveRecord::RecordNotUnique }) do
-      put tenant_url, params: {
-        tenant: { id: tenants(:one).id }
-      }
+      put tenant_url, params: { id: tenants(:one).id }, as: :json
       assert_response :conflict
     end
   end

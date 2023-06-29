@@ -31,9 +31,7 @@ gem '3scale-api'
 
 gem 'bootsnap', '>= 1.4.4'
 
-# NOTE: do not upgrade to que v1.2 without upgrading Rails to v7, the deprecation introduced in 1.2.0 is resolved
-# in Rails >=7.0.4 https://github.com/rails/rails/blob/7-0-stable/activejob/CHANGELOG.md#rails-704-september-09-2022
-gem 'que', '~> 1.1.0'
+gem 'que', '1.4.1'
 gem 'que-web'
 
 gem 'bugsnag'

@@ -24,13 +24,18 @@ module Zync
   class Application < Rails::Application
 
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
+    config.load_defaults 7.0
 
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
 
-    # Legacy connection handling is deprecated since Rails 6.1
-    config.active_record.legacy_connection_handling = false
+    # Calls `Rails.application.executor.wrap` around test cases.
+    # This makes test cases behave closer to an actual request or job.
+    # Several features that are normally disabled in test, such as Active Record query cache
+    # and asynchronous queries will then be enabled.
+    # Some Zync tests use assert_difference for model count, which breaks with the default 'true' value
+    # due to using Active Record cache
+    config.active_support.executor_around_test_case = false
 
     config.active_job.queue_adapter = :que
 

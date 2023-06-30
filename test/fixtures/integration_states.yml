@@ -4,14 +4,6 @@ one:
   started_at: 2017-06-05 13:20:58
   finished_at: 2017-06-05 13:20:58
   success: false
-  model: one
-  entry: one
+  model: application
+  entry: application
   integration: one
-
-two:
-  started_at: 2017-06-05 13:20:58
-  finished_at: 2017-06-05 13:20:58
-  success: false
-  model: two
-  entry: two
-  integration: two

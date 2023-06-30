@@ -159,7 +159,7 @@ class Integration::KubernetesService < Integration::ServiceBase
 
   def build_routes(name, specs = [], owner: get_owner, **metadata)
     specs.map do |spec|
-      Route.new(
+      Route.new({
         metadata: {
           generateName: name,
           namespace: namespace,
@@ -174,7 +174,7 @@ class Integration::KubernetesService < Integration::ServiceBase
           }
         )),
         spec: spec
-      )
+      })
     end
   end
 

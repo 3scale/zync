@@ -76,7 +76,7 @@ class ProcessIntegrationEntryJob < ApplicationJob
       entry = Entry.last_for_model!(model)
       invocation = Invocation.new(service, entry, state)
 
-      return yield invocation, state
+      yield invocation, state
     end
   end
 

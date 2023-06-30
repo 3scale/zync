@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative "boot"
 
 require "rails"
@@ -13,7 +14,6 @@ require "action_controller/railtie"
 # require "action_text/engine"
 require "action_view/railtie"
 # require "action_cable/engine"
-# require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
@@ -22,8 +22,20 @@ Bundler.require(*Rails.groups)
 
 module Zync
   class Application < Rails::Application
+
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 7.0
+
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
+
+    # Calls `Rails.application.executor.wrap` around test cases.
+    # This makes test cases behave closer to an actual request or job.
+    # Several features that are normally disabled in test, such as Active Record query cache
+    # and asynchronous queries will then be enabled.
+    # Some Zync tests use assert_difference for model count, which breaks with the default 'true' value
+    # due to using Active Record cache
+    config.active_support.executor_around_test_case = false
 
     config.active_job.queue_adapter = :que
 
@@ -36,9 +48,6 @@ module Zync
 
     # Use the responders controller from the responders gem
     config.app_generators.scaffold_controller :responders_controller
-
-    # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.1
 
     config.integrations = config_for(:integrations)
 

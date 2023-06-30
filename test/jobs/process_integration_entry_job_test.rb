@@ -5,10 +5,10 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
 
   test 'perform' do
     integration = integrations(:one)
-    application = models(:application)
+    service = models(:service)
 
     assert_difference IntegrationState.method(:count) do
-      ProcessIntegrationEntryJob.perform_now(integration, application)
+      ProcessIntegrationEntryJob.perform_now(integration, service)
     end
   end
 

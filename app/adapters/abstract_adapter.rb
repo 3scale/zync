@@ -77,7 +77,7 @@ class AbstractAdapter
   def parse(response)
     body = self.class.parse_response(response)
 
-    raise InvalidResponseError, { response: response, message: body } unless response.ok?
+    raise InvalidResponseError.new response: response, message: body unless response.ok?
 
     params = body.try(:to_h) or return # no need to create client if there are no attributes
 
@@ -96,7 +96,7 @@ class AbstractAdapter
 
     case Mime::Type.lookup(content_type)
     when JSON_TYPE then JSON.parse(body)
-    else raise InvalidResponseError, { response: response, message: 'Unknown Content-Type' }
+    else raise InvalidResponseError.new response: response, message: 'Unknown Content-Type'
     end
   end
 
@@ -186,7 +186,7 @@ class AbstractAdapter
     def access_token
       @access_token.value!
     rescue => error
-      raise AuthenticationError, error: error, endpoint: @endpoint.issuer
+      raise AuthenticationError.new error: error, endpoint: @endpoint.issuer
     end
 
     protected

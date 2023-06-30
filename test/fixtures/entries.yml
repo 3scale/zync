@@ -38,7 +38,6 @@ proxy:
   tenant: two
   model: proxy
 
-
 provider:
   data:
     id: 2

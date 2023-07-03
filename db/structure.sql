@@ -37,6 +37,8 @@ $$;
 
 SET default_tablespace = '';
 
+SET default_table_access_method = heap;
+
 --
 -- Name: que_jobs; Type: TABLE; Schema: public; Owner: -
 --
@@ -121,7 +123,9 @@ CREATE FUNCTION public.que_job_notify() RETURNS trigger
         FROM (
           SELECT *
           FROM public.que_lockers ql, generate_series(1, ql.worker_count) AS id
-          WHERE listening AND queues @> ARRAY[NEW.queue]
+          WHERE
+            listening AND
+            queues @> ARRAY[NEW.queue]
           ORDER BY md5(pid::text || id::text)
         ) t1
       ) t2
@@ -1291,14 +1295,14 @@ CREATE INDEX table_channel_id_index ON public.message_bus USING btree (channel, 
 -- Name: que_jobs que_job_notify; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER que_job_notify AFTER INSERT ON public.que_jobs FOR EACH ROW EXECUTE PROCEDURE public.que_job_notify();
+CREATE TRIGGER que_job_notify AFTER INSERT ON public.que_jobs FOR EACH ROW EXECUTE FUNCTION public.que_job_notify();
 
 
 --
 -- Name: que_jobs que_state_notify; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER que_state_notify AFTER INSERT OR DELETE OR UPDATE ON public.que_jobs FOR EACH ROW EXECUTE PROCEDURE public.que_state_notify();
+CREATE TRIGGER que_state_notify AFTER INSERT OR DELETE OR UPDATE ON public.que_jobs FOR EACH ROW EXECUTE FUNCTION public.que_state_notify();
 
 
 --
@@ -1511,3 +1515,5 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190603140450'),
 ('20190605094424'),
 ('20210504152609');
+
+

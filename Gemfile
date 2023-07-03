@@ -31,7 +31,7 @@ gem '3scale-api'
 
 gem 'bootsnap', '>= 1.4.4'
 
-gem 'que', '1.4.1'
+gem 'que', '~> 2.2.1'
 gem 'que-web'
 
 gem 'bugsnag'

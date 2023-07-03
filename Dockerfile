@@ -2,7 +2,7 @@ FROM registry.access.redhat.com/ubi8/ruby-27
 
 USER root
 RUN rpm -Uvh https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm \
-  && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs --skip-broken -y shared-mime-info postgresql13 postgresql13-devel postgresql13-libs \
+  && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs --skip-broken -y shared-mime-info postgresql13 postgresql13-libs \
   && dnf clean all \
   && rm -rf /var/cache/yum
 

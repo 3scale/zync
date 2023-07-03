@@ -90,5 +90,5 @@ workflows:
       - build:
           matrix:
             parameters:
-              postgresql_image: [ "circleci/postgres:10-alpine-ram", "cimg/postgres:13.11" ]
+              postgresql_image: [ "circleci/postgres:10-alpine-ram", "cimg/postgres:12.15", "cimg/postgres:13.11" ]
       - docker-build

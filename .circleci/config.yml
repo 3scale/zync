@@ -63,7 +63,7 @@ jobs:
             - vendor/bundle
 
       - run:
-          name: rails db:setup
+          name: Set up the DB
           command: bundle exec bin/rails db:wait db:setup
 
       - run:

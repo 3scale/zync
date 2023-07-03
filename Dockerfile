@@ -28,4 +28,12 @@ RUN mkdir -p -m 0775 tmp/cache log \
   && chown -fR default tmp log db \
   && chmod -fR g+w tmp log db
 
+# Bundler runs git commands on git dependencies
+# https://bundler.io/guides/git.html#local-git-repos
+# git will check if the current user is the owner of the git repository folder
+# This was included in git v2.35.2 or newer.
+# https://github.com/git/git/commit/8959555cee7ec045958f9b6dd62e541affb7e7d9
+# Openshift changes the effective UID, so this git check needs to be bypassed.
+RUN git config --global --add safe.directory '*'
+
 CMD [".s2i/bin/run"]

@@ -56,6 +56,9 @@ gem 'yabeda-rails'
 gem 'yabeda-prometheus', '~> 0.6.1'
 gem 'yabeda-puma-plugin'
 
+# Dependency for yabeda-prometheus
+gem 'webrick'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'pry-byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -68,6 +71,9 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rubocop-performance', require: false
   gem 'rubocop-rails', require: false
+
+  gem 'irb'
+  gem 'rdoc'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

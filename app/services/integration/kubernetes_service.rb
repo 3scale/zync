@@ -124,7 +124,7 @@ class Integration::KubernetesService < Integration::ServiceBase
   end
 
   class Route < K8s::Resource
-    def initialize(attributes, **options)
+    def initialize(attributes, options = {})
       super attributes.with_indifferent_access
                       .merge(apiVersion: 'route.openshift.io/v1', kind: 'Route')
                       .reverse_merge(metadata: {}), **options

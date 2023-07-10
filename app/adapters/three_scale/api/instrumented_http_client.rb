@@ -5,8 +5,8 @@ require 'securerandom'
 # Custom HTTP Client for 3scale API client with added instrumentation.,
 class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
 
-  def initialize(**)
-    super
+  def initialize(...)
+    super(...)
 
     if (system_provider_port = ENV['SYSTEM_PROVIDER_PORT'].presence)
       proxy = URI(system_provider_port).freeze

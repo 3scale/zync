@@ -234,35 +234,4 @@ class DataModelTest < ActionDispatch::IntegrationTest
             headers: urlencoded).
         to_return(status: 200, body: { access_token: value }.to_query, headers: urlencoded)
   end
-
-  # Backported https://github.com/rails/rails/commit/ec1630148853c46a1e3b35cd48bf85aa0e049d81
-  # Can be removed on Rails 6.0
-
-  def flush_enqueued_jobs(only: nil, except: nil)
-    enqueued_jobs_with(only: only, except: except) do |payload|
-      args = ActiveJob::Arguments.deserialize(payload[:args])
-      instantiate_job(payload.merge(args: args)).perform_now
-      queue_adapter.performed_jobs << payload
-    end
-  end
-
-  def enqueued_jobs_with(only: nil, except: nil, queue: nil)
-    validate_option(only: only, except: except)
-
-    enqueued_jobs.count do |job|
-      job_class = job.fetch(:job)
-
-      if only
-        next false unless Array(only).include?(job_class)
-      elsif except
-        next false if Array(except).include?(job_class)
-      end
-      if queue
-        next false unless queue.to_s == job.fetch(:queue, job_class.queue_name)
-      end
-
-      yield job if block_given?
-      true
-    end
-  end
 end

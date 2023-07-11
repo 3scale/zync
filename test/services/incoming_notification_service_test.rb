@@ -35,6 +35,10 @@ class IncomingNotificationServiceTest < ActiveSupport::TestCase
   class LockingTest < ActiveSupport::TestCase
     self.use_transactional_tests = false
 
+    def setup
+      skip "see https://github.com/rails/rails/pull/46553" if Rails.version <= Gem::Version.new('7.0.6')
+    end
+
     teardown do
       ::Que.clear!
       ActiveRecord::Base.connection_pool.disconnect!

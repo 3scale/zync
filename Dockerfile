@@ -1,9 +1,13 @@
 FROM registry.access.redhat.com/ubi9/ruby-31
 
 USER root
-RUN dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs --skip-broken -y shared-mime-info postgresql rubygem-irb \
+RUN dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info postgresql rubygem-irb rubygem-rdoc \
     && dnf clean all \
     && rm -rf /var/cache/yum
+
+# worksround https://bugzilla.redhat.com/show_bug.cgi?id=2221938
+RUN ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc.rb /usr/share/ruby/ \
+    ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc /usr/share/ruby/
 
 USER default
 WORKDIR ${APP_ROOT}

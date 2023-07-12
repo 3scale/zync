@@ -5,7 +5,7 @@ RUN dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y s
     && dnf clean all \
     && rm -rf /var/cache/yum
 
-# worksround https://bugzilla.redhat.com/show_bug.cgi?id=2221938
+# Workaround for https://bugzilla.redhat.com/show_bug.cgi?id=2221938
 RUN ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc.rb /usr/share/ruby/ \
     ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc /usr/share/ruby/
 

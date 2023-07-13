@@ -68,7 +68,7 @@ jobs:
       - run:
           name: rails test
           command: |
-            circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rails test" --verbose --split-by=timings
+            circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rake test TESTOPTS='-v'" --verbose --split-by=timings
       - run:
           name: license_finder
           command: |

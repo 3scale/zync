@@ -29,7 +29,8 @@ jobs:
         type: string
     working_directory: /opt/app-root/zync
     docker:
-      - image: registry.access.redhat.com/ubi7/ruby-27
+      # A Zync image tagged manually for CI tests
+      - image: quay.io/3scale/zync:ci-builder
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test
@@ -41,14 +42,12 @@ jobs:
       # Restore bundle cache
       - restore_cache:
           keys:
-            - zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
-            - zync-bundle-v2-{{ arch }}-{{ .Branch }}
-            - zync-branch-v2-{{ arch }}-master
+            - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: bundle install
           command: |
-            gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1)
+            gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1) --no-document
             bundle config --local force_ruby_platform true
             bundle config set --local deployment 'true'
             bundle config set --local path 'vendor/bundle'
@@ -58,7 +57,7 @@ jobs:
           command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
-          key: zync-bundle-v2-{{ arch }}-{{ checksum "Gemfile.lock" }}
+          key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
 
@@ -69,7 +68,7 @@ jobs:
       - run:
           name: rails test
           command: |
-            bundle exec bin/rails test $(circleci tests glob "test/**/*_test.rb" | circleci tests split --split-by=timings)
+            circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rake test TESTOPTS='-v'" --verbose --split-by=timings
       - run:
           name: license_finder
           command: |

@@ -5,7 +5,7 @@ Regarding code style like indentation and whitespace, **follow the conventions y
 You can look at `.rubocop.yml` and `.codeclimate.yml`
 
 ## Modifying the code
-First, ensure that you have installed Ruby 2.3+ and recent PostgreSQL.
+First, ensure that you have installed Ruby 3.1 and recent PostgreSQL.
 
 1. Fork and clone the repo.
 1. Run `bundle install` to install all dependencies.

@@ -18,9 +18,6 @@ gem 'puma', '~> 5.2'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-# Use Capistrano for deployment
-# gem 'capistrano-rails', group: :development
-
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'
 
@@ -35,9 +32,6 @@ gem 'que', '~> 2.2.1'
 gem 'que-web'
 
 gem 'bugsnag'
-# bugsnag-capistrano 2.x does not have a rake task to report deploys
-# https://github.com/bugsnag/bugsnag-capistrano/blob/8bcfb27cf6eaff312eef086cce729d553a431460/UPGRADING.md
-gem 'bugsnag-capistrano', '< 2', require: false
 
 # This fork allows setting SSL_CERT_FILE and SSL_CERT_DIR
 # https://github.com/nahi/httpclient/issues/369

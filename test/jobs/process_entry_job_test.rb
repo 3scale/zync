@@ -71,7 +71,7 @@ class ProcessEntryJobTest < ActiveJob::TestCase
   end
 
   test 'race condition between entry jobs to create same proxy integration' do
-    skip 'see https://github.com/rails/rails/pull/46553' if Rails.version <= Gem::Version.new('7.0.6')
+    skip 'see https://github.com/rails/rails/pull/46553' if Rails.version < Gem::Version.new('7.1.0')
     entry = entries(:proxy)
 
     existing_integrations = Integration.where(tenant: entry.tenant)

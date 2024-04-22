@@ -13,7 +13,7 @@
       </dependency>
           <dependency>
         <packageName>actioncable</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -23,7 +23,7 @@
       </dependency>
           <dependency>
         <packageName>actionmailbox</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -33,7 +33,7 @@
       </dependency>
           <dependency>
         <packageName>actionmailer</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -43,7 +43,7 @@
       </dependency>
           <dependency>
         <packageName>actionpack</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -53,7 +53,7 @@
       </dependency>
           <dependency>
         <packageName>actiontext</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -63,7 +63,7 @@
       </dependency>
           <dependency>
         <packageName>actionview</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -73,7 +73,7 @@
       </dependency>
           <dependency>
         <packageName>activejob</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -83,7 +83,7 @@
       </dependency>
           <dependency>
         <packageName>activemodel</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -93,7 +93,7 @@
       </dependency>
           <dependency>
         <packageName>activerecord</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -113,7 +113,7 @@
       </dependency>
           <dependency>
         <packageName>activestorage</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -123,7 +123,7 @@
       </dependency>
           <dependency>
         <packageName>activesupport</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -173,7 +173,7 @@
       </dependency>
           <dependency>
         <packageName>concurrent-ruby</packageName>
-        <version>1.2.2</version>
+        <version>1.2.3</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -193,7 +193,7 @@
       </dependency>
           <dependency>
         <packageName>date</packageName>
-        <version>3.3.3</version>
+        <version>3.3.4</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -327,7 +327,7 @@
       </dependency>
           <dependency>
         <packageName>globalid</packageName>
-        <version>1.1.0</version>
+        <version>1.2.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -377,7 +377,7 @@
       </dependency>
           <dependency>
         <packageName>json</packageName>
-        <version>2.5.1</version>
+        <version>2.6.1</version>
         <licenses>
                       <license>
               <name>ruby</name>
@@ -427,7 +427,7 @@
       </dependency>
           <dependency>
         <packageName>loofah</packageName>
-        <version>2.21.3</version>
+        <version>2.22.0</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -481,7 +481,7 @@
       </dependency>
           <dependency>
         <packageName>mini_mime</packageName>
-        <version>1.1.2</version>
+        <version>1.1.5</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -491,7 +491,7 @@
       </dependency>
           <dependency>
         <packageName>minitest</packageName>
-        <version>5.18.1</version>
+        <version>5.22.2</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -551,7 +551,7 @@
       </dependency>
           <dependency>
         <packageName>net-imap</packageName>
-        <version>0.3.6</version>
+        <version>0.4.10</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -579,7 +579,7 @@
       </dependency>
           <dependency>
         <packageName>net-protocol</packageName>
-        <version>0.2.1</version>
+        <version>0.2.2</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -593,7 +593,7 @@
       </dependency>
           <dependency>
         <packageName>net-smtp</packageName>
-        <version>0.3.3</version>
+        <version>0.4.0.1</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -607,17 +607,17 @@
       </dependency>
           <dependency>
         <packageName>nio4r</packageName>
-        <version>2.5.9</version>
+        <version>2.7.0</version>
         <licenses>
                       <license>
-              <name>MIT</name>
-              <url>http://opensource.org/licenses/mit-license</url>
+              <name>MIT AND (BSD-2-Clause OR GPL-2.0-or-later)</name>
+              <url></url>
             </license>
                   </licenses>
       </dependency>
           <dependency>
         <packageName>nokogiri</packageName>
-        <version>1.15.3</version>
+        <version>1.16.2</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -697,7 +697,7 @@
       </dependency>
           <dependency>
         <packageName>racc</packageName>
-        <version>1.7.1</version>
+        <version>1.7.3</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -711,7 +711,7 @@
       </dependency>
           <dependency>
         <packageName>rack</packageName>
-        <version>2.2.7</version>
+        <version>2.2.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -741,7 +741,7 @@
       </dependency>
           <dependency>
         <packageName>rails</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -751,7 +751,7 @@
       </dependency>
           <dependency>
         <packageName>rails-dom-testing</packageName>
-        <version>2.1.1</version>
+        <version>2.2.0</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -771,7 +771,7 @@
       </dependency>
           <dependency>
         <packageName>railties</packageName>
-        <version>7.0.6</version>
+        <version>7.0.8.1</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -781,7 +781,7 @@
       </dependency>
           <dependency>
         <packageName>rake</packageName>
-        <version>13.0.6</version>
+        <version>13.1.0</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -845,7 +845,7 @@
       </dependency>
           <dependency>
         <packageName>thor</packageName>
-        <version>1.2.2</version>
+        <version>1.3.0</version>
         <licenses>
                       <license>
               <name>MIT</name>
@@ -865,7 +865,7 @@
       </dependency>
           <dependency>
         <packageName>timeout</packageName>
-        <version>0.4.0</version>
+        <version>0.4.1</version>
         <licenses>
                       <license>
               <name>Simplified BSD</name>
@@ -923,7 +923,7 @@
       </dependency>
           <dependency>
         <packageName>websocket-driver</packageName>
-        <version>0.7.5</version>
+        <version>0.7.6</version>
         <licenses>
                       <license>
               <name>Apache 2.0</name>
@@ -1003,7 +1003,7 @@
       </dependency>
           <dependency>
         <packageName>zeitwerk</packageName>
-        <version>2.6.8</version>
+        <version>2.6.13</version>
         <licenses>
                       <license>
               <name>MIT</name>

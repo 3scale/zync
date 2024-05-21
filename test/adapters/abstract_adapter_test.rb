@@ -38,4 +38,15 @@ class AbstractAdapterTest < ActiveSupport::TestCase
       assert_nil subject.new('https://example.com').authentication
     end
   end
+
+  test 'content-type with charset' do
+    content_type = 'application/json;charset=UTF-8'
+    stub_request(:get, 'https://example.com/.well-known/openid-configuration').
+      to_return(body: '{}', headers: {'Content-Type': content_type})
+    stub_request(:post, 'https://example.com').to_return(status: 200, body: '{"access_token": "test"}', headers: {'Content-Type': content_type})
+    
+    assert_nothing_raised do
+      subject.new('https://example.com').authentication
+    end
+  end
 end

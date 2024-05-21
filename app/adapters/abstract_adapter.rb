@@ -94,9 +94,10 @@ class AbstractAdapter
 
     content_type = response.content_type.presence or return body
 
-    case Mime::Type.lookup(content_type)
-    when JSON_TYPE then JSON.parse(body)
-    else raise InvalidResponseError.new response: response, message: 'Unknown Content-Type'
+    if Mime::Type.lookup(content_type).match? JSON_TYPE
+      JSON.parse(body)
+    else
+      raise InvalidResponseError.new response: response, message: 'Unknown Content-Type'
     end
   end
 

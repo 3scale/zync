@@ -18,6 +18,6 @@ class Integration < ApplicationRecord
   end
 
   def enabled?
-    Rails.application.config.integrations.fetch(self.class.name.demodulize.downcase, true)
+    Rails.application.config.integrations.fetch(self.class.name.demodulize.downcase.to_sym, true)
   end
 end

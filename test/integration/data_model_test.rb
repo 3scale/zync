@@ -84,7 +84,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
         with(headers: http_fetch_headers).
         to_return(body: client.to_json)
 
-    stub_request(:get, "http://example.com/admin/api/applications/find.json?app_id=foo").
+    stub_request(:get, "http://example.com/admin/api/applications/find.json?app_id=foo&service_id=1").
         with(basic_auth: ['', tenant[:access_token]], headers: http_fetch_headers).
         to_return(body: client.to_json).then.
         to_return(body: client.merge(name: 'new-name').to_json).then.
@@ -136,10 +136,9 @@ class DataModelTest < ActionDispatch::IntegrationTest
     perform_enqueued_jobs do
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
           with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json).
-          then.to_return(status: 404)
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
 
-      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo").
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
           with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
           to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
 
@@ -175,7 +174,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
         to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
 
-      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo").
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
         to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
 
@@ -194,7 +193,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
         to_return(status: 404)
 
-      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo").
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
         to_return(status: 404)
 

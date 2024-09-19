@@ -205,6 +205,51 @@ class DataModelTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test 'creating clients with the same client_id in different services and keycloaks' do
+    keycloak1 = integrations(:keycloak)
+    keycloak2 = integrations(:second_keycloak)
+
+    service1 = keycloak1.model.record
+    service2 = keycloak2.model.record
+    
+    assert_equal keycloak1.tenant, keycloak2.tenant
+    tenant = keycloak1.tenant
+
+    json_request_headers = {
+      'Accept'=>'application/json',
+      'Content-Type'=>'application/json',
+    }
+
+    perform_enqueued_jobs do
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
+        with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+        to_return(status: 200, body: { client_id: 'foo' }.to_json)
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=2").
+        with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+        to_return(status: 200, body: { client_id: 'foo' }.to_json)
+
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
+        with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-one' }.to_json)
+      stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=908005739").
+        with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-two' }.to_json)
+
+      stub_oauth_access_token(keycloak1)
+      stub_oauth_access_token(keycloak2)
+      
+      stub_request(:put, "http://example.com/clients-registrations/default/foo").
+        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"secret-service-one","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        to_return(status: 200)
+      stub_request(:put, "http://second.example.com/clients-registrations/default/foo").
+        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"secret-service-two","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        to_return(status: 200)
+
+      put_notification(type: 'Application', id: 1, service_id: service1.to_param, tenant_id: tenant.to_param)
+      put_notification(type: 'Application', id: 2, service_id: service2.to_param, tenant_id: tenant.to_param)
+    end
+  end
+
   protected
 
   def put_notification(payload)

@@ -12,6 +12,13 @@ keycloak:
   configuration:
     endpoint: 'http://id:pass@example.com'
 
+second_keycloak:
+  tenant: two
+  model: second_service
+  type: Integration::Keycloak
+  configuration:
+    endpoint: 'http://id:pass@second.example.com'
+
 generic:
   tenant: one
   model: first_service

@@ -140,7 +140,7 @@ GEM
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     interception (0.5)
-    json (2.6.1)
+    json (2.7.1)
     jsonpath (0.9.9)
       multi_json
       to_regexp (~> 0.2.1)
@@ -369,6 +369,7 @@ DEPENDENCIES
   bugsnag
   codecov
   httpclient!
+  json (= 2.7.1)
   k8s-ruby
   license_finder (~> 7.0.1)
   lograge

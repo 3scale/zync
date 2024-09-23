@@ -12,6 +12,10 @@ first_service:
   tenant: one
   record: one (Service)
 
+second_service:
+  tenant: two
+  record: second (Service)
+
 service:
   tenant: two
   record: two (Service)

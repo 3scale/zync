@@ -62,7 +62,8 @@ class FetchService
 
   def fetch_client(model)
     fetch_entry(model) do |client|
-      client.find_application(application_id: model.record.client_id)
+      record = model.record
+      client.find_application(application_id: record.client_id, service_id: record.service_id)
     end
   end
 

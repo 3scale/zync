@@ -355,7 +355,7 @@ GEM
       yabeda (~> 0.8)
     yajl-ruby (1.4.3)
     yaml-safe_load_stream3 (0.1.2)
-    zeitwerk (2.7.1)
+    zeitwerk (2.6.18)
 
 PLATFORMS
   ruby
@@ -396,6 +396,7 @@ DEPENDENCIES
   yabeda-prometheus (~> 0.6.1)
   yabeda-puma-plugin
   yabeda-rails
+  zeitwerk (~> 2.6.18)
 
 BUNDLED WITH
    2.4.17

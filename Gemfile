@@ -6,13 +6,13 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 7.0.5'
+gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
 gem 'pg', '>= 0.20'
-# Use Puma as the app server
 
+# Use Puma as the app server
 gem 'puma', '~> 5.2'
+
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use ActiveModel has_secure_password

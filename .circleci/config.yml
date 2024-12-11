@@ -6,9 +6,9 @@ jobs:
     docker:
       - image: cimg/base:current
         environment:
-          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/zync
+          DATABASE_URL: postgresql://postgres:postgres@localhost/zync
           RAILS_ENV: production
-      - image: postgres:14-alpine
+      - image: cimg/postgres:14.12
         environment:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

@@ -241,7 +241,7 @@ GEM
       que (>= 1)
       sinatra
     racc (1.8.1)
-    rack (2.2.10)
+    rack (2.2.11)
     rack-protection (2.2.3)
       rack
     rack-test (2.1.0)

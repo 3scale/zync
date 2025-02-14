@@ -17,6 +17,9 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
   end
 
   setup do
+    Integration::KubernetesService.use_openshift_route = nil
+    Rails.application.config.integrations[:kubernetes_force_native_ingress] = false
+
     ENV['KUBERNETES_NAMESPACE'] = 'zync'
     ENV['KUBE_TOKEN'] = strict_encode64('token')
     ENV['KUBE_SERVER'] = 'http://localhost'
@@ -33,12 +36,27 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
       -----END CERTIFICATE-----
     CERTIFICATE
 
-    @service = Integration::KubernetesService.new(nil)
+    stub_request(:get, 'http://localhost/apis').
+      with(
+        headers: {
+          'Accept'=>'application/json',
+          'Authorization'=>'Bearer token',
+        }).
+      to_return(status: 200, body: {
+        kind: "APIGroupList",
+        apiVersion: "v1",
+        groups: [
+          { name: "networking.k8s.io", versions: [{ groupVersion: "networking.k8s.io/v1", version: "v1" }], preferredVersion: { groupVersion: "networking.k8s.io/v1", version: "v1" } },
+          { name: "route.openshift.io", versions: [{ groupVersion: "route.openshift.io/v1", version: "v1" }], preferredVersion: { groupVersion: "route.openshift.io/v1", version: "v1" } },
+        ]
+      }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    @service = Integration::KubernetesService.new(nil).freeze
   end
 
   attr_reader :service
 
-  test 'create ingress' do
+  test 'create openshift route' do
     proxy = entries(:proxy)
 
     stub_request(:get, 'http://localhost/apis/route.openshift.io/v1').
@@ -302,6 +320,103 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test 'create native ingress if not on openshift' do
+    stub_request(:get, 'http://localhost/apis').
+      with(headers: request_headers).
+      to_return(status: 200, body: {
+        kind: "APIGroupList",
+        apiVersion: "v1",
+        groups: [
+          { name: "networking.k8s.io", versions: [{ groupVersion: "networking.k8s.io/v1", version: "v1" }], preferredVersion: { groupVersion: "networking.k8s.io/v1", version: "v1" } },
+        ]
+      }.to_json, headers: { 'Content-Type' => 'application/json' })
+    
+    proxy = entries(:proxy)
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_networking_resource_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1/namespaces/zync/ingresses?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_ingress_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    service.call(proxy)
+  end
+
+  test 'create native ingress if kubernetes_force_native_ingress' do
+    Rails.application.config.integrations[:kubernetes_force_native_ingress] = true
+
+    proxy = entries(:proxy)
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_networking_resource_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    stub_request(:get, 'http://localhost/apis/networking.k8s.io/v1/namespaces/zync/ingresses?labelSelector=3scale.net/created-by=zync,3scale.net/tenant_id=298486374,zync.3scale.net/record=Z2lkOi8venluYy9Qcm94eS8yOTg0ODYzNzQ,zync.3scale.net/ingress=proxy,3scale.net/service_id=2').
+      with(headers: request_headers).
+      to_return(status: 200, body: k8s_ingress_list_response, headers: { 'Content-Type' => 'application/json' })
+
+    service.call(proxy)
+  end
+
+  class IngressSpec < ActiveSupport::TestCase
+    test 'secure ingresses' do
+      url = 'https://my-api.example.com'
+      service_name = 'My API'
+      port = 7443
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        ingressClassName: "nginx",
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: [{hosts: ["my-api.example.com"], secretName: "My API-tls-2"}]
+      }
+      assert_equal json, spec.to_hash
+
+      url = 'http://my-api.example.com'
+      service_name = 'My API'
+      port = 7780
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        ingressClassName: "nginx",
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: nil
+      }
+      assert_equal json, spec.to_hash
+    end
+
+    test 'defaults to https when scheme is missing' do
+      url = 'my-api.example.com'
+      service_name = 'My API'
+      port = 7443
+      tenant_id = '2'
+      spec = Integration::KubernetesService::IngressSpec.new(url, service_name, port, tenant_id)
+      json = {
+        ingressClassName: "nginx",
+        rules: [{
+          host: "my-api.example.com",
+          http: {
+            paths: [{ path: '/', pathType: 'Prefix', backend: { service: { name: service_name, port: { name: port } } } }]
+          }
+        }],
+        tls: [{hosts: ["my-api.example.com"], secretName: "My API-tls-2"}]
+      }
+      assert_equal json, spec.to_hash
+    end
+  end
+  
   protected
 
   def request_headers
@@ -314,5 +429,28 @@ class Integration::KubernetesServiceTest < ActiveSupport::TestCase
 
   def response_headers
     { 'Content-Type' => 'application/json' }
+  end
+
+  def k8s_networking_resource_list_response
+    {
+      kind: "APIResourceList",
+      apiVersion: "v1",
+      groupVersion: "networking.k8s.io/v1",
+      resources: [
+        { name: "ingressclasses", singularName: "", namespaced: false, kind: "IngressClass", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], storageVersionHash: "6upRfBq0FOI=" },
+        { name: "ingresses", singularName: "", namespaced: true, kind: "Ingress", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["ing"], storageVersionHash: "ZOAfGflaKd0=" }, 
+        { name: "ingresses/status", singularName: "", namespaced:true, kind: "Ingress", verbs: ["get","patch","update"] }, 
+        { name: "networkpolicies", singularName: "", namespaced: true, kind: "NetworkPolicy", verbs: ["create","delete","deletecollection","get","list","patch","update","watch"], shortNames: ["netpol"], storageVersionHash: "YpfwF18m1G8=" },
+      ]
+    }.to_json
+  end
+
+  def k8s_ingress_list_response
+    {
+      kind: 'IngressList',
+      apiVersion: 'networking.k8s.io/v1',
+      metadata: { selfLink: '/apis/networking.k8s.io/v1/namespaces/zync/ingresses', resourceVersion: '651341' },
+      items: []
+    }.to_json
   end
 end

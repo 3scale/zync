@@ -35,16 +35,29 @@ class GenericAdapterTest < ActiveSupport::TestCase
         to_return(status: 200, headers: { 'Content-Type' => 'application/json' },
                   body: { token_endpoint: 'protocol/openid-connect/token' }.to_json)
 
-    stub_request(:post, 'http://lvh.me:3000/auth/realm/name/protocol/openid-connect/token').to_timeout
+    get_token = stub_request(:post, 'http://lvh.me:3000/auth/realm/name/protocol/openid-connect/token').to_timeout
 
     adapter = RESTAdapter.new('http://id:secret@lvh.me:3000/auth/realm/name')
 
-    begin
-      adapter.test
-    rescue RESTAdapter::OIDC::AuthenticationError => error
-      assert_kind_of Faraday::TimeoutError, error.cause
-      assert error.bugsnag_meta_data.presence
+    log = Object.new
+    class << log
+      def error_object
+        @error
+      end
+
+      def error(object)
+        @error = object
+      end
     end
+
+    Rails.logger.stub :error, log.method(:error) do
+      adapter.test
+    end
+
+    error = log.error_object
+    assert_kind_of Faraday::TimeoutError, error.cause
+    assert error.bugsnag_meta_data.presence
+    assert_requested get_token
   end
 
   test 'create client' do

@@ -399,4 +399,4 @@ DEPENDENCIES
   zeitwerk (~> 2.6.18)
 
 BUNDLED WITH
-   2.4.17
+   2.3.27

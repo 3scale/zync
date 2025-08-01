@@ -21,7 +21,7 @@ jobs:
       - run:
           command: |
             docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \
-            zync:build rails db:setup
+            zync:build bundle exec rails db:setup
 
   build:
     parameters:

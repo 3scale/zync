@@ -1,5 +1,7 @@
 shared: &shared
   kubernetes: <%= ENV.fetch('DISABLE_K8S_ROUTES_CREATION', '0') == '0' %>
+  kubernetes_force_native_ingress: <%= ActiveModel::Type::Boolean.new.cast(ENV['FORCE_NATIVE_INGRESS']) %>
+  kubernetes_ingress_class: <%= ENV.fetch('INGRESS_CLASS', 'nginx') %>
 
 production:
   <<: *shared
@@ -9,3 +11,4 @@ development:
 
 test:
   <<: *shared
+  

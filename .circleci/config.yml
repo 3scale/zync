@@ -89,5 +89,5 @@ workflows:
       - build:
           matrix:
             parameters:
-              postgresql_image: [ "cimg/postgres:10.22", "cimg/postgres:12.15", "cimg/postgres:13.11", "cimg/postgres:14.12" ]
+              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14" ]
       - docker-build

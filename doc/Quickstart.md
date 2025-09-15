@@ -19,10 +19,12 @@ brew services start postgresql
 
 **Note:** The command `brew services start postgresql` starts the service of PostgreSQL. If later `./bin/setup` aborts, make sure that the `PostgreSQL` service is running. Verify with `brew services list` that has a status `started` and looking green. If the status is `started` but coloured orange, fix the errors indicated in the log located in `/usr/local/var/log/postgres.log`
 
-## Run PostgreSQL on Fedora 34
+## Run PostgreSQL on Fedora 42
+
+Better use instructions for container below because with Fedora ou can't controll PostgreSQL version.
 
 ```shell
-sudo dnf module install postgresql:10
+sudo dnf module install postgresql
 sudo dnf install libpq-devel
 sudo /usr/bin/postgresql-setup --initdb
 sudo systemctl enable postgresql
@@ -36,7 +38,7 @@ sudo -i -u postgres createdb -O $USER zync_production
 ## Run PostgreSQL as a container with Docker or Podman
 
 ```
-docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_DB=zync --name postgres10-zync docker.io/circleci/postgres:10.5-alpine
+docker run -d -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=zync --name postgres postgres:15
 ```
 
 **Note:** With such a setup make sure to have `DATABASE_URL` environment variable set

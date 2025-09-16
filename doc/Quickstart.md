@@ -21,7 +21,7 @@ brew services start postgresql
 
 ## Run PostgreSQL on Fedora 42
 
-Better use instructions for container below because with Fedora ou can't controll PostgreSQL version.
+Better use instructions for container below because with Fedora you can't control PostgreSQL version.
 
 ```shell
 sudo dnf module install postgresql

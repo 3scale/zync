@@ -114,7 +114,7 @@ CREATE FUNCTION public.que_job_notify() RETURNS trigger
 
     -- Pick a locker to notify of the job's insertion, weighted by their number
     -- of workers. Should bounce pseudorandomly between lockers on each
-    -- invocation, hence the md5-ordering, but still touch each one equally,
+    -- invocation, hence the hashtext-ordering, but still touch each one equally,
     -- hence the modulo using the job_id.
     SELECT pid
     INTO locker_pid
@@ -129,7 +129,7 @@ CREATE FUNCTION public.que_job_notify() RETURNS trigger
             listening AND
             queues @> ARRAY[NEW.queue] AND
             ql.job_schema_version = NEW.job_schema_version
-          ORDER BY md5(pid::text || id::text)
+          ORDER BY hashtext(pid::text || id::text)
         ) t1
       ) t2
     ) t3
@@ -1529,6 +1529,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20230629131935'),
 ('20230703133544'),
 ('20230703134109'),
-('20230704131552');
+('20230704131552'),
+('20251008141931');
 
 

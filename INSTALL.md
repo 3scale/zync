@@ -47,3 +47,25 @@ When starting que, make sure to set a non-conflicting Prometheus port
 ```
 PROMETHEUS_EXPORTER_PORT=9395 bundle exec rake que
 ```
+
+## Code quality checks with Qlty
+
+The project uses [Qlty](https://docs.qlty.sh/cli/quickstart) for checking code quality (e.g. linting, code smells, style, complexity etc.).
+The new PRs will be automatically checked by [Qlty](https://qlty.sh/gh/3scale/projects/zync), but you can also run the checks locally on your branch using:
+
+```
+qlty check
+qlty smells
+```
+
+These commands will fetch issues in the changed files. To run the complete check on all files, execute:
+
+```
+qlty check --all
+qlty smells --all
+```
+
+**NOTE:** When working on Fedora, the bundled Ruby that is installed for `rubocop` is broken, see https://github.com/qltysh/qlty/issues/2503. The current workaround is to export this environment variable (which forces compiling Ruby from source instead of installing a binary):
+```
+export QLTY_FEATURE_RUBY_BINARY_INSTALL=false
+```

@@ -74,16 +74,13 @@ threshold = 4
 [smells.function_complexity]
 threshold = 5
 
-[smells.duplication]
-threshold = 22
-
 [[source]]
 name = "default"
 default = true
 
 [[plugin]]
 name = "rubocop"
-version = "1.52.1"
+version = "1.81.7"
 package_file = "Gemfile"
 package_filters = ["rubocop"]
 

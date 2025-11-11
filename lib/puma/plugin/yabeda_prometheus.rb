@@ -3,7 +3,6 @@
 require 'yabeda/prometheus/exporter'
 
 Puma::Plugin.create do
-  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def start(launcher)
     options = launcher.options
     events = launcher.events
@@ -28,5 +27,4 @@ Puma::Plugin.create do
 
     metrics.run
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 end

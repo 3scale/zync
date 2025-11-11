@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/3scale/zync.svg?style=svg)](https://circleci.com/gh/3scale/zync)
+[![Maintainability](https://qlty.sh/gh/3scale/projects/zync/maintainability.svg)](https://qlty.sh/gh/3scale/projects/zync)
+
 # Zync - the sync tool
 
 Zync is going to take your 3scale data and pushes it somewhere else, reliably. Offers only one directional sync (from 3scale to other systems).

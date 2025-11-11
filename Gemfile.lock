@@ -93,7 +93,7 @@ GEM
     codecov (0.4.3)
       simplecov (>= 0.15, < 0.22)
     coderay (1.1.3)
-    concurrent-ruby (1.3.5)
+    concurrent-ruby (1.3.4)
     crack (0.4.5)
       rexml
     crass (1.0.6)
@@ -376,6 +376,7 @@ DEPENDENCIES
   bootsnap (>= 1.4.4)
   bugsnag
   codecov
+  concurrent-ruby (= 1.3.4)
   httpclient!
   k8s-ruby
   license_finder (~> 7.0.1)

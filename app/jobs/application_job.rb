@@ -5,7 +5,9 @@ require 'que/active_record/model'
 # Base class for all Jobs
 class ApplicationJob < ActiveJob::Base
   # Copied from ActiveJob::Exceptions, but uses debug log level.
+  # rubocop:disable Metrics/ParameterLists
   def self.retry_on(exception, wait: 3.seconds, attempts: 5, queue: nil, priority: nil, jitter: ActiveJob::Exceptions.const_get(:JITTER_DEFAULT))
+    # rubocop:enable Metrics/ParameterLists
     rescue_from exception do |error|
       if executions < attempts
         logger.debug "Retrying #{self.class} in #{wait} seconds, due to a #{exception}. The original exception was #{error.cause.inspect}."

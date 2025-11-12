@@ -10,6 +10,10 @@ gem 'rails', '~> 7.0.5'
 gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
 gem 'pg', '>= 0.20'
 
+# Fixing "uninitialized constant ActiveSupport::LoggerThreadSafeLevel::Logger"
+# that fails after upgrading to 1.3.5. Can be removed after upgrading to Rails 7.1
+gem 'concurrent-ruby', '1.3.4'
+
 # Use Puma as the app server
 gem 'puma', '~> 5.2'
 

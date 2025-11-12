@@ -23,17 +23,17 @@ class IntegrationTest < ActiveSupport::TestCase
 
   test 'rest enabled?' do
     integration = Integration::REST.new
-      integration.endpoint = 'https://rest.example.com/endpoint'
-      assert integration.enabled?
+    integration.endpoint = 'https://rest.example.com/endpoint'
+    assert integration.enabled?
 
-      integration.endpoint = nil
-      refute integration.enabled?
+    integration.endpoint = nil
+    refute integration.enabled?
 
-      with_integration rest: false do
+    with_integration rest: false do
       integration = Integration::REST.new
       integration.endpoint = 'https://rest.example.com/endpoint'
       refute integration.enabled?
-
+  
       integration.endpoint = nil
       refute integration.enabled?
     end

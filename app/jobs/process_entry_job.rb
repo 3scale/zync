@@ -31,8 +31,6 @@ class ProcessEntryJob < ApplicationJob
     end
   end
 
-  protected
-
   delegate :model_integrations_for, to: :class
 
   class ModelIntegration
@@ -51,8 +49,6 @@ class ProcessEntryJob < ApplicationJob
     def call
       raise NoMethodError, __method__
     end
-
-    protected
 
     delegate :transaction, to: :model
     delegate :tenant, to: :entry

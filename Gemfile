@@ -6,13 +6,9 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'rails', '~> 7.0.5'
+gem 'rails', '~> 7.1.6'
 gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
 gem 'pg', '>= 0.20'
-
-# Fixing "uninitialized constant ActiveSupport::LoggerThreadSafeLevel::Logger"
-# that fails after upgrading to 1.3.5. Can be removed after upgrading to Rails 7.1
-gem 'concurrent-ruby', '1.3.4'
 
 # Use Puma as the app server
 gem 'puma', '~> 5.2'
@@ -32,7 +28,7 @@ gem '3scale-api'
 
 gem 'bootsnap', '>= 1.4.4'
 
-gem 'que', '~> 2.2.1'
+gem 'que', '~> 2.4.1'
 gem 'que-web'
 
 gem 'bugsnag'

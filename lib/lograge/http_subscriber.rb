@@ -5,7 +5,7 @@ require 'lograge/subscriber_base'
 module Lograge
   # Log Subscriber for OIDC integrations. Consumes Client create/update/remove events.
 
-  class HTTPSubscriber < ActiveSupport::LogSubscriber
+  class HttpSubscriber < ActiveSupport::LogSubscriber
     include Lograge::SubscriberBase
 
     log_event :request

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'test_helper'
 
-class ThreeScale::API::InstrumentedHttpClienTest < ActiveSupport::TestCase
+class ThreeScale::API::InstrumentedHttpClientTest < ActiveSupport::TestCase
 
   test 'new' do
     uri = 'http://system.local'

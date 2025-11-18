@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   mount Que::Web => "/que"
 
   Que::Web.use(Rack::Auth::Basic) do |user,password|
-    token = Rails.application.secrets.authentication[:token].presence
+    token = Rails.configuration.x.zync.authentication[:token].presence
 
     next true unless token
 

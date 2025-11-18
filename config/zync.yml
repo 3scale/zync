@@ -1,0 +1,12 @@
+shared: &shared
+  authentication:
+    token: <%= ENV['ZYNC_AUTHENTICATION_TOKEN'] %>
+
+development:
+  <<: *shared
+
+test:
+  <<: *shared
+
+production:
+  <<: *shared

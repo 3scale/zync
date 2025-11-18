@@ -100,5 +100,7 @@ module Zync
 
     config.x.keycloak = config_for(:keycloak) || Hash.new
     config.x.openshift = ActiveSupport::InheritableOptions.new(config_for(:openshift)&.deep_symbolize_keys)
+    config.x.zync = config_for(:zync)
+    config.x.tools = config_for(:tools) || Hash.new
   end
 end

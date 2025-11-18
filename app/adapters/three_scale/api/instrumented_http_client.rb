@@ -62,7 +62,7 @@ class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
   end
 
   def self.extra_headers
-    { 'X-Request-Id' => SecureRandom.uuid, 'X-Zync-Token' => Rails.application.secrets.authentication[:token] }.compact
+    { 'X-Request-Id' => SecureRandom.uuid, 'X-Zync-Token' => Rails.configuration.x.zync.authentication[:token] }.compact
   end
 
   def build_request(type, path, params)

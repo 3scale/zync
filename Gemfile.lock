@@ -69,10 +69,6 @@ GEM
       activemodel (= 7.1.6)
       activesupport (= 7.1.6)
       timeout (>= 0.4.0)
-    activerecord-pg_enum (2.0.0)
-      activerecord (>= 4.1.0)
-      activesupport
-      pg
     activestorage (7.1.6)
       actionpack (= 7.1.6)
       activejob (= 7.1.6)
@@ -426,7 +422,6 @@ PLATFORMS
 
 DEPENDENCIES
   3scale-api
-  activerecord-pg_enum
   bootsnap (>= 1.4.4)
   bugsnag
   codecov

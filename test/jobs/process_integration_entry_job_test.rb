@@ -45,11 +45,36 @@ class ProcessIntegrationEntryJobTest < ActiveJob::TestCase
 
   test 'log subscriber publishes messages' do
     subscriber = ProcessIntegrationEntryJob::LogSubscriber.new
-    payload = { model: models(:application) }
 
-    event = subscriber.start('perform', 'foo', payload)
+    model = models(:application)
+    record = model.record
+    payload = { model: model, record: record, entry_data: { test: 'data' } }
 
-    assert subscriber.perform(event)
+    event = ActiveSupport::Notifications::Event.new('perform', nil, nil, 'foo', payload)
+    event.start!
+
+    # Mock MessageBus::Instance to verify publish is called
+    message_bus_mock = Minitest::Mock.new
+    expected_channel = "/integration/#{record.to_gid_param}"
+    expected_options = { user_ids: [model.tenant.to_gid_param] }
+
+    # Expect publish to be called with correct channel, transformed payload, and options
+    message_bus_mock.expect(:publish, true) do |channel, message, options|
+      assert_equal expected_channel, channel, "Channel should match the record's GID"
+      assert_equal true, message[:success], "Success should be true when no exception"
+      assert message.key?(:model), "Message should contain model"
+      assert message.key?(:record), "Message should contain record"
+      assert message.key?(:entry_data), "Message should contain entry_data"
+      assert_equal expected_options, options, "Options should contain user_ids"
+      true
+    end
+
+    # Stub the build_message_bus method to return our mock
+    subscriber.stub(:build_message_bus, message_bus_mock) do
+      subscriber.perform(event)
+    end
+
+    assert_mock message_bus_mock
   end
 
   test 'skips disabled integration' do

@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   protected
 
   def authenticate
-    expected_token = Rails.application.secrets.authentication[:token].presence
+    expected_token = Rails.configuration.x.zync.authentication[:token].presence
 
     return unless expected_token
 

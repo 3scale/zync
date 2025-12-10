@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative "boot"
 
 require "rails"
@@ -22,9 +20,13 @@ Bundler.require(*Rails.groups)
 
 module Zync
   class Application < Rails::Application
-
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 7.1
+
+    # Please, add to the `ignore` list any other `lib` subdirectories that do
+    # not contain `.rb` files, or that should not be reloaded or eager loaded.
+    # Common ones are `templates`, `generators`, or `middleware`, for example.
+    # config.autoload_lib(ignore: %w(tasks puma generators prometheus que))
 
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
@@ -98,5 +100,7 @@ module Zync
 
     config.x.keycloak = config_for(:keycloak) || Hash.new
     config.x.openshift = ActiveSupport::InheritableOptions.new(config_for(:openshift)&.deep_symbolize_keys)
+    config.x.zync = config_for(:zync)
+    config.x.tools = config_for(:tools) || Hash.new
   end
 end

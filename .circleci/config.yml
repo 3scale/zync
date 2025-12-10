@@ -12,6 +12,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: zync
           RAILS_ENV: production
+          SECRET_KEY_BASE: test
     steps:
       - checkout
       - setup_remote_docker
@@ -20,17 +21,17 @@ jobs:
       - run: docker build --tag zync:build --file ./Dockerfile .
       - run:
           command: |
-            docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} \
+            docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} -e SECRET_KEY_BASE=${SECRET_KEY_BASE} \
             zync:build bundle exec rails db:setup
 
   build:
     parameters:
       postgresql_image:
         type: string
-    working_directory: /opt/app-root/zync
+    working_directory: /opt/app-root/src
     docker:
       # A Zync image tagged manually for CI tests
-      - image: quay.io/3scale/zync:ci-builder
+      - image: quay.io/3scale/zync:ci-builder-libyaml
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test
@@ -54,7 +55,7 @@ jobs:
             bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
       - run:
           name: boot zync
-          command: BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
+          command: SECRET_KEY_BASE=test BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
 
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}

@@ -97,21 +97,6 @@ class ProcessIntegrationEntryJob < ApplicationJob
 
   # Instrumentation of processing the integration entry to publish MessageBus events.
   class LogSubscriber < ActiveSupport::LogSubscriber
-    def start(name, id, payload)
-      super
-
-      event = event_stack.last
-      method = name.split('.').first
-
-      try("start_#{method}", event)
-
-      event
-    end
-
-    def start_perform(_event)
-      # TODO: deliver message that event started processing
-    end
-
     def perform(event)
       payload = event.payload
       tenant, options = extract_tenant(payload)

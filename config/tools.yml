@@ -1,0 +1,13 @@
+shared: &shared
+  bugsnag:
+    api_key: <%= ENV['BUGSNAG_API_KEY'] %>
+    release_stage: <%= ENV['BUGSNAG_RELEASE_STAGE'] %>
+
+development:
+  <<: *shared
+
+test:
+  <<: *shared
+
+production:
+  <<: *shared

@@ -71,7 +71,7 @@ jobs:
     working_directory: /opt/app-root/zync
     docker:
       # A Zync image tagged manually for CI tests
-      - image: quay.io/3scale/zync:ci-builder
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test
@@ -101,7 +101,7 @@ jobs:
         type: string
     working_directory: /opt/app-root/zync
     docker:
-      - image: quay.io/3scale/zync:ci-builder
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
       - image: << parameters.postgresql_image >>
         command:
           - bash

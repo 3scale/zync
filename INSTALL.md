@@ -13,7 +13,7 @@ To run Zync you need access to a running [PostgreSQL](https://www.postgresql.org
 manager, as a container or run it remotely.
 
 The minimum requirement for the machine running Zync is to have
- - Ruby 3.1
+ - Ruby 3.3
  - `psql` client tool - needed when running for `db:setup`
  - `libpq-devel` - needed to build `pg` gem during `bundle install`.
 

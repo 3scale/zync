@@ -31,7 +31,7 @@ jobs:
     working_directory: /opt/app-root/src
     docker:
       # A Zync image tagged manually for CI tests
-      - image: quay.io/3scale/zync:ci-builder-libyaml
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test
@@ -48,7 +48,6 @@ jobs:
       - run:
           name: bundle install
           command: |
-            gem install bundler --version=$(grep -A 1 "BUNDLED WITH" Gemfile.lock | tr -d ' '| tail -n 1) --no-document
             bundle config --local force_ruby_platform true
             bundle config set --local deployment 'true'
             bundle config set --local path 'vendor/bundle'

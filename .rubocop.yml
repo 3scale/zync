@@ -5,7 +5,7 @@ require:
 AllCops:
   DisabledByDefault: true
   NewCops: disable
-  TargetRubyVersion: 3.1
+  TargetRubyVersion: 3.3
   UseCache: true
 
 Rails:

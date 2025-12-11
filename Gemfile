@@ -8,7 +8,7 @@ end
 
 gem 'rails', '~> 7.1.6'
 gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
-gem 'pg', '>= 0.20'
+gem 'pg', '~> 1.6.2'
 
 # Use Puma as the app server
 gem 'puma', '~> 5.2'

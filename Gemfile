@@ -6,6 +6,9 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem "mutex_m", "~> 0.3.0"
+gem "csv", "~> 3.3"
+
 gem 'rails', '~> 7.2.3'
 gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
 gem 'pg', '~> 1.6.2'

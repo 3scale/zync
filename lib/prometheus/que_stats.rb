@@ -69,7 +69,7 @@ module Prometheus
           with(common_tables)
 
         execute do |connection|
-          connection.select_all(relation.to_sql)
+          connection.select_all(relation)
         end
       end
 

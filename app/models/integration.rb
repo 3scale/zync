@@ -4,7 +4,7 @@ class Integration < ApplicationRecord
   belongs_to :model
   has_many :integration_states, dependent: :destroy
 
-  enum state: %i[active disabled].index_with{ |status| status.to_s }
+  enum :state, %i[active disabled].index_with{ |status| status.to_s }
 
   def self.tenant_or_model(tenant, model)
     by_tenant = where(tenant: tenant, model_id: nil)

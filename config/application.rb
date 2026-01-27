@@ -21,12 +21,12 @@ Bundler.require(*Rails.groups)
 module Zync
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.1
+    config.load_defaults 7.2
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    # config.autoload_lib(ignore: %w(tasks puma generators prometheus que))
+    # config.autoload_lib(ignore: %w(assets tasks puma generators prometheus que))
 
     # Que needs :sql because of advanced PostgreSQL features
     config.active_record.schema_format = :sql
@@ -40,6 +40,13 @@ module Zync
     config.active_support.executor_around_test_case = false
 
     config.active_job.queue_adapter = :que
+
+    # This rails setting changed several time for the last Rails version
+    # https://github.com/rails/rails/blob/6f39910d26eb590cb214a0fce5858fe0d7ddfff8/activejob/CHANGELOG.md?plain=1#L48-L58
+    #
+    # For Rails 7.2, set it to `:always`: https://github.com/que-rb/que/issues/430
+    # For Rails 8.0+, Remove it
+    config.active_job.enqueue_after_transaction_commit = :always
 
     begin
       que = config_for(:que)&.deep_symbolize_keys

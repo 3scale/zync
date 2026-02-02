@@ -117,11 +117,11 @@ jobs:
           keys:
             - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
       - bundle_install
-      - boot_zync
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+      - boot_zync
       - setup_db
       - run_tests
       - run_license_finder
@@ -176,12 +176,12 @@ jobs:
             - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
       - bundle_install:
           run_in_zync: true
-      - boot_zync:
-          run_in_zync: true
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+      - boot_zync:
+          run_in_zync: true
       - setup_db:
           run_in_zync: true
       - run_tests:

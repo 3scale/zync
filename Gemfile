@@ -39,6 +39,7 @@ gem 'bugsnag'
 gem 'httpclient', github: '3scale/httpclient', branch: 'ssl-env-cert'
 gem 'oauth2'
 gem 'k8s-ruby'
+gem 'faraday-httpclient', '~> 2.0', '>= 2.0.2'
 
 gem 'lograge'
 

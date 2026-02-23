@@ -1,4 +1,44 @@
 version: 2.1
+
+commands:
+  bundle_install:
+    steps:
+      - run:
+          name: bundle install
+          command: |
+            bundle config set --local force_ruby_platform true
+            bundle config set --local deployment 'true'
+            bundle config set --local path 'vendor/bundle'
+            bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
+
+  boot_zync:
+    steps:
+      - run:
+          name: boot zync
+          command: |
+            BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
+
+  setup_db:
+    steps:
+      - run:
+          name: Set up the DB
+          command: |
+            bundle exec bin/rails db:wait db:setup
+
+  run_tests:
+    steps:
+      - run:
+          name: rails test
+          command: |
+            circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rake test TESTOPTS='-v'" --verbose --split-by=timings
+
+  run_license_finder:
+    steps:
+      - run:
+          name: license_finder
+          command: |
+            bundle exec license_finder
+
 jobs:
   docker-build:
     resource_class: small
@@ -37,56 +77,108 @@ jobs:
         RAILS_ENV: test
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
         DATABASE_URL: postgres://postgres:@localhost/circle_test
+        SECRET_KEY_BASE: test
     steps:
       - checkout
-
-      # Restore bundle cache
       - restore_cache:
           keys:
             - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
-
-      - run:
-          name: bundle install
-          command: |
-            bundle config --local force_ruby_platform true
-            bundle config set --local deployment 'true'
-            bundle config set --local path 'vendor/bundle'
-            bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
-      - run:
-          name: boot zync
-          command: SECRET_KEY_BASE=test BUNDLE_WITHOUT=development:test bundle exec bin/rails runner --environment=production 'puts Rails.env'
-
+      - bundle_install
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-
-      - run:
-          name: Set up the DB
-          command: bundle exec bin/rails db:wait db:setup
-
-      - run:
-          name: rails test
-          command: |
-            circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rake test TESTOPTS='-v'" --verbose --split-by=timings
-      - run:
-          name: license_finder
-          command: |
-            bundle exec license_finder
-
+      - boot_zync
+      - setup_db
+      - run_tests
+      - run_license_finder
       - store_test_results:
           path: test/reports
 
+  build_ssl:
+    parameters:
+      postgresql_image:
+        type: string
+    working_directory: /opt/app-root/src
+    docker:
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
+      - image: << parameters.postgresql_image >>
+        command:
+          - bash
+          - -c
+          - |
+            openssl req -nodes -new -x509 -subj "/CN=localhost" -keyout /server.key -out /server.crt -days 365 2>/dev/null
+            chown postgres:postgres /server.key /server.crt
+            chmod 600 /server.key
+            # Configure pg_hba.conf to only allow SSL connections (hostssl instead of host)
+            # local rule is needed for postgres internal initialization via unix socket
+            echo "local all all trust" > /tmp/pg_hba.conf
+            echo "hostssl all all all trust" >> /tmp/pg_hba.conf
+            exec docker-entrypoint.sh postgres -c ssl=on -c ssl_cert_file=/server.crt -c ssl_key_file=/server.key -c hba_file=/tmp/pg_hba.conf
+        environment:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: circle_test
+    environment:
+        RAILS_ENV: test
+        DISABLE_SPRING: 1
+        DATABASE_URL: postgres://postgres:@localhost/circle_test
+        DATABASE_SSL_MODE: verify-full
+        SECRET_KEY_BASE: test
+    steps:
+      - checkout
+      - run:
+          name: Wait for PostgreSQL to be ready
+          command: |
+            for i in $(seq 1 30); do
+              if openssl s_client -starttls postgres -connect localhost:5432 </dev/null 2>&1 | grep -q "SSL handshake"; then
+                echo "PostgreSQL SSL is ready"
+                exit 0
+              fi
+              echo "Waiting for PostgreSQL SSL... ($i/30)"
+              sleep 1
+            done
+            echo "PostgreSQL failed to start with SSL"
+            exit 1
+      - run:
+          name: Extract server CA certificate and generate client certificate
+          command: |
+            mkdir -p .ssl
+            # Extract the server certificate (CA) using openssl s_client
+            openssl s_client -starttls postgres -connect localhost:5432 -showcerts </dev/null 2>/dev/null \
+              | openssl x509 -outform PEM > .ssl/ca.crt
+            # Generate client key and certificate (self-signed, PostgreSQL doesn't verify client certs by default)
+            openssl req -nodes -new -x509 -subj "/CN=postgres" -keyout .ssl/client.key -out .ssl/client.crt -days 365 2>/dev/null
+            chmod 600 .ssl/client.key
+      - run:
+          name: Set SSL environment variables
+          command: |
+            echo 'export DATABASE_SSL_CA=/opt/app-root/src/.ssl/ca.crt' >> "$BASH_ENV"
+            echo 'export DATABASE_SSL_CERT=/opt/app-root/src/.ssl/client.crt' >> "$BASH_ENV"
+            echo 'export DATABASE_SSL_KEY=/opt/app-root/src/.ssl/client.key' >> "$BASH_ENV"
+      - restore_cache:
+          keys:
+            - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
+      - bundle_install
       - save_cache:
-          key: zync-branch-v2-{{ arch }}-{{ .Branch }}
+          key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+      - boot_zync
+      - setup_db
+      - run_tests
+      - run_license_finder
+      - store_test_results:
+          path: test/reports
 
 workflows:
   version: 2.1
   build_and_test_docker:
     jobs:
       - build:
+          matrix:
+            parameters:
+              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+      - build_ssl:
           matrix:
             parameters:
               postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]

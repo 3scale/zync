@@ -8,8 +8,14 @@ class ThreeScale::API::InstrumentedHttpClient < ThreeScale::API::HttpClient
   def initialize(...)
     super(...)
 
-    if (system_provider_port = ENV['SYSTEM_PROVIDER_PORT'].presence)
-      proxy = URI(system_provider_port).freeze
+    # When set, API calls to porta are proxied through the internal cluster
+    # service (plain HTTP) instead of the tenant's external endpoint (HTTPS).
+    # X-Forwarded-Host carries the tenant's admin domain for virtual host routing.
+    #
+    # SYSTEM_PROVIDER_URL - explicit URL set by the operator (e.g. http://system-provider:3000)
+    # SYSTEM_PROVIDER_PORT - legacy: injected by Kubernetes service discovery
+    if (system_provider_url = (ENV['SYSTEM_PROVIDER_URL'] || ENV['SYSTEM_PROVIDER_PORT']).presence)
+      proxy = URI(system_provider_url).freeze
 
       @http = Net::HTTP.new(proxy.host, proxy.port)
       @http.set_debug_output($stdout) if debug?

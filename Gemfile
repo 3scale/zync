@@ -75,6 +75,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 group :test do
   gem 'minitest-reporters'
   gem 'minitest-stub-const'
+  gem "minitest-mock", "~> 5.27"
   gem 'webmock'
   gem 'codecov', require: false
   gem 'simplecov', '~> 0.21.2', require: false

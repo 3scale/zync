@@ -208,6 +208,7 @@ GEM
     minitest (6.0.2)
       drb (~> 2.0)
       prism (~> 1.5)
+    minitest-mock (5.27.0)
     minitest-reporters (1.4.3)
       ansi
       builder
@@ -444,6 +445,7 @@ DEPENDENCIES
   license_finder (~> 7.0.1)
   lograge
   message_bus
+  minitest-mock (~> 5.27)
   minitest-reporters
   minitest-stub-const
   mutex_m (~> 0.3.0)

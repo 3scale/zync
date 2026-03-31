@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'prometheus/client/metric'
 require 'que/active_record/model'
 
 module Prometheus

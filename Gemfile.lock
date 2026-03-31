@@ -83,6 +83,8 @@ GEM
     addressable (2.8.0)
       public_suffix (>= 2.0.2, < 5.0)
     ansi (1.5.0)
+    anyway_config (2.8.0)
+      ruby-next-core (~> 1.0)
     ast (2.4.3)
     base64 (0.3.0)
     benchmark (0.5.0)
@@ -254,7 +256,8 @@ GEM
       prettyprint
     prettyprint (0.2.0)
     prism (1.6.0)
-    prometheus-client (2.1.0)
+    prometheus-client (4.2.5)
+      base64
     pry (0.15.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -363,6 +366,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.75.0, < 2.0)
       rubocop-ast (>= 1.44.0, < 2.0)
+    ruby-next-core (1.2.0)
     ruby-progressbar (1.13.0)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
@@ -412,13 +416,14 @@ GEM
     with_env (1.1.0)
     xml-simple (1.1.9)
       rexml
-    yabeda (0.8.0)
+    yabeda (0.16.0)
+      anyway_config (>= 1.0, < 3)
       concurrent-ruby
       dry-initializer
-    yabeda-prometheus (0.6.1)
-      prometheus-client (>= 0.10, < 3.0)
+    yabeda-prometheus (0.9.1)
+      prometheus-client (>= 3.0, < 5.0)
       rack
-      yabeda (~> 0.5)
+      yabeda (~> 0.10)
     yabeda-puma-plugin (0.6.0)
       json
       puma
@@ -451,7 +456,7 @@ DEPENDENCIES
   mutex_m (~> 0.3.0)
   oauth2
   pg (~> 1.6.2)
-  prometheus-client (~> 2.1.0)
+  prometheus-client (~> 4)
   pry-byebug
   pry-rails
   pry-rescue
@@ -469,7 +474,7 @@ DEPENDENCIES
   validate_url
   webmock
   webrick
-  yabeda-prometheus (~> 0.6.1)
+  yabeda-prometheus (~> 0.9)
   yabeda-puma-plugin
   yabeda-rails
   zeitwerk (~> 2.6.18)

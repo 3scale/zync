@@ -14,7 +14,7 @@ gem 'zeitwerk', '~> 2.6.18' # keep zeitwerk 2.6 until Ruby is 3.2 or higher
 gem 'pg', '~> 1.6.2'
 
 # Use Puma as the app server
-gem 'puma', '~> 5.2'
+gem 'puma', '~> 6'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
@@ -47,9 +47,9 @@ gem 'message_bus' # for publishing notifications about integration status
 
 gem 'validate_url'
 
-gem 'prometheus-client', '~> 2.1.0', require: %w[prometheus/client]
+gem 'prometheus-client', '~> 4'
 gem 'yabeda-rails'
-gem 'yabeda-prometheus', '~> 0.6.1'
+gem 'yabeda-prometheus', '~> 0.9'
 gem 'yabeda-puma-plugin'
 
 # Dependency for yabeda-prometheus
@@ -75,6 +75,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 group :test do
   gem 'minitest-reporters'
   gem 'minitest-stub-const'
+  gem "minitest-mock", "~> 5.27"
   gem 'webmock'
   gem 'codecov', require: false
   gem 'simplecov', '~> 0.21.2', require: false

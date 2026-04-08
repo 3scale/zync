@@ -80,8 +80,8 @@ GEM
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
       uri (>= 0.13.1)
-    addressable (2.8.0)
-      public_suffix (>= 2.0.2, < 5.0)
+    addressable (2.9.0)
+      public_suffix (>= 2.0.2, < 8.0)
     ansi (1.5.0)
     anyway_config (2.8.0)
       ruby-next-core (~> 1.0)
@@ -275,7 +275,7 @@ GEM
     psych (5.3.1)
       date
       stringio
-    public_suffix (4.0.6)
+    public_suffix (7.0.5)
     puma (6.6.1)
       nio4r (~> 2.0)
     que (2.4.1)

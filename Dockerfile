@@ -1,22 +1,15 @@
-FROM registry.access.redhat.com/ubi9:9.7
+FROM registry.access.redhat.com/ubi10:10.1
 
-ENV RUBY_MAJOR_VERSION=3 \
-    RUBY_MINOR_VERSION=3 \
-    APP_ROOT=/opt/app-root/src
-ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}"
+ENV APP_ROOT=/opt/app-root/src
 
 USER root
 
 RUN dnf update --setopt=install_weak_deps=0 --setopt=tsflags=nodocs -y \
-    && dnf -y module enable ruby:${RUBY_VERSION} \
-    && dnf -y module enable postgresql:15 \
     && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info postgresql rubygem-irb rubygem-rdoc make automake gcc gcc-c++ git ruby-devel glibc-devel libpq-devel libxml2-devel libxslt-devel libyaml-devel xz \
     && dnf clean all \
     && rm -rf /var/cache/yum
 
-# Workaround for https://bugzilla.redhat.com/show_bug.cgi?id=2221938
-RUN ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc.rb /usr/share/ruby/ \
-    ln -s /usr/share/gems/gems/rdoc-6.4.0/lib/rdoc /usr/share/ruby/
+RUN echo "Ruby version: " && ruby --version && echo "PostgreSQL version: " && psql --version
 
 RUN mkdir -p ${APP_ROOT} \
     && chown -R 1001:root ${APP_ROOT}

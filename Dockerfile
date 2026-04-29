@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9:9.6
+FROM registry.access.redhat.com/ubi9:9.7
 
 ENV RUBY_MAJOR_VERSION=3 \
     RUBY_MINOR_VERSION=3 \
@@ -7,8 +7,10 @@ ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}"
 
 USER root
 
-RUN dnf -y module enable ruby:${RUBY_VERSION} \
-    && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info make automake gcc gcc-c++ postgresql git ruby-devel rubygem-irb rubygem-rdoc glibc-devel libpq-devel libyaml-devel xz \
+RUN dnf update --setopt=install_weak_deps=0 --setopt=tsflags=nodocs -y \
+    && dnf -y module enable ruby:${RUBY_VERSION} \
+    && dnf -y module enable postgresql:15 \
+    && dnf install --setopt=skip_missing_names_on_install=False,tsflags=nodocs -y shared-mime-info postgresql rubygem-irb rubygem-rdoc make automake gcc gcc-c++ git ruby-devel glibc-devel libpq-devel libxml2-devel libxslt-devel libyaml-devel xz \
     && dnf clean all \
     && rm -rf /var/cache/yum
 

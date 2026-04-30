@@ -2,6 +2,7 @@ FROM registry.access.redhat.com/ubi9:9.6
 
 ENV RUBY_MAJOR_VERSION=3 \
     RUBY_MINOR_VERSION=3 \
+    RAILS_ENV=production \
     APP_ROOT=/opt/app-root/src
 ENV RUBY_VERSION="${RUBY_MAJOR_VERSION}.${RUBY_MINOR_VERSION}"
 

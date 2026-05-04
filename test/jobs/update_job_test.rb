@@ -53,4 +53,27 @@ class UpdateJobTest < ActiveJob::TestCase
       end
     end
   end
+
+  test 'retries on Errno::ECONNREFUSED' do
+    model = Model.create!(tenant: tenants(:two), record: applications(:two))
+    call_count = 0
+    
+    # Stub FetchService.call to raise Errno::ECONNREFUSED on first call, succeed on second
+    FetchService.stub :call, lambda { |_|
+      call_count += 1
+      if call_count == 1
+        raise Errno::ECONNREFUSED, 'Connection refused'
+      else
+        Entry.new
+      end
+    } do
+
+      perform_enqueued_jobs do
+        UpdateJob.perform_later(model)
+      end
+      
+      # Verify that the job was called twice (initial attempt + 1 retry)
+      assert_equal 2, call_count, 'UpdateJob should retry once after Errno::ECONNREFUSED'
+    end
+  end
 end

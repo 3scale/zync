@@ -7,8 +7,8 @@ class UpdateJob < ApplicationJob
   include JobWithTimestamp
   queue_as :default
 
-  retry_on Errno::ECONNREFUSED, wait: :exponentially_longer, attempts: 10
-  retry_on Model::LockTimeoutError, wait: :exponentially_longer, attempts: 10
+  retry_on Errno::ECONNREFUSED, wait: :polynomially_longer, attempts: 10
+  retry_on Model::LockTimeoutError, wait: :polynomially_longer, attempts: 10
 
   self.deduplicate = true
 

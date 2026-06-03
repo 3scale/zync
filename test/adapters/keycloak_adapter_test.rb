@@ -113,4 +113,28 @@ class KeycloakAdapterTest < ActiveSupport::TestCase
                                                     }
                                                 }).to_h.slice(*keycloak.keys)
   end
+
+  test 'oauth flows with token exchange enabled' do
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: {
+        token_exchange_enabled: true,
+      }
+    })
+    hash = client.to_h
+    assert_equal 'true', hash[:attributes]['standard.token.exchange.enabled']
+    assert_equal true, hash[:attributes]['3scale']
+  end
+
+  test 'oauth flows without token exchange preserves 3scale attribute' do
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: {
+        standard_flow_enabled: true,
+      }
+    })
+    hash = client.to_h
+    assert_equal true, hash[:attributes]['3scale']
+    assert_nil hash[:attributes]['standard.token.exchange.enabled']
+  end
 end

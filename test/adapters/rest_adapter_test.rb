@@ -46,6 +46,32 @@ class RESTAdapterTest < ActiveSupport::TestCase
     assert subject.new('https://example.com').create_client(client)
   end
 
+  test 'oauth flows with token exchange' do
+    client = RESTAdapter::Client.new(
+      id: 'foo',
+      oidc_configuration: {
+        standard_flow_enabled: true,
+        token_exchange_enabled: true,
+      }
+    )
+    grant_types = JSON.parse(client.to_json).fetch('grant_types')
+    assert_includes grant_types, 'authorization_code'
+    assert_includes grant_types, 'urn:ietf:params:oauth:grant-type:token-exchange'
+  end
+
+  test 'oauth flows without token exchange' do
+    client = RESTAdapter::Client.new(
+      id: 'foo',
+      oidc_configuration: {
+        standard_flow_enabled: true,
+        token_exchange_enabled: false,
+      }
+    )
+    grant_types = JSON.parse(client.to_json).fetch('grant_types')
+    assert_includes grant_types, 'authorization_code'
+    refute_includes grant_types, 'urn:ietf:params:oauth:grant-type:token-exchange'
+  end
+
   test 'create client with basic auth' do
     client = RESTAdapter::Client.new(id: 'foo')
     adapter = subject.new('https://user:pass@example.com')

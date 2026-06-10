@@ -72,6 +72,27 @@ class RESTAdapterTest < ActiveSupport::TestCase
     refute_includes grant_types, 'urn:ietf:params:oauth:grant-type:token-exchange'
   end
 
+  test 'create client with token exchange sends grant type' do
+    client = RESTAdapter::Client.new(
+      id: 'foo',
+      oidc_configuration: {
+        standard_flow_enabled: true,
+        token_exchange_enabled: true,
+      }
+    )
+
+    stub_request(:get, "https://example.com/.well-known/openid-configuration").
+      to_return(status: 404, body: '', headers: {})
+
+    stub_request(:put, "https://example.com/clients/foo").
+      with(
+        body: client.to_json,
+        headers: { 'Content-Type'=>'application/json' }).
+      to_return(status: 200, body: { status: 'ok' }.to_json, headers: { 'Content-Type' => 'application/json' })
+
+    assert subject.new('https://example.com').create_client(client)
+  end
+
   test 'create client with basic auth' do
     client = RESTAdapter::Client.new(id: 'foo')
     adapter = subject.new('https://user:pass@example.com')

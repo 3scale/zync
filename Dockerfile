@@ -50,7 +50,10 @@ COPY --chown=1001:root . .
 
 ENV RAILS_LOG_TO_STDOUT=1
 
-RUN SECRET_KEY_BASE=test bundle exec bin/rails server -e production -d; \
+RUN SECRET_KEY_BASE=test \
+    ZYNC_DATABASE_ENCRYPT_KEY=docker-build-placeholder \
+    ZYNC_DATABASE_ENCRYPT_SALT=docker-build-placeholder-salt \
+    bundle exec bin/rails server -e production -d; \
     rm -rf tmp/pids
 
 RUN mkdir -p -m 0775 tmp/cache log \

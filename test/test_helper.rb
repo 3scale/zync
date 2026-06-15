@@ -9,9 +9,6 @@ if ENV.key?('CI')
   end
 end
 
-ENV['ZYNC_DATABASE_ENCRYPT_KEY'] ||= 'test-primary-key-for-encryption'
-ENV['ZYNC_DATABASE_ENCRYPT_SALT'] ||= 'test-key-derivation-salt-value'
-
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'minitest/mock'

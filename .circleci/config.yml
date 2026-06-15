@@ -53,8 +53,6 @@ jobs:
           POSTGRES_DB: zync
           RAILS_ENV: production
           SECRET_KEY_BASE: test
-          ZYNC_DATABASE_ENCRYPT_KEY: test-primary-key-for-encryption
-          ZYNC_DATABASE_ENCRYPT_SALT: test-key-derivation-salt-value
     steps:
       - checkout
       - setup_remote_docker
@@ -64,7 +62,6 @@ jobs:
       - run:
           command: |
             docker run --net net0 -e RAILS_ENV=${RAILS_ENV} -e DATABASE_URL=${DATABASE_URL} -e SECRET_KEY_BASE=${SECRET_KEY_BASE} \
-            -e ZYNC_DATABASE_ENCRYPT_KEY=${ZYNC_DATABASE_ENCRYPT_KEY} -e ZYNC_DATABASE_ENCRYPT_SALT=${ZYNC_DATABASE_ENCRYPT_SALT} \
             zync:build bundle exec rails db:setup
 
   build:
@@ -81,8 +78,6 @@ jobs:
         DISABLE_SPRING: 1 # we can't really run spring as it hangs on local circleci build
         DATABASE_URL: postgres://postgres:@localhost/circle_test
         SECRET_KEY_BASE: test
-        ZYNC_DATABASE_ENCRYPT_KEY: test-primary-key-for-encryption
-        ZYNC_DATABASE_ENCRYPT_SALT: test-key-derivation-salt-value
     steps:
       - checkout
       - restore_cache:
@@ -129,8 +124,6 @@ jobs:
         DATABASE_URL: postgres://postgres:@localhost/circle_test
         DATABASE_SSL_MODE: verify-full
         SECRET_KEY_BASE: test
-        ZYNC_DATABASE_ENCRYPT_KEY: test-primary-key-for-encryption
-        ZYNC_DATABASE_ENCRYPT_SALT: test-key-derivation-salt-value
     steps:
       - checkout
       - run:

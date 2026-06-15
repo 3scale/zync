@@ -62,16 +62,6 @@ objects:
               secretKeyRef:
                 key: ZYNC_AUTHENTICATION_TOKEN
                 name: zync
-          - name: ZYNC_DATABASE_ENCRYPT_KEY
-            valueFrom:
-              secretKeyRef:
-                key: ZYNC_DATABASE_ENCRYPT_KEY
-                name: zync
-          - name: ZYNC_DATABASE_ENCRYPT_SALT
-            valueFrom:
-              secretKeyRef:
-                key: ZYNC_DATABASE_ENCRYPT_SALT
-                name: zync
           - name: RAILS_MAX_THREADS
             value: '10'
           - name: RAILS_LOG_LEVEL
@@ -182,16 +172,6 @@ objects:
                 valueFrom:
                   secretKeyRef:
                     key: ZYNC_AUTHENTICATION_TOKEN
-                    name: zync
-              - name: ZYNC_DATABASE_ENCRYPT_KEY
-                valueFrom:
-                  secretKeyRef:
-                    key: ZYNC_DATABASE_ENCRYPT_KEY
-                    name: zync
-              - name: ZYNC_DATABASE_ENCRYPT_SALT
-                valueFrom:
-                  secretKeyRef:
-                    key: ZYNC_DATABASE_ENCRYPT_SALT
                     name: zync
               - name: RAILS_LOG_LEVEL
                 value: info

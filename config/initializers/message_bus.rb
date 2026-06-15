@@ -30,8 +30,10 @@ tenant_lookup = lambda do |env = {}|
     request = ActionDispatch::Request.new(env)
     tenant_id, access_token = ActionController::HttpAuthentication::Basic.user_name_and_password(request)
 
-    tenant = Tenant.find_by(id: tenant_id)
-    env['message_bus.tenant'] ||= tenant.to_gid_param if tenant&.access_token == access_token
+    env['message_bus.tenant'] ||= begin
+      tenant = Tenant.find_by(id: tenant_id)
+      tenant.to_gid_param if tenant&.access_token == access_token
+    end
   end
 end
 

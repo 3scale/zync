@@ -8,4 +8,6 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 
-Tenant.find_or_create_by!(endpoint: 'http://provider-admin.3scale.net.dev:3000', access_token: 'some-access-token')
+Tenant.find_or_create_by!(endpoint: 'http://provider-admin.3scale.net.dev:3000') do |t|
+  t.access_token = 'some-access-token'
+end

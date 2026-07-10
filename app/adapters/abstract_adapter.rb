@@ -194,7 +194,7 @@ class AbstractAdapter
 
     def oauth_client
       OAuth2::Client.new(@endpoint.client_id, @endpoint.client_secret,
-                         site: @endpoint.uri.dup, token_url: token_endpoint) do |builder|
+                         site: @endpoint.uri.dup, token_url: token_endpoint, auth_scheme: :request_body) do |builder|
         builder.adapter(:httpclient).instance_variable_set(:@client, http_client)
       end
     end

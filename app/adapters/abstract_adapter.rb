@@ -2,6 +2,7 @@
 
 require 'uri'
 require 'httpclient'
+require 'faraday/httpclient'
 require 'mutex_m'
 
 # KeycloakAdapter adapter to create/update/delete Clients on using the KeycloakAdapter Client Registration API.

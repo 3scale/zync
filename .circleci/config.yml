@@ -170,16 +170,43 @@ jobs:
       - store_test_results:
           path: test/reports
 
+postgresql_images: &postgresql_images
+  postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+
 workflows:
   version: 2.1
+  pr:
+    when:
+      not:
+        equal: [ master, << pipeline.git.branch >> ]
+    jobs:
+      - approve:
+          type: approval
+      - build:
+          requires:
+            - approve
+          matrix:
+            parameters:
+              *postgresql_images
+      - build_ssl:
+          requires:
+            - approve
+          matrix:
+            parameters:
+              *postgresql_images
+      - docker-build:
+          requires:
+            - approve
   build_and_test_docker:
+    when:
+      equal: [ master, << pipeline.git.branch >> ]
     jobs:
       - build:
           matrix:
             parameters:
-              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+              *postgresql_images
       - build_ssl:
           matrix:
             parameters:
-              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+              *postgresql_images
       - docker-build

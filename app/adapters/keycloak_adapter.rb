@@ -34,7 +34,8 @@ class KeycloakAdapter < AbstractAdapter
     # noinspection RubyResolve
     # ActiveModel::AttributeAssignment needs public accessors breaking :reek:Attribute
     attr_accessor :id, :secret, :redirect_url,
-                  :state, :enabled, :name, :description
+                  :state, :enabled, :name, :description,
+                  :audience_mapper_client_id
 
     alias_attribute :clientId, :id
     alias_attribute :client_id, :id
@@ -54,6 +55,7 @@ class KeycloakAdapter < AbstractAdapter
           redirectUris: [ redirect_url ].compact,
           attributes: { '3scale' => true },
           enabled: enabled?,
+          **(audience_mapper? ? { protocolMappers: [audience_mapper] } : {}),
           **oidc_configuration,
           **self.class.attributes,
       }
@@ -78,6 +80,26 @@ class KeycloakAdapter < AbstractAdapter
 
     def self.attributes
       Rails.application.config.x.keycloak.deep_symbolize_keys.dig(:attributes) || Hash.new
+    end
+
+    private
+
+    def audience_mapper?
+      audience_mapper_client_id.present? &&
+        !Rails.application.config.x.keycloak.deep_symbolize_keys.dig(:client_audience_mapper_disabled)
+    end
+
+    def audience_mapper
+      {
+        name: 'audience-mapper',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-audience-mapper',
+        config: {
+          'included.client.audience' => audience_mapper_client_id,
+          'id.token.claim' => 'false',
+          'access.token.claim' => 'true',
+        },
+      }
     end
   end
 

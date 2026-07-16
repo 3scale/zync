@@ -102,6 +102,7 @@ class Integration::AbstractService < Integration::ServiceBase
     params = ActionController::Parameters.new(data)
     params.permit(:client_id, :client_secret, :redirect_url,
                   :state, :enabled, :name, :description,
+                  :audience_mapper_client_id,
                   oidc_configuration: OIDC_FLOWS)
   end
 

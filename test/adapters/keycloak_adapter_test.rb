@@ -102,6 +102,43 @@ class KeycloakAdapterTest < ActiveSupport::TestCase
     assert_equal client.to_h.to_json, client.to_json
   end
 
+  test 'audience mapper included when audience_mapper_client_id is set' do
+    config = { 'client_audience_mapper_disabled' => false }
+
+    Rails.application.config.x.stub(:keycloak, config) do
+      client = KeycloakAdapter::Client.new(id: 'my-client-id', audience_mapper_client_id: 'introspection-client')
+      mappers = client.to_h[:protocolMappers]
+
+      assert_equal 1, mappers.length
+      mapper = mappers.first
+      assert_equal 'audience-mapper', mapper[:name]
+      assert_equal 'oidc-audience-mapper', mapper[:protocolMapper]
+      assert_equal 'introspection-client', mapper[:config]['included.client.audience']
+      assert_equal 'true', mapper[:config]['access.token.claim']
+      assert_equal 'false', mapper[:config]['id.token.claim']
+    end
+  end
+
+  test 'audience mapper omitted when audience_mapper_client_id is absent' do
+    config = { 'client_audience_mapper_disabled' => false }
+
+    Rails.application.config.x.stub(:keycloak, config) do
+      client = KeycloakAdapter::Client.new(id: 'my-client-id')
+
+      assert_nil client.to_h[:protocolMappers]
+    end
+  end
+
+  test 'audience mapper omitted when globally disabled regardless of audience_mapper_client_id' do
+    config = { 'client_audience_mapper_disabled' => true }
+
+    Rails.application.config.x.stub(:keycloak, config) do
+      client = KeycloakAdapter::Client.new(id: 'my-client-id', audience_mapper_client_id: 'introspection-client')
+
+      assert_nil client.to_h[:protocolMappers]
+    end
+  end
+
   test 'oauth flows' do
     keycloak = { clientId: "client_id", implicitFlowEnabled: true, serviceAccountsEnabled: true }
 

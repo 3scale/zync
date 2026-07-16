@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  qlty: qltysh/qlty-orb@0.1.2
+
 commands:
   bundle_install:
     steps:
@@ -31,6 +34,12 @@ commands:
           name: rails test
           command: |
             circleci tests glob "test/**/*_test.rb" | circleci tests run --command="xargs bundle exec rake test TESTOPTS='-v'" --verbose --split-by=timings
+      - qlty/coverage_publish:
+          files: coverage/.resultset.json
+          incomplete: true
+      - store_artifacts:
+          path: coverage
+          when: always
 
   run_license_finder:
     steps:
@@ -170,6 +179,12 @@ jobs:
       - store_test_results:
           path: test/reports
 
+  complete_coverage:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - qlty/coverage_complete
+
 postgresql_images: &postgresql_images
   postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
 
@@ -197,6 +212,10 @@ workflows:
       - docker-build:
           requires:
             - approve
+      - complete_coverage:
+          requires:
+            - build
+            - build_ssl
   build_and_test_docker:
     when:
       equal: [ master, << pipeline.git.branch >> ]
@@ -210,3 +229,7 @@ workflows:
             parameters:
               *postgresql_images
       - docker-build
+      - complete_coverage:
+          requires:
+            - build
+            - build_ssl

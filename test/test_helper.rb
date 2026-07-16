@@ -2,10 +2,9 @@
 
 if ENV.key?('CI')
   require 'simplecov'
-  require 'codecov'
 
   SimpleCov.start('rails') do
-    formatter SimpleCov::Formatter::Codecov
+    command_name "pid-#{Process.pid}"
   end
 end
 

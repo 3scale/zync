@@ -79,7 +79,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
         params: { type: 'Application', id: 1, service_id: 1, tenant_id: 1 }
     assert_response :success
 
-    client = { client_id: 'foo', client_secret: 'bar' }
+    client = { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }
     find_application = stub_request(:get, "#{tenant[:endpoint]}/admin/api/applications/find.json?application_id=1").
         with(headers: http_fetch_headers).
         to_return(body: client.to_json)
@@ -91,9 +91,11 @@ class DataModelTest < ActionDispatch::IntegrationTest
         to_return(status: 404)
 
     perform_enqueued_jobs do
+      audience_mapper_foo = [{ name: 'audience-mapper', protocol: 'openid-connect', protocolMapper: 'oidc-audience-mapper', config: { 'included.client.audience' => 'foo', 'id.token.claim' => 'false', 'access.token.claim' => 'true' } }]
+
       stub_request(:put, 'http://example.com/auth/realm/master/clients-registrations/default/foo').
           with(
-              body: '{"name":null,"description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}',
+              body: { name: nil, description: nil, clientId: 'foo', secret: 'bar', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json,
               headers: {
                   'Authorization'=>'Bearer token',
                   'Content-Type'=>'application/json',
@@ -102,7 +104,7 @@ class DataModelTest < ActionDispatch::IntegrationTest
 
       stub_request(:put, 'http://example.com/auth/realm/master/clients-registrations/default/foo').
           with(
-              body: '{"name":"new-name","description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}',
+              body: { name: 'new-name', description: nil, clientId: 'foo', secret: 'bar', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json,
               headers: {
                   'Authorization'=>'Bearer token',
                   'Content-Type'=>'application/json',
@@ -136,21 +138,23 @@ class DataModelTest < ActionDispatch::IntegrationTest
     perform_enqueued_jobs do
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
           with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
           with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_oauth_access_token(keycloak)
 
+      audience_mapper_foo = [{ name: 'audience-mapper', protocol: 'openid-connect', protocolMapper: 'oidc-audience-mapper', config: { 'included.client.audience' => 'foo', 'id.token.claim' => 'false', 'access.token.claim' => 'true' } }]
+
       stub_request(:put, "http://example.com/clients-registrations/default/foo").
-        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        with(body: { name: nil, description: nil, clientId: 'foo', secret: 'bar', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json).
         to_return(status: 200)
 
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=2").
           with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+          to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }.to_json)
 
       put_notification(type: 'Application', id: 1, service_id: service.to_param, tenant_id: tenant.to_param)
       put_notification(type: 'Application', id: 2, service_id: service.to_param, tenant_id: tenant.to_param)
@@ -172,16 +176,18 @@ class DataModelTest < ActionDispatch::IntegrationTest
     perform_enqueued_jobs do
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'bar', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_oauth_access_token(keycloak)
 
+      audience_mapper_foo = [{ name: 'audience-mapper', protocol: 'openid-connect', protocolMapper: 'oidc-audience-mapper', config: { 'included.client.audience' => 'foo', 'id.token.claim' => 'false', 'access.token.claim' => 'true' } }]
+
       stub_request(:put, "http://example.com/clients-registrations/default/foo").
-        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"bar","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        with(body: { name: nil, description: nil, clientId: 'foo', secret: 'bar', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json).
         to_return(status: 200)
 
       put_notification(type: 'Application', id: 1, service_id: service.to_param, tenant_id: tenant.to_param)
@@ -223,26 +229,28 @@ class DataModelTest < ActionDispatch::IntegrationTest
     perform_enqueued_jobs do
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=1").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', audience_mapper_client_id: 'foo' }.to_json)
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?application_id=2").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=298486374").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-one' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-one', audience_mapper_client_id: 'foo' }.to_json)
       stub_request(:get, "#{tenant.endpoint}/admin/api/applications/find.json?app_id=foo&service_id=908005739").
         with(basic_auth: ['', tenant.access_token], headers: json_request_headers).
-        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-two' }.to_json)
+        to_return(status: 200, body: { client_id: 'foo', client_secret: 'secret-service-two', audience_mapper_client_id: 'foo' }.to_json)
 
       stub_oauth_access_token(keycloak1)
       stub_oauth_access_token(keycloak2)
       
+      audience_mapper_foo = [{ name: 'audience-mapper', protocol: 'openid-connect', protocolMapper: 'oidc-audience-mapper', config: { 'included.client.audience' => 'foo', 'id.token.claim' => 'false', 'access.token.claim' => 'true' } }]
+
       stub_request(:put, "http://example.com/clients-registrations/default/foo").
-        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"secret-service-one","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        with(body: { name: nil, description: nil, clientId: 'foo', secret: 'secret-service-one', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json).
         to_return(status: 200)
       stub_request(:put, "http://second.example.com/clients-registrations/default/foo").
-        with(body: '{"name":null,"description":null,"clientId":"foo","secret":"secret-service-two","redirectUris":[],"attributes":{"3scale":true},"enabled":null}').
+        with(body: { name: nil, description: nil, clientId: 'foo', secret: 'secret-service-two', redirectUris: [], attributes: { '3scale' => true }, enabled: nil, protocolMappers: audience_mapper_foo }.to_json).
         to_return(status: 200)
 
       put_notification(type: 'Application', id: 1, service_id: service1.to_param, tenant_id: tenant.to_param)

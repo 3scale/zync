@@ -16,6 +16,7 @@ client:
     redirect_url: "http://example.com"
     client_id: "two_id"
     client_secret: "two_secret"
+    audience_mapper_client_id: "two_id"
     oidc_configuration:
       standard_flow_enabled: true
       implicit_flow_enabled: true

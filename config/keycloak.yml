@@ -1,4 +1,13 @@
 example:
+  # Disable the audience mapper added to Keycloak clients. The mapper is
+  # required for token introspection on RHBK 26.6.2+. When enabled, the
+  # 'oidc-audience-mapper' type must be allowed for client registration:
+  # Keycloak: Realm Settings -> Client Registration -> Client Registration Policies
+  # RHBK: Clients -> Client Registration
+  # In both cases, add oidc-audience-mapper to the Allowed Protocol Mapper Types
+  # policy for both Anonymous and Authenticated clients.
+  # Set ZYNC_CLIENT_AUDIENCE_MAPPER_DISABLED=1 to disable.
+  client_audience_mapper_disabled: false
   attributes:
     # see other properties in https://www.keycloak.org/docs-api/3.4/javadocs/org/keycloak/representations/idm/ClientTemplateRepresentation.html
     standardFlowEnabled: true
@@ -11,6 +20,7 @@ default: &default
     connect_timeout: 3
     send_timeout: 3
     receive_timeout: 3
+  client_audience_mapper_disabled: <%= ENV.fetch('ZYNC_CLIENT_AUDIENCE_MAPPER_DISABLED', '0') == '1' %>
 
 development:
 

@@ -1,5 +1,6 @@
 [![CircleCI](https://circleci.com/gh/3scale/zync.svg?style=svg)](https://circleci.com/gh/3scale/zync)
 [![Maintainability](https://qlty.sh/gh/3scale/projects/zync/maintainability.svg)](https://qlty.sh/gh/3scale/projects/zync)
+[![Code Coverage](https://qlty.sh/gh/3scale/projects/zync/test_coverage.svg)](https://qlty.sh/gh/3scale/projects/zync)
 
 # Zync - the sync tool
 

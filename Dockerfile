@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9:9.6
+FROM registry.access.redhat.com/ubi9:latest
 
 ENV RUBY_MAJOR_VERSION=3 \
     RUBY_MINOR_VERSION=3 \

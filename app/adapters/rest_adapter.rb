@@ -109,6 +109,7 @@ class RESTAdapter < AbstractAdapter
           implicit_flow_enabled: :implicit,
           direct_access_grants_enabled: :password,
           service_accounts_enabled: :client_credentials,
+          token_exchange_enabled: :"urn:ietf:params:oauth:grant-type:token-exchange",
       }.freeze
       private_constant :MAPPING
 

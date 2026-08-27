@@ -95,6 +95,7 @@ class Integration::AbstractService < Integration::ServiceBase
 
   OIDC_FLOWS = %i[
     standard_flow_enabled implicit_flow_enabled service_accounts_enabled direct_access_grants_enabled
+    token_exchange_enabled
   ].freeze
   private_constant :OIDC_FLOWS
 

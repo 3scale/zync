@@ -19,6 +19,12 @@ class KeycloakAdapter < AbstractAdapter
       }.compact
     end
 
+    def token_exchange_attributes
+      token_exchange = params[:token_exchange_enabled]
+      return {} if token_exchange.nil?
+      { 'standard.token.exchange.enabled' => token_exchange.to_s }
+    end
+
     protected
 
     attr_reader :params
@@ -43,18 +49,19 @@ class KeycloakAdapter < AbstractAdapter
     delegate :to_json, to: :to_h
     alias read to_json
 
-    attribute :oidc_configuration, default: {}.freeze
+    attribute :oidc_configuration, default: -> { OAuthConfiguration.new({}) }
 
     def to_h
+      oidc = oidc_configuration
       {
           name: name,
           description: description,
           clientId: id,
           secret: client_secret,
           redirectUris: [ redirect_url ].compact,
-          attributes: { '3scale' => true },
+          attributes: { '3scale' => true }.merge(oidc.token_exchange_attributes),
           enabled: enabled?,
-          **oidc_configuration,
+          **oidc,
           **self.class.attributes,
       }
     end

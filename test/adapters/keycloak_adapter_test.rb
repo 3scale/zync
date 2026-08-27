@@ -105,12 +105,61 @@ class KeycloakAdapterTest < ActiveSupport::TestCase
   test 'oauth flows' do
     keycloak = { clientId: "client_id", implicitFlowEnabled: true, serviceAccountsEnabled: true }
 
-    assert_equal keycloak, KeycloakAdapter::Client.new({
-                                                    id: 'client_id',
-                                                    oidc_configuration: {
-                                                        implicit_flow_enabled: true,
-                                                        service_accounts_enabled: true,
-                                                    }
-                                                }).to_h.slice(*keycloak.keys)
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: {
+        implicit_flow_enabled: true,
+        service_accounts_enabled: true,
+        token_exchange_enabled: true,
+      }
+    })
+    hash = client.to_h
+    assert_equal keycloak, hash.slice(*keycloak.keys)
+    assert_equal 'true', hash[:attributes]['standard.token.exchange.enabled']
+    assert_equal true, hash[:attributes]['3scale']
+  end
+
+  test 'oauth flows without token exchange preserves 3scale attribute' do
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: {
+        standard_flow_enabled: true,
+      }
+    })
+    hash = client.to_h
+    assert_equal true, hash[:attributes]['3scale']
+    assert_nil hash[:attributes]['standard.token.exchange.enabled']
+  end
+
+  test 'oauth flows with token exchange disabled' do
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: {
+        token_exchange_enabled: false,
+      }
+    })
+    hash = client.to_h
+    assert_equal 'false', hash[:attributes]['standard.token.exchange.enabled']
+    assert_equal true, hash[:attributes]['3scale']
+  end
+
+  test 'create client with token exchange' do
+    keycloak = KeycloakAdapter.new('http://example.com/auth/realm/name', authentication: 'sometoken')
+
+    client = KeycloakAdapter::Client.new({
+      id: 'client_id',
+      oidc_configuration: { token_exchange_enabled: true }
+    })
+
+    create = stub_request(:post, 'http://example.com/auth/realm/name/clients-registrations/default').
+        with(
+            body: client.to_json,
+            headers: { 'Content-Type' => 'application/json', 'Authorization' => 'Bearer sometoken' }).
+        to_return(status: 200, body: { clientId: 'client_id' }.to_json,
+                  headers: { 'Content-Type' => 'application/json' })
+
+    keycloak.create_client(client)
+
+    assert_requested create
   end
 end

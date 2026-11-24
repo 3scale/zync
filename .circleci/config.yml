@@ -8,7 +8,7 @@ commands:
           command: |
             bundle config set --local force_ruby_platform true
             bundle config set --local deployment 'true'
-            bundle config set --local path 'vendor/bundle'
+            bundle config set --local path '/opt/app-root/src/vendor/bundle'
             bundle install --jobs $(grep -c processor /proc/cpuinfo) --retry 3
 
   boot_zync:
@@ -68,10 +68,10 @@ jobs:
     parameters:
       postgresql_image:
         type: string
-    working_directory: /opt/app-root/zync
+    working_directory: /opt/app-root/src/ci
     docker:
       # A Zync image tagged manually for CI tests
-      - image: quay.io/3scale/zync:ci-builder
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
       - image: << parameters.postgresql_image >>
     environment:
         RAILS_ENV: test
@@ -87,7 +87,7 @@ jobs:
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
-            - vendor/bundle
+            - /opt/app-root/src/vendor/bundle
       - boot_zync
       - setup_db
       - run_tests
@@ -99,9 +99,9 @@ jobs:
     parameters:
       postgresql_image:
         type: string
-    working_directory: /opt/app-root/zync
+    working_directory: /opt/app-root/src/ci
     docker:
-      - image: quay.io/3scale/zync:ci-builder
+      - image: quay.io/3scale/zync:ci-builder-ruby-3.3
       - image: << parameters.postgresql_image >>
         command:
           - bash
@@ -152,9 +152,9 @@ jobs:
       - run:
           name: Set SSL environment variables
           command: |
-            echo 'export DATABASE_SSL_CA=/opt/app-root/zync/.ssl/ca.crt' >> "$BASH_ENV"
-            echo 'export DATABASE_SSL_CERT=/opt/app-root/zync/.ssl/client.crt' >> "$BASH_ENV"
-            echo 'export DATABASE_SSL_KEY=/opt/app-root/zync/.ssl/client.key' >> "$BASH_ENV"
+            echo "export DATABASE_SSL_CA=$PWD/.ssl/ca.crt" >> "$BASH_ENV"
+            echo "export DATABASE_SSL_CERT=$PWD/.ssl/client.crt" >> "$BASH_ENV"
+            echo "export DATABASE_SSL_KEY=$PWD/.ssl/client.key" >> "$BASH_ENV"
       - restore_cache:
           keys:
             - zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
@@ -162,7 +162,7 @@ jobs:
       - save_cache:
           key: zync-bundle-v2-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ checksum "Gemfile.lock" }}
           paths:
-            - vendor/bundle
+            - /opt/app-root/src/vendor/bundle
       - boot_zync
       - setup_db
       - run_tests
@@ -170,16 +170,43 @@ jobs:
       - store_test_results:
           path: test/reports
 
+postgresql_images: &postgresql_images
+  postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+
 workflows:
   version: 2.1
+  pr:
+    when:
+      not:
+        equal: [ 3scale-2.16-stable, << pipeline.git.branch >> ]
+    jobs:
+      - approve:
+          type: approval
+      - build:
+          requires:
+            - approve
+          matrix:
+            parameters:
+              *postgresql_images
+      - build_ssl:
+          requires:
+            - approve
+          matrix:
+            parameters:
+              *postgresql_images
+      - docker-build:
+          requires:
+            - approve
   build_and_test_docker:
+    when:
+      equal: [ 3scale-2.16-stable, << pipeline.git.branch >> ]
     jobs:
       - build:
           matrix:
             parameters:
-              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+              *postgresql_images
       - build_ssl:
           matrix:
             parameters:
-              postgresql_image: [ "cimg/postgres:14.19", "cimg/postgres:15.14", "cimg/postgres:16.10", "cimg/postgres:17.6", "cimg/postgres:18.0" ]
+              *postgresql_images
       - docker-build
